@@ -3,10 +3,13 @@
 namespace App\Services\Auth;
 
 use App\Enums\OtpPurpose;
+use App\Mail\OtpMail;
 use App\Models\Otp;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Throwable;
 
 class OtpService
 {
@@ -66,6 +69,15 @@ class OtpService
 
         // Log OTP in debug mode for seamless local development & testing
         Log::info("Generated OTP for [{$identifier}] with purpose [{$purpose->value}]: {$rawOtp}");
+
+        // Send email via Mailer (e.g. Mailtrap) if delivery method is email
+        if ($deliveryMethod === 'email') {
+            try {
+                Mail::to($identifier)->send(new OtpMail($rawOtp, $purpose, $user));
+            } catch (Throwable $e) {
+                Log::error("Failed to send OTP email to [{$identifier}]: ".$e->getMessage());
+            }
+        }
 
         return [
             'success' => true,
