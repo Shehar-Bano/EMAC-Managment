@@ -42,12 +42,14 @@ Route::prefix('v1')->group(function () {
             Route::post('refresh', [AuthController::class, 'refresh']);
             Route::post('logout', [AuthController::class, 'logout']);
             Route::get('profile', [ProfileController::class, 'show']);
+            Route::match(['put', 'patch'], 'profile', [ProfileController::class, 'update']);
         });
     });
 
-    // Profile Update Endpoint (PATCH /api/v1/profile)
+    // Profile Management Endpoints (GET/PUT/PATCH /api/v1/profile)
     Route::middleware('auth:sanctum')->group(function () {
-        Route::patch('profile', [ProfileController::class, 'update']);
+        Route::get('profile', [ProfileController::class, 'show']);
+        Route::match(['put', 'patch'], 'profile', [ProfileController::class, 'update']);
     });
 
     // ---------------------------------------------------------

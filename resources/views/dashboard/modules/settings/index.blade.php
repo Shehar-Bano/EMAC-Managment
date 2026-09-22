@@ -42,7 +42,7 @@
                             type="number"
                             :value="$settings['session_lifetime']"
                             required
-                            hint="Default inactive duration before staff re-authentication is required."
+                            hint="Default inactive duration before employee re-authentication is required."
                         />
 
                         <div>

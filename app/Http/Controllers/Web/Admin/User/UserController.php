@@ -68,7 +68,7 @@ class UserController extends Controller
 
         return redirect()
             ->route('dashboard.users.index')
-            ->with('success', "Staff account for '{$user->name}' created successfully.");
+            ->with('success', "Employee account for '{$user->name}' created successfully.");
     }
 
     /**
@@ -105,7 +105,7 @@ class UserController extends Controller
 
         return redirect()
             ->route('dashboard.users.index')
-            ->with('success', "Staff account for '{$user->name}' updated successfully.");
+            ->with('success', "Employee account for '{$user->name}' updated successfully.");
     }
 
     /**
@@ -136,7 +136,7 @@ class UserController extends Controller
     {
         $result = $action->execute($request->validated('ids'));
 
-        $message = "Deleted {$result['deleted']} selected staff account(s).";
+        $message = "Deleted {$result['deleted']} selected employee account(s).";
         if ($result['skipped'] > 0) {
             $message .= " ({$result['skipped']} account(s) skipped due to protection rules).";
         }

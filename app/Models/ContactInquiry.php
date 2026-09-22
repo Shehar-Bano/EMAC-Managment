@@ -58,6 +58,8 @@ class ContactInquiry extends Model
                 if ($market !== 'all') {
                     $q->where('market', $market);
                 }
-            });
+            })
+            ->when($filters['from_date'] ?? null, fn (Builder $q, $from) => $q->whereDate('created_at', '>=', $from))
+            ->when($filters['to_date'] ?? null, fn (Builder $q, $to) => $q->whereDate('created_at', '<=', $to));
     }
 }

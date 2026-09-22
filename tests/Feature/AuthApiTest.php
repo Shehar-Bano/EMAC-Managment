@@ -637,4 +637,81 @@ class AuthApiTest extends TestCase
         $specResponse->assertStatus(200)
             ->assertJsonPath('info.title', 'EMAC ERP & Customer Authentication API');
     }
+
+    /**
+     * Test updating user profile with multiple addresses saves to user_addresses table.
+     */
+    public function test_update_profile_with_multiple_addresses_saves_to_table(): void
+    {
+        $user = User::create([
+            'name' => 'John Customer',
+            'email' => 'john.profile@example.com',
+            'phone' => '+15551234567',
+            'password' => Hash::make('Password123!'),
+            'role' => 'customer',
+            'source' => AuthSource::EMAIL,
+            'account_status' => AccountStatus::VERIFIED,
+            'profile_status' => ProfileStatus::INCOMPLETE,
+        ]);
+
+        $token = $user->createToken('auth-token')->plainTextToken;
+
+        $response = $this->withHeader('Authorization', 'Bearer '.$token)
+            ->patchJson('/api/v1/profile', [
+                'name' => 'Johnathan Customer Updated',
+                'phone' => '+15559876543',
+                'addresses' => [
+                    [
+                        'country' => 'Cayman Islands',
+                        'state' => 'Grand Cayman',
+                        'city' => 'George Town',
+                        'address' => '123 Seven Mile Beach Rd',
+                        'is_primary' => true,
+                    ],
+                    [
+                        'country' => 'United States',
+                        'state' => 'Florida',
+                        'city' => 'Miami',
+                        'address' => '456 Brickell Ave, Suite 200',
+                        'is_primary' => false,
+                    ],
+                ],
+            ]);
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'message' => 'Profile updated successfully.',
+            ])
+            ->assertJsonPath('data.name', 'Johnathan Customer Updated')
+            ->assertJsonPath('data.phone', '+15559876543')
+            ->assertJsonPath('data.profile_status', 'complete')
+            ->assertJsonCount(2, 'data.addresses')
+            ->assertJsonPath('data.addresses.0.city', 'George Town')
+            ->assertJsonPath('data.addresses.0.is_primary', true)
+            ->assertJsonPath('data.addresses.1.city', 'Miami')
+            ->assertJsonPath('data.addresses.1.is_primary', false);
+
+        $this->assertDatabaseHas('user_addresses', [
+            'user_id' => $user->id,
+            'country' => 'Cayman Islands',
+            'city' => 'George Town',
+            'is_primary' => 1,
+        ]);
+
+        $this->assertDatabaseHas('user_addresses', [
+            'user_id' => $user->id,
+            'country' => 'United States',
+            'city' => 'Miami',
+            'is_primary' => 0,
+        ]);
+
+        // Verify GET /api/v1/auth/profile returns the addresses
+        $getProfileResponse = $this->withHeader('Authorization', 'Bearer '.$token)
+            ->getJson('/api/v1/auth/profile');
+
+        $getProfileResponse->assertStatus(200)
+            ->assertJsonPath('data.name', 'Johnathan Customer Updated')
+            ->assertJsonCount(2, 'data.addresses');
+    }
 }

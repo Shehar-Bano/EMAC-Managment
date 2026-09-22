@@ -54,7 +54,7 @@ class AuthController extends Controller
             RateLimiter::hit($throttleKey);
 
             throw ValidationException::withMessages([
-                'email' => 'The provided credentials do not match our staff records.',
+                'email' => 'The provided credentials do not match our employee records.',
             ]);
         }
 
@@ -69,7 +69,7 @@ class AuthController extends Controller
             $request->session()->regenerateToken();
 
             return redirect()->route('login')->withErrors([
-                'email' => 'Your ERP staff account has been deactivated. Please contact the administrator.',
+                'email' => 'Your ERP employee account has been deactivated. Please contact the administrator.',
             ]);
         }
 

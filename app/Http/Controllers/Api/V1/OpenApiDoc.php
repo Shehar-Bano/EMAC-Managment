@@ -361,10 +361,24 @@ class OpenApiDoc
                                 new OA\Property(property: 'email', type: 'string', example: 'john@example.com'),
                                 new OA\Property(property: 'phone', type: 'string', example: '+1234567890'),
                                 new OA\Property(property: 'address', type: 'string', example: '123 Example Street'),
+                                new OA\Property(
+                                    property: 'addresses',
+                                    type: 'array',
+                                    items: new OA\Items(
+                                        properties: [
+                                            new OA\Property(property: 'id', type: 'integer', example: 1),
+                                            new OA\Property(property: 'country', type: 'string', example: 'Cayman Islands'),
+                                            new OA\Property(property: 'state', type: 'string', example: 'Grand Cayman'),
+                                            new OA\Property(property: 'city', type: 'string', example: 'George Town'),
+                                            new OA\Property(property: 'address', type: 'string', example: '123 Example Street, Apt 4B'),
+                                            new OA\Property(property: 'is_primary', type: 'boolean', example: true),
+                                        ]
+                                    )
+                                ),
                                 new OA\Property(property: 'role', type: 'string', example: 'customer'),
                                 new OA\Property(property: 'source', type: 'string', example: 'email'),
                                 new OA\Property(property: 'account_status', type: 'string', example: 'verified'),
-                                new OA\Property(property: 'profile_status', type: 'string', example: 'incomplete'),
+                                new OA\Property(property: 'profile_status', type: 'string', example: 'complete'),
                                 new OA\Property(property: 'email_verified_at', type: 'string', example: '2026-09-21T10:15:00Z'),
                                 new OA\Property(property: 'phone_verified_at', type: 'string', nullable: true),
                             ],
@@ -379,7 +393,7 @@ class OpenApiDoc
 
     #[OA\Patch(
         path: '/api/v1/profile',
-        summary: 'Update or complete profile',
+        summary: 'Update or complete profile with multiple addresses',
         security: [['bearerAuth' => []]],
         requestBody: new OA\RequestBody(
             required: true,
@@ -388,6 +402,19 @@ class OpenApiDoc
                     new OA\Property(property: 'name', type: 'string', example: 'John Doe'),
                     new OA\Property(property: 'phone', type: 'string', example: '+1234567890'),
                     new OA\Property(property: 'address', type: 'string', example: 'Updated 456 Avenue'),
+                    new OA\Property(
+                        property: 'addresses',
+                        type: 'array',
+                        items: new OA\Items(
+                            properties: [
+                                new OA\Property(property: 'country', type: 'string', example: 'Cayman Islands'),
+                                new OA\Property(property: 'state', type: 'string', example: 'Grand Cayman'),
+                                new OA\Property(property: 'city', type: 'string', example: 'George Town'),
+                                new OA\Property(property: 'address', type: 'string', example: '456 Seven Mile Beach Rd'),
+                                new OA\Property(property: 'is_primary', type: 'boolean', example: true),
+                            ]
+                        )
+                    ),
                 ]
             )
         ),

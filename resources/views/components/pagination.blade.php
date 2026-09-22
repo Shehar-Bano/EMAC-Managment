@@ -4,9 +4,9 @@
 ])
 
 @if ($paginator instanceof \Illuminate\Contracts\Pagination\Paginator)
-    <div class="px-6 py-4 bg-slate-50/70 border-t border-slate-200/80 rounded-b-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div class="px-4 py-2.5 bg-slate-50 border-t border-slate-200 rounded-b-xl flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
         {{-- Left: Record Summary & Per Page Dropdown --}}
-        <div class="flex items-center gap-3 text-xs text-slate-600">
+        <div class="flex items-center gap-2 text-xs text-slate-600">
             <span>Show</span>
             <form method="GET" action="{{ url()->current() }}" class="inline-block" id="per-page-form">
                 {{-- Preserve all current query parameters except per_page and page --}}

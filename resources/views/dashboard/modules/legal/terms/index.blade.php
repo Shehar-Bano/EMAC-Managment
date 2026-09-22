@@ -72,12 +72,6 @@
                         <span class="text-slate-500">Last Modified</span>
                         <span class="font-medium text-slate-800">{{ $document->updated_at?->diffForHumans() ?? 'Recently' }}</span>
                     </div>
-
-                    <div class="pt-2">
-                        <div class="p-3 bg-amber-50/60 rounded-xl border border-amber-200/70 text-[11px] text-[#8F6B20]">
-                            <strong>API Integration:</strong> This content is instantly syndicated to the public website and mobile API endpoint (<code>GET /api/v1/terms</code>).
-                        </div>
-                    </div>
                 </div>
             </x-card>
         </div>

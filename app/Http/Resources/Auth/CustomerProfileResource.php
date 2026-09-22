@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Auth;
 
+use App\Http\Resources\UserAddressResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -18,12 +19,15 @@ class CustomerProfileResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $primaryAddress = $this->addresses->firstWhere('is_primary', true) ?? $this->addresses->first();
+
         return [
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
             'phone' => $this->phone,
-            'address' => $this->address,
+            'address' => $this->address ?? $primaryAddress?->address,
+            'addresses' => UserAddressResource::collection($this->addresses),
             'role' => $this->role ?? 'customer',
             'source' => $this->source instanceof \BackedEnum ? $this->source->value : ($this->source ?? 'email'),
             'account_status' => $this->account_status instanceof \BackedEnum ? $this->account_status->value : ($this->account_status ?? 'verified'),

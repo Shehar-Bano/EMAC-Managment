@@ -13,7 +13,7 @@
 
 <div class="w-full">
     @if ($label)
-        <label for="{{ $name }}" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+        <label for="{{ $name }}" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
             {{ $label }}
             @if ($required)
                 <span class="text-rose-500 font-bold ml-0.5">*</span>
@@ -28,7 +28,7 @@
             {{ $required ? 'required' : '' }}
             {{ $disabled ? 'disabled' : '' }}
             {{ $attributes->merge([
-                'class' => 'block w-full rounded-lg border text-sm transition-all duration-150 pl-3.5 pr-10 py-2 bg-white ' .
+                'class' => 'block w-full rounded-lg border text-xs transition-all duration-150 pl-3 pr-8 py-1.5 bg-white ' .
                     ($hasError
                         ? 'border-rose-300 text-rose-900 focus:border-rose-500 focus:ring-rose-500 bg-rose-50/20'
                         : 'border-slate-300 text-slate-900 focus:border-[#C5A059] focus:ring-[#C5A059] hover:border-slate-400') .

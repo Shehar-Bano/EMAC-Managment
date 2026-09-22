@@ -35,15 +35,17 @@
     <x-filter-bar
         :action="route('dashboard.categories.index')"
         :resetUrl="route('dashboard.categories.index')"
-        searchPlaceholder="Search categories by name, slug or description..."
+        nameLabel="Category Name"
+        searchPlaceholder="Search categories..."
         :hasStatus="true"
+        :hasDates="true"
     />
 
     {{-- Bulk Action Floating Toolbar --}}
     @can('categories.bulk-delete')
-        <div class="bulk-action-bar hidden items-center justify-between p-3.5 mb-4 rounded-xl bg-white text-slate-900 shadow-xl transition-all animate-fade-in border-2 border-[#C5A059]">
-            <div class="flex items-center gap-3 text-xs font-semibold">
-                <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-r from-[#C5A059] to-[#D4AF37] text-slate-950 font-bold selected-count-badge">0</span>
+        <div class="bulk-action-bar hidden items-center justify-between p-3 mb-3 rounded-xl bg-white text-slate-900 shadow-xl transition-all animate-fade-in border-2 border-[#C5A059]">
+            <div class="flex items-center gap-2.5 text-xs font-semibold">
+                <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gradient-to-r from-[#C5A059] to-[#D4AF37] text-slate-950 text-[11px] font-bold selected-count-badge">0</span>
                 <span>categories selected on this page</span>
             </div>
             <form id="bulk-delete-form" method="POST" action="{{ route('dashboard.categories.bulk-delete') }}">
@@ -53,9 +55,9 @@
                 <button
                     type="button"
                     onclick="handleBulkDeleteSubmit()"
-                    class="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-rose-600 hover:bg-rose-700 text-white shadow-xs transition-colors cursor-pointer"
+                    class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded-lg bg-rose-600 hover:bg-rose-700 text-white shadow-xs transition-colors cursor-pointer"
                 >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                     Delete Selected
                 </button>
             </form>
@@ -63,7 +65,7 @@
     @endcan
 
     {{-- Main Categories Table Card --}}
-    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+    <div class="bg-white rounded-xl border border-slate-200/80 shadow-2xs overflow-hidden">
         <x-table
             :headers="[
                 'Sr. No',
@@ -79,43 +81,43 @@
                 <tr class="hover:bg-slate-50/70 transition-colors">
                     {{-- Checkbox --}}
                     @can('categories.bulk-delete')
-                        <td class="w-12 px-4 py-3.5 text-center">
+                        <td class="w-10 px-3 py-2 text-center">
                             <input
                                 type="checkbox"
                                 name="selected_ids[]"
                                 value="{{ $category->id }}"
-                                class="table-row-checkbox rounded-sm border-slate-300 text-[#C5A059] focus:ring-[#C5A059] w-4 h-4 cursor-pointer"
+                                class="table-row-checkbox rounded-sm border-slate-300 text-[#C5A059] focus:ring-[#C5A059] w-3.5 h-3.5 cursor-pointer"
                             >
                         </td>
                     @endcan
 
                     {{-- Sr. No --}}
-                    <td class="w-16 px-6 py-4 font-mono text-xs text-slate-500 font-semibold">
+                    <td class="w-14 px-3.5 py-2 font-mono text-[11px] text-slate-500 font-semibold">
                         {{ $categories->firstItem() ? ($categories->firstItem() + $loop->index) : $loop->iteration }}
                     </td>
 
                     {{-- Category Name & Description --}}
-                    <td class="px-6 py-4">
+                    <td class="px-3.5 py-2">
                         <div>
-                            <a href="{{ route('dashboard.categories.show', $category) }}" class="font-bold text-slate-900 hover:text-[#C5A059] transition-colors text-sm">
+                            <a href="{{ route('dashboard.categories.show', $category) }}" class="font-bold text-xs text-slate-900 hover:text-[#C5A059] transition-colors">
                                 {{ $category->name }}
                             </a>
                             @if ($category->description)
-                                <div class="text-[11px] text-slate-500 line-clamp-2 max-w-sm mt-0.5">{{ $category->description }}</div>
+                                <div class="text-[10px] text-slate-500 line-clamp-1 max-w-sm mt-0.5">{{ $category->description }}</div>
                             @endif
                         </div>
                     </td>
 
                     {{-- Slug --}}
-                    <td class="px-6 py-4 font-mono text-xs text-slate-600">
+                    <td class="px-3.5 py-2 font-mono text-[11px] text-slate-600">
                         {{ $category->slug }}
                     </td>
 
                     {{-- Subcategories count badge --}}
-                    <td class="px-6 py-4">
+                    <td class="px-3.5 py-2">
                         <a
                             href="{{ route('dashboard.subcategories.index', ['category_id' => $category->id]) }}"
-                            class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#C5A059]/10 text-[#8F6B20] border border-[#C5A059]/25 hover:bg-[#C5A059]/20 transition-colors"
+                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-[#C5A059]/10 text-[#8F6B20] border border-[#C5A059]/25 hover:bg-[#C5A059]/20 transition-colors"
                         >
                             <span>{{ $category->subcategories_count }} Subcategories</span>
                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
@@ -123,7 +125,7 @@
                     </td>
 
                     {{-- Status Column --}}
-                    <td class="px-6 py-4">
+                    <td class="px-3.5 py-2">
                         @can('categories.status')
                             <form method="POST" action="{{ route('dashboard.categories.toggle-status', $category) }}">
                                 @csrf
@@ -138,25 +140,25 @@
                     </td>
 
                     {{-- Action Dropdown Menu --}}
-                    <td class="px-6 py-4 text-right">
+                    <td class="px-3.5 py-2 text-right">
                         <x-action-dropdown>
                             @can('categories.view')
-                                <a href="{{ route('dashboard.categories.show', $category) }}" class="flex items-center gap-2 px-4 py-2 text-xs text-slate-700 hover:bg-[#C5A059]/10 hover:text-[#B8903B] transition-colors">
-                                    <svg class="w-4 h-4 text-[#C5A059]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                <a href="{{ route('dashboard.categories.show', $category) }}" class="flex items-center gap-2 px-3 py-1.5 text-xs text-slate-700 hover:bg-[#C5A059]/10 hover:text-[#B8903B] transition-colors">
+                                    <svg class="w-3.5 h-3.5 text-[#C5A059]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                     <span>View Category</span>
                                 </a>
                             @endcan
 
                             @can('categories.edit')
-                                <a href="{{ route('dashboard.categories.edit', $category) }}" class="flex items-center gap-2 px-4 py-2 text-xs text-slate-700 hover:bg-[#C5A059]/10 hover:text-[#B8903B] transition-colors">
-                                    <svg class="w-4 h-4 text-[#C5A059]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                <a href="{{ route('dashboard.categories.edit', $category) }}" class="flex items-center gap-2 px-3 py-1.5 text-xs text-slate-700 hover:bg-[#C5A059]/10 hover:text-[#B8903B] transition-colors">
+                                    <svg class="w-3.5 h-3.5 text-[#C5A059]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                     <span>Edit Category</span>
                                 </a>
                             @endcan
 
                             @can('subcategories.create')
-                                <a href="{{ route('dashboard.subcategories.create', ['category_id' => $category->id]) }}" class="flex items-center gap-2 px-4 py-2 text-xs text-slate-700 hover:bg-[#C5A059]/10 hover:text-[#B8903B] transition-colors">
-                                    <svg class="w-4 h-4 text-[#C5A059]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                <a href="{{ route('dashboard.subcategories.create', ['category_id' => $category->id]) }}" class="flex items-center gap-2 px-3 py-1.5 text-xs text-slate-700 hover:bg-[#C5A059]/10 hover:text-[#B8903B] transition-colors">
+                                    <svg class="w-3.5 h-3.5 text-[#C5A059]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                                     <span>Add Subcategory</span>
                                 </a>
                             @endcan
@@ -168,9 +170,9 @@
                                     <button
                                         type="button"
                                         data-confirm-delete="Are you sure you want to delete category '{{ $category->name }}' and all its subcategories?"
-                                        class="w-full flex items-center gap-2 px-4 py-2 text-xs text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer text-left font-medium"
+                                        class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer text-left font-medium"
                                     >
-                                        <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                        <svg class="w-3.5 h-3.5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                         <span>Delete Category</span>
                                     </button>
                                 </form>
@@ -180,7 +182,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="7" class="px-6 py-12 text-center text-slate-400">
+                    <td colspan="7" class="px-4 py-8 text-center text-slate-400 text-xs">
                         No categories found matching criteria.
                     </td>
                 </tr>

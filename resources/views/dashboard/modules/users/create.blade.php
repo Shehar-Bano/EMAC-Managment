@@ -1,15 +1,15 @@
-<x-dashboard.layout :title="'Create Staff Account — EMAC Development ERP'">
+<x-dashboard.layout :title="'Create Employee Account — EMAC Development ERP'">
 
     <x-slot:breadcrumbs>
         <span class="text-slate-400">/</span>
-        <a href="{{ route('dashboard.users.index') }}" class="hover:text-[#C5A059]">Users Directory</a>
+        <a href="{{ route('dashboard.users.index') }}" class="hover:text-[#C5A059]">Employee Directory</a>
         <span class="text-slate-400">/</span>
-        <span class="font-semibold text-slate-800">Add Staff Member</span>
+        <span class="font-semibold text-slate-800">Add Employee</span>
     </x-slot:breadcrumbs>
 
     <x-slot:header>
         <div>
-            <h1 class="text-2xl font-bold tracking-tight text-slate-900">Add New Staff Member</h1>
+            <h1 class="text-2xl font-bold tracking-tight text-slate-900">Add New Employee</h1>
             <p class="text-xs text-slate-500 mt-1">Register a corporate employee account and configure security role permissions</p>
         </div>
 
@@ -118,7 +118,7 @@
                         type="password"
                         placeholder="Minimum 8 characters..."
                         required
-                        hint="Staff member can reset their password on first login."
+                        hint="Employee can reset their password on first login."
                     />
                 </div>
             </x-card>
@@ -204,7 +204,7 @@
             </x-card>
 
             {{-- Role Assignment Multi-Checkbox Grid Card --}}
-            <x-card title="Assigned Security Roles" subtitle="Grant functional role permissions to this staff member">
+            <x-card title="Assigned Security Roles" subtitle="Grant functional role permissions to this employee">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     @foreach ($roles as $role)
                         <label class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 hover:border-[#C5A059] hover:bg-[#C5A059]/5 transition-colors cursor-pointer">
@@ -232,7 +232,7 @@
                             Cancel
                         </x-button>
                         <x-button type="submit" variant="primary">
-                            Create User Account
+                            Create Employee Account
                         </x-button>
                     </div>
                 </x-slot:footer>

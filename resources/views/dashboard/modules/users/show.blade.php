@@ -1,8 +1,8 @@
-<x-dashboard.layout :title="$user->name . ' — Staff Profile — EMAC Development ERP'">
+<x-dashboard.layout :title="$user->name . ' — Employee Profile — EMAC Development ERP'">
 
     <x-slot:breadcrumbs>
         <span class="text-slate-400">/</span>
-        <a href="{{ route('dashboard.users.index') }}" class="hover:text-[#C5A059]">Users Directory</a>
+        <a href="{{ route('dashboard.users.index') }}" class="hover:text-[#C5A059]">Employee Directory</a>
         <span class="text-slate-400">/</span>
         <span class="font-semibold text-slate-800">{{ $user->name }}</span>
     </x-slot:breadcrumbs>
@@ -22,7 +22,7 @@
                         <span>{{ $user->phone }}</span>
                     @endif
                     <span>•</span>
-                    <span>Staff ID: #{{ $user->id }}</span>
+                    <span>Employee ID: #{{ $user->id }}</span>
                 </p>
             </div>
         </div>
@@ -91,7 +91,7 @@
 
         {{-- Effective Permissions Matrix --}}
         <div class="lg:col-span-8 space-y-6">
-            <x-card title="Assigned Security Roles" subtitle="Roles governing this staff member's abilities">
+            <x-card title="Assigned Security Roles" subtitle="Roles governing this employee's abilities">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     @forelse ($user->roles as $role)
                         <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/50 hover:border-[#C5A059]/40 transition-colors">

@@ -1,15 +1,15 @@
-<x-dashboard.layout :title="'Edit Staff Account — EMAC Development ERP'">
+<x-dashboard.layout :title="'Edit Employee Account — EMAC Development ERP'">
 
     <x-slot:breadcrumbs>
         <span class="text-slate-400">/</span>
-        <a href="{{ route('dashboard.users.index') }}" class="hover:text-[#C5A059]">Users Directory</a>
+        <a href="{{ route('dashboard.users.index') }}" class="hover:text-[#C5A059]">Employee Directory</a>
         <span class="text-slate-400">/</span>
         <span class="font-semibold text-slate-800">Edit {{ $user->name }}</span>
     </x-slot:breadcrumbs>
 
     <x-slot:header>
         <div>
-            <h1 class="text-2xl font-bold tracking-tight text-slate-900">Edit Staff Account</h1>
+            <h1 class="text-2xl font-bold tracking-tight text-slate-900">Edit Employee Account</h1>
             <p class="text-xs text-slate-500 mt-1">Update profile information, contact channels, physical addresses, and security role permissions</p>
         </div>
 
@@ -40,7 +40,7 @@
             @method('PUT')
 
             {{-- Account Information & Profile Photo Card --}}
-            <x-card title="Account Identity & Profile Photo" subtitle="Staff profile ID: #{{ $user->id }}">
+            <x-card title="Account Identity & Profile Photo" subtitle="Employee profile ID: #{{ $user->id }}">
                 {{-- Avatar Upload & Current Display Section --}}
                 <div class="mb-6 p-4 rounded-2xl bg-[#FAF8F4] border border-[#C5A059]/25 flex flex-col sm:flex-row items-center gap-5">
                     <div class="relative shrink-0">
