@@ -2,7 +2,7 @@
 
     <x-slot:breadcrumbs>
         <span class="text-slate-400">/</span>
-        <a href="{{ route('dashboard.users.index') }}" class="hover:text-[#C5A059]">Employee Directory</a>
+        <a href="{{ route('dashboard.users.index') }}" class="hover:text-[#C5A059]">User Management</a>
         <span class="text-slate-400">/</span>
         <span class="font-semibold text-slate-800">{{ $user->name }}</span>
     </x-slot:breadcrumbs>

@@ -3,7 +3,7 @@
     <x-slot:header>
         <div>
             <h1 class="text-xl font-bold tracking-tight text-slate-900">Dashboard Overview</h1>
-            <p class="text-xs text-slate-500 mt-0.5">Employee directory, categories catalog, and role distribution.</p>
+            <p class="text-xs text-slate-500 mt-0.5">User management, categories catalog, and role distribution.</p>
         </div>
 
         <div class="flex items-center gap-2">

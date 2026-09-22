@@ -84,9 +84,9 @@
             </div>
         </div>
 
-        {{-- Section: Employee & Directory --}}
+        {{-- Section: User Management --}}
         <div>
-            <div class="px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">Employee & Directory</div>
+            <div class="px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">User Management</div>
             <div class="space-y-1">
                 @can('users.view')
                     <a
@@ -95,7 +95,7 @@
                     >
                         <div class="flex items-center gap-3">
                             <svg class="w-4 h-4 shrink-0 text-[#C5A059]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                            <span>Employee Directory</span>
+                            <span>Users</span>
                         </div>
                     </a>
                 @endcan

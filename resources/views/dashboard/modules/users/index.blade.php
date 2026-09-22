@@ -1,13 +1,13 @@
-<x-dashboard.layout :title="'Employee Management — EMAC Development ERP'">
+<x-dashboard.layout :title="'User Management — EMAC Development ERP'">
 
     <x-slot:breadcrumbs>
         <span class="text-slate-400">/</span>
-        <span class="font-semibold text-slate-800">Employee Directory</span>
+        <span class="font-semibold text-slate-800">User Management</span>
     </x-slot:breadcrumbs>
 
     <x-slot:header>
         <div>
-            <h1 class="text-2xl font-bold tracking-tight text-slate-900">Employee Management</h1>
+            <h1 class="text-2xl font-bold tracking-tight text-slate-900">User Management</h1>
             <p class="text-xs text-slate-500 mt-1">Manage corporate personnel, security role assignments, and authentication status</p>
         </div>
 
