@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\AccountStatus;
+use App\Enums\AuthSource;
+use App\Enums\ProfileStatus;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -11,11 +14,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, SoftDeletes;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -26,10 +30,16 @@ class User extends Authenticatable
         'name',
         'email',
         'phone',
+        'address',
         'password',
+        'role',
+        'source',
         'status',
+        'account_status',
+        'profile_status',
         'avatar',
         'email_verified_at',
+        'phone_verified_at',
         'last_login_at',
     ];
 
@@ -52,8 +62,12 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'phone_verified_at' => 'datetime',
             'last_login_at' => 'datetime',
             'password' => 'hashed',
+            'account_status' => AccountStatus::class,
+            'profile_status' => ProfileStatus::class,
+            'source' => AuthSource::class,
         ];
     }
 
@@ -71,6 +85,30 @@ class User extends Authenticatable
     public function addresses(): HasMany
     {
         return $this->hasMany(UserAddress::class, 'user_id');
+    }
+
+    /**
+     * Social accounts linked to the user.
+     */
+    public function socialAccounts(): HasMany
+    {
+        return $this->hasMany(SocialAccount::class);
+    }
+
+    /**
+     * OTP records for the user.
+     */
+    public function otps(): HasMany
+    {
+        return $this->hasMany(Otp::class);
+    }
+
+    /**
+     * Password reset authorization records.
+     */
+    public function passwordResetAuthorizations(): HasMany
+    {
+        return $this->hasMany(PasswordResetAuthorization::class);
     }
 
     /**

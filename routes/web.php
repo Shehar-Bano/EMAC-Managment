@@ -4,6 +4,8 @@ use App\Http\Controllers\Web\Admin\Category\CategoryController;
 use App\Http\Controllers\Web\Admin\Category\SubcategoryController;
 use App\Http\Controllers\Web\Admin\DashboardController;
 use App\Http\Controllers\Web\Admin\Inquiry\InquiryController;
+use App\Http\Controllers\Web\Admin\Legal\PrivacyController;
+use App\Http\Controllers\Web\Admin\Legal\TermsController;
 use App\Http\Controllers\Web\Admin\Permission\PermissionController;
 use App\Http\Controllers\Web\Admin\Role\RoleController;
 use App\Http\Controllers\Web\Admin\Setting\SettingController;
@@ -85,4 +87,13 @@ Route::prefix('dashboard')->name('dashboard.')->middleware(['auth'])->group(func
     // System Settings Module
     Route::get('settings', [SettingController::class, 'index'])->name('settings.index');
     Route::put('settings', [SettingController::class, 'update'])->name('settings.update');
+
+    // Legal & Compliance Module (Terms & Privacy)
+    Route::get('terms', [TermsController::class, 'index'])->name('terms.index');
+    Route::get('terms/edit', [TermsController::class, 'edit'])->name('terms.edit');
+    Route::put('terms', [TermsController::class, 'update'])->name('terms.update');
+
+    Route::get('privacy', [PrivacyController::class, 'index'])->name('privacy.index');
+    Route::get('privacy/edit', [PrivacyController::class, 'edit'])->name('privacy.edit');
+    Route::put('privacy', [PrivacyController::class, 'update'])->name('privacy.update');
 });

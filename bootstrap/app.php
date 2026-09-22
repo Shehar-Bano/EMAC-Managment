@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -24,6 +25,23 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
+
+        // Handle Unauthenticated
+        $exceptions->render(function (AuthenticationException $e, Request $request) {
+            if ($request->is('api/*') || $request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'status_code' => 401,
+                    'error_code' => 'ERR_INVALID_CREDENTIALS',
+                    'message' => 'Unauthenticated.',
+                    'errors' => null,
+                    'meta' => [
+                        'timestamp' => now()->toISOString(),
+                        'api_version' => 'v1',
+                    ],
+                ], 401);
+            }
+        });
 
         // Handle Database Constraint Violations (e.g. foreign key delete restrictions)
         $exceptions->render(function (QueryException $e, Request $request) {

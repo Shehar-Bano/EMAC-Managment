@@ -1,0 +1,990 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "EMAC ERP & Customer Authentication API",
+        "description": "Complete REST API documentation for the EMAC platform including Customer Authentication, OTP verification, Password Management, Social Login, and User Profiles.",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "/",
+            "description": "Current Server Environment"
+        }
+    ],
+    "paths": {
+        "/api/v1/terms": {
+            "get": {
+                "tags": [
+                    "Legal & Compliance"
+                ],
+                "summary": "Get Terms and Conditions",
+                "description": "Get the active Terms & Conditions.",
+                "operationId": "1643dc06ee79d97ef73902b4185375f7",
+                "responses": {
+                    "200": {
+                        "description": "Active Terms and Conditions retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "status_code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Terms and Conditions retrieved successfully."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "type": {
+                                                    "type": "string",
+                                                    "example": "terms"
+                                                },
+                                                "title": {
+                                                    "type": "string",
+                                                    "example": "Terms and Conditions"
+                                                },
+                                                "version": {
+                                                    "type": "string",
+                                                    "example": "1.0"
+                                                },
+                                                "effective_date": {
+                                                    "type": "string",
+                                                    "example": "2026-09-01"
+                                                },
+                                                "content": {
+                                                    "type": "string",
+                                                    "example": "<h3>1. Agreement to Terms</h3>..."
+                                                },
+                                                "updated_at": {
+                                                    "type": "string",
+                                                    "example": "2026-09-22T06:00:00.000000Z"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Terms and conditions document not found"
+                    }
+                }
+            }
+        },
+        "/api/v1/privacy": {
+            "get": {
+                "tags": [
+                    "Legal & Compliance"
+                ],
+                "summary": "Get Privacy Policy",
+                "description": "Get the active Privacy Policy.",
+                "operationId": "24d265a551fa983de6ea618955d8e59c",
+                "responses": {
+                    "200": {
+                        "description": "Active Privacy Policy retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "status_code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Privacy Policy retrieved successfully."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 2
+                                                },
+                                                "type": {
+                                                    "type": "string",
+                                                    "example": "privacy"
+                                                },
+                                                "title": {
+                                                    "type": "string",
+                                                    "example": "Privacy Policy"
+                                                },
+                                                "version": {
+                                                    "type": "string",
+                                                    "example": "1.0"
+                                                },
+                                                "effective_date": {
+                                                    "type": "string",
+                                                    "example": "2026-09-01"
+                                                },
+                                                "content": {
+                                                    "type": "string",
+                                                    "example": "<h3>1. Information We Collect</h3>..."
+                                                },
+                                                "updated_at": {
+                                                    "type": "string",
+                                                    "example": "2026-09-22T06:00:00.000000Z"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Privacy policy document not found"
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/register": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Register a new customer",
+                "operationId": "df6a1334cb93919048c13dacd9483371",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "phone",
+                                    "address",
+                                    "password",
+                                    "confirm_password",
+                                    "terms_accepted",
+                                    "privacy_policy_accepted",
+                                    "role"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john@example.com"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "+1234567890"
+                                    },
+                                    "address": {
+                                        "type": "string",
+                                        "example": "123 Example Street"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "StrongPassword123!"
+                                    },
+                                    "confirm_password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "StrongPassword123!"
+                                    },
+                                    "terms_accepted": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "privacy_policy_accepted": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "role": {
+                                        "type": "string",
+                                        "example": "customer",
+                                        "enum": [
+                                            "customer"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Registration successful. OTP sent.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "status_code": {
+                                            "type": "integer",
+                                            "example": 201
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Registration successful. Please verify your account using the OTP sent to your registered contact."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "user_id": {
+                                                    "type": "integer",
+                                                    "example": 101
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "example": "john@example.com"
+                                                },
+                                                "phone": {
+                                                    "type": "string",
+                                                    "example": "+1234567890"
+                                                },
+                                                "role": {
+                                                    "type": "string",
+                                                    "example": "customer"
+                                                },
+                                                "account_status": {
+                                                    "type": "string",
+                                                    "example": "pending"
+                                                },
+                                                "profile_status": {
+                                                    "type": "string",
+                                                    "example": "incomplete"
+                                                },
+                                                "otp_required": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "otp_purpose": {
+                                                    "type": "string",
+                                                    "example": "registration"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "meta": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "status_code": {
+                                            "type": "integer",
+                                            "example": 422
+                                        },
+                                        "error_code": {
+                                            "type": "string",
+                                            "example": "ERR_VALIDATION_FAILED"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The email field must be a valid email address."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/login": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Customer login",
+                "operationId": "a813263619cdab2bd300098d70772d98",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password",
+                                    "role"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "StrongPassword123!"
+                                    },
+                                    "role": {
+                                        "type": "string",
+                                        "example": "customer",
+                                        "enum": [
+                                            "customer"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login successful with Bearer access token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "status_code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Login successful."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "user": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 101
+                                                        },
+                                                        "name": {
+                                                            "type": "string",
+                                                            "example": "John Doe"
+                                                        },
+                                                        "email": {
+                                                            "type": "string",
+                                                            "example": "john@example.com"
+                                                        },
+                                                        "phone": {
+                                                            "type": "string",
+                                                            "example": "+1234567890"
+                                                        },
+                                                        "role": {
+                                                            "type": "string",
+                                                            "example": "customer"
+                                                        },
+                                                        "account_status": {
+                                                            "type": "string",
+                                                            "example": "verified"
+                                                        },
+                                                        "profile_status": {
+                                                            "type": "string",
+                                                            "example": "incomplete"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "access_token": {
+                                                    "type": "string",
+                                                    "example": "1|239a0fa02..."
+                                                },
+                                                "token_type": {
+                                                    "type": "string",
+                                                    "example": "Bearer"
+                                                },
+                                                "expires_in": {
+                                                    "type": "integer",
+                                                    "example": 86400
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid credentials"
+                    },
+                    "403": {
+                        "description": "Account not verified or restricted"
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/social": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Social Authentication (Google)",
+                "operationId": "cc58c535813b38ff95a47b5c4e55cdda",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "provider",
+                                    "id_token",
+                                    "role"
+                                ],
+                                "properties": {
+                                    "provider": {
+                                        "type": "string",
+                                        "example": "google",
+                                        "enum": [
+                                            "google"
+                                        ]
+                                    },
+                                    "id_token": {
+                                        "type": "string",
+                                        "example": "eyJhbGciOi..."
+                                    },
+                                    "role": {
+                                        "type": "string",
+                                        "example": "customer",
+                                        "enum": [
+                                            "customer"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Google authentication successful"
+                    },
+                    "401": {
+                        "description": "Invalid provider token"
+                    },
+                    "409": {
+                        "description": "Secure account linking required"
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/otp/send": {
+            "post": {
+                "tags": [
+                    "OTP"
+                ],
+                "summary": "Send / Resend OTP",
+                "operationId": "36df4ee193ba841dda67e2089b6a552c",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "identifier",
+                                    "purpose"
+                                ],
+                                "properties": {
+                                    "identifier": {
+                                        "type": "string",
+                                        "example": "john@example.com"
+                                    },
+                                    "purpose": {
+                                        "type": "string",
+                                        "example": "registration",
+                                        "enum": [
+                                            "registration",
+                                            "forgot_password",
+                                            "reset_password"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OTP sent successfully"
+                    },
+                    "429": {
+                        "description": "Resend cooldown limit (60s) reached"
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/otp/verify": {
+            "post": {
+                "tags": [
+                    "OTP"
+                ],
+                "summary": "Verify OTP",
+                "operationId": "6beb1693c3e92612d9f24de6f3241c40",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "identifier",
+                                    "otp",
+                                    "purpose"
+                                ],
+                                "properties": {
+                                    "identifier": {
+                                        "type": "string",
+                                        "example": "john@example.com"
+                                    },
+                                    "otp": {
+                                        "type": "string",
+                                        "example": "123456"
+                                    },
+                                    "purpose": {
+                                        "type": "string",
+                                        "example": "registration",
+                                        "enum": [
+                                            "registration",
+                                            "forgot_password",
+                                            "reset_password"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OTP verified successfully"
+                    },
+                    "422": {
+                        "description": "Invalid or expired OTP"
+                    },
+                    "429": {
+                        "description": "Too many OTP attempts (max 5)"
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/password/forgot": {
+            "post": {
+                "tags": [
+                    "Password Management"
+                ],
+                "summary": "Request forgot password OTP",
+                "operationId": "2d79c633b117f90ede1bdaf6c8043521",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john@example.com"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "If an account exists, OTP has been sent"
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/password/reset": {
+            "post": {
+                "tags": [
+                    "Password Management"
+                ],
+                "summary": "Reset forgotten password",
+                "operationId": "8dff5c9d32db137130b87224a03899da",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "reset_token",
+                                    "new_password",
+                                    "confirm_password"
+                                ],
+                                "properties": {
+                                    "reset_token": {
+                                        "type": "string",
+                                        "example": "a9f4c3..."
+                                    },
+                                    "new_password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "NewStrongPassword123!"
+                                    },
+                                    "confirm_password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "NewStrongPassword123!"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Password reset successfully"
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/password/change/request-otp": {
+            "post": {
+                "tags": [
+                    "Password Management"
+                ],
+                "summary": "Request OTP for authenticated password change",
+                "operationId": "d857f846d0300774732f9f8004bb5ae6",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "current_password"
+                                ],
+                                "properties": {
+                                    "current_password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "CurrentPassword123!"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OTP sent for password change"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/auth/password/change": {
+            "post": {
+                "tags": [
+                    "Password Management"
+                ],
+                "summary": "Change password using short-lived change token",
+                "operationId": "5735723c4871f19f7341ef73f1c6702f",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "password_change_token",
+                                    "new_password",
+                                    "confirm_password"
+                                ],
+                                "properties": {
+                                    "password_change_token": {
+                                        "type": "string",
+                                        "example": "b8e2..."
+                                    },
+                                    "new_password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "BrandNewPassword123!"
+                                    },
+                                    "confirm_password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "BrandNewPassword123!"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Password changed successfully"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/auth/refresh": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Refresh access token",
+                "operationId": "22c559befdc6cfd78d5ec9e2e8d93a3c",
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "refresh_token": {
+                                        "type": "string",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Access token refreshed successfully"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/auth/logout": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Logout user",
+                "operationId": "1d7f82f6722988b35b13b7735f1ec374",
+                "responses": {
+                    "200": {
+                        "description": "Logout successful"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/auth/profile": {
+            "get": {
+                "tags": [
+                    "User Profile"
+                ],
+                "summary": "Get customer profile",
+                "operationId": "cf2c8215d1c6da148786d7eb9fa1c15b",
+                "responses": {
+                    "200": {
+                        "description": "Profile retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "status_code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 101
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "John Doe"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "example": "john@example.com"
+                                                },
+                                                "phone": {
+                                                    "type": "string",
+                                                    "example": "+1234567890"
+                                                },
+                                                "address": {
+                                                    "type": "string",
+                                                    "example": "123 Example Street"
+                                                },
+                                                "role": {
+                                                    "type": "string",
+                                                    "example": "customer"
+                                                },
+                                                "source": {
+                                                    "type": "string",
+                                                    "example": "email"
+                                                },
+                                                "account_status": {
+                                                    "type": "string",
+                                                    "example": "verified"
+                                                },
+                                                "profile_status": {
+                                                    "type": "string",
+                                                    "example": "incomplete"
+                                                },
+                                                "email_verified_at": {
+                                                    "type": "string",
+                                                    "example": "2026-09-21T10:15:00Z"
+                                                },
+                                                "phone_verified_at": {
+                                                    "type": "string",
+                                                    "nullable": true
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/profile": {
+            "patch": {
+                "tags": [
+                    "User Profile"
+                ],
+                "summary": "Update or complete profile",
+                "operationId": "818d29e6abeb4859728e4305eeb01c52",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "+1234567890"
+                                    },
+                                    "address": {
+                                        "type": "string",
+                                        "example": "Updated 456 Avenue"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Profile updated successfully"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "description": "Enter your Bearer token in the format: Bearer <token>",
+                "bearerFormat": "JWT/Sanctum",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Authentication",
+            "description": "Customer Authentication & Registration APIs"
+        },
+        {
+            "name": "OTP",
+            "description": "Centralized One-Time Password lifecycle and verification"
+        },
+        {
+            "name": "Password Management",
+            "description": "Forgot password, reset authorization, and authenticated password change"
+        },
+        {
+            "name": "User Profile",
+            "description": "Customer profile retrieval and completion"
+        },
+        {
+            "name": "Legal & Compliance",
+            "description": "Terms and Conditions & Privacy Policy public documentation endpoints"
+        }
+    ]
+}

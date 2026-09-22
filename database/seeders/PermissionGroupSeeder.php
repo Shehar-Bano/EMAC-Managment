@@ -49,11 +49,18 @@ class PermissionGroupSeeder extends Seeder
                 'sort_order' => 5,
             ],
             [
+                'name' => 'Legal & Compliance',
+                'slug' => 'legal',
+                'icon' => 'document-text',
+                'description' => 'Manage Terms and Conditions and Privacy Policy documentation',
+                'sort_order' => 6,
+            ],
+            [
                 'name' => 'System Settings',
                 'slug' => 'settings',
                 'icon' => 'cog-6-tooth',
                 'description' => 'Configure global system parameters, company identity, and security policies',
-                'sort_order' => 6,
+                'sort_order' => 7,
             ],
         ];
 

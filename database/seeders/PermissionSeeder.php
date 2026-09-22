@@ -198,6 +198,32 @@ class PermissionSeeder extends Seeder
                 'description' => 'Change inquiry progress state (new, contacted, quoted, completed)',
             ],
 
+            // Legal & Compliance Management
+            [
+                'group' => 'legal',
+                'name' => 'terms.view',
+                'label' => 'View Terms & Conditions',
+                'description' => 'View Terms and Conditions document and revisions',
+            ],
+            [
+                'group' => 'legal',
+                'name' => 'terms.edit',
+                'label' => 'Edit Terms & Conditions',
+                'description' => 'Update Terms and Conditions legal text and version',
+            ],
+            [
+                'group' => 'legal',
+                'name' => 'privacy.view',
+                'label' => 'View Privacy Policy',
+                'description' => 'View Privacy Policy document and revisions',
+            ],
+            [
+                'group' => 'legal',
+                'name' => 'privacy.edit',
+                'label' => 'Edit Privacy Policy',
+                'description' => 'Update Privacy Policy legal text and version',
+            ],
+
             // System Settings
             [
                 'group' => 'settings',

@@ -69,9 +69,6 @@
                     <a href="{{ route('services') }}" class="relative px-3.5 py-2 rounded-xl text-xs font-bold transition-all {{ request()->routeIs('services') ? 'text-[#8F6B20] bg-[#C5A059]/15 border border-[#C5A059]/35' : 'text-slate-700 hover:text-[#8F6B20] hover:bg-slate-100/80' }}">
                         Services & Trades
                     </a>
-                    <a href="{{ route('services') }}#house-plans" class="relative px-3.5 py-2 rounded-xl text-xs font-bold transition-all text-slate-700 hover:text-[#8F6B20] hover:bg-slate-100/80">
-                        Cayman House Plans
-                    </a>
                     <a href="{{ route('about') }}" class="relative px-3.5 py-2 rounded-xl text-xs font-bold transition-all {{ request()->routeIs('about') ? 'text-[#8F6B20] bg-[#C5A059]/15 border border-[#C5A059]/35' : 'text-slate-700 hover:text-[#8F6B20] hover:bg-slate-100/80' }}">
                         About EMAC
                     </a>
@@ -126,7 +123,6 @@
         >
             <a href="{{ route('home') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold text-slate-800 hover:bg-slate-100 hover:text-[#8F6B20] transition-colors">Home</a>
             <a href="{{ route('services') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold text-slate-800 hover:bg-slate-100 hover:text-[#8F6B20] transition-colors">Services & Trades</a>
-            <a href="{{ route('services') }}#house-plans" class="block px-3 py-2 rounded-xl text-sm font-semibold text-slate-800 hover:bg-slate-100 hover:text-[#8F6B20] transition-colors">Cayman House Plans</a>
             <a href="{{ route('about') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold text-slate-800 hover:bg-slate-100 hover:text-[#8F6B20] transition-colors">About EMAC</a>
             <a href="{{ route('faq') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold text-slate-800 hover:bg-slate-100 hover:text-[#8F6B20] transition-colors">FAQ & Support</a>
             <a href="{{ route('contact') }}" class="block px-3 py-2 rounded-xl text-sm font-semibold text-slate-800 hover:bg-slate-100 hover:text-[#8F6B20] transition-colors">Contact & Quote</a>

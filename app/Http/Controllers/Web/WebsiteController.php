@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\ContactInquiry;
+use App\Models\LegalDocument;
 use App\Models\Subcategory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -106,7 +107,9 @@ class WebsiteController extends Controller
      */
     public function privacy(): View
     {
-        return view('website.privacy');
+        $document = LegalDocument::privacy()->active()->latest()->first();
+
+        return view('website.privacy', compact('document'));
     }
 
     /**
@@ -114,6 +117,8 @@ class WebsiteController extends Controller
      */
     public function terms(): View
     {
-        return view('website.terms');
+        $document = LegalDocument::terms()->active()->latest()->first();
+
+        return view('website.terms', compact('document'));
     }
 }

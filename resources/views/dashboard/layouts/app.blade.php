@@ -18,6 +18,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @stack('styles')
 </head>
 <body class="h-full font-sans antialiased text-slate-900 selection:bg-indigo-500 selection:text-white" x-data="{ sidebarOpen: false }">
 
@@ -93,5 +94,7 @@
             });
         </script>
     @endif
+
+    @stack('scripts')
 </body>
 </html>

@@ -40,36 +40,6 @@
                         </a>
                     </div>
 
-                    {{-- Dynamic Metrics Bar with Animated Counters --}}
-                    <div class="reveal-init mt-12 pt-8 border-t border-slate-200/90 grid grid-cols-2 sm:grid-cols-4 gap-4" data-reveal-stagger>
-                        <div class="p-3.5 rounded-xl bg-white/80 border border-slate-200/90 shadow-2xs backdrop-blur-xs">
-                            <div class="text-2xl sm:text-3xl font-extrabold text-[#8F6B20] font-mono" data-counter-target="{{ $stats['total_categories'] }}">
-                                {{ $stats['total_categories'] }}
-                            </div>
-                            <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mt-0.5">Core Divisions</div>
-                        </div>
-
-                        <div class="p-3.5 rounded-xl bg-white/80 border border-slate-200/90 shadow-2xs backdrop-blur-xs">
-                            <div class="text-2xl sm:text-3xl font-extrabold text-[#8F6B20] font-mono" data-counter-target="{{ $stats['total_services'] }}" data-counter-suffix="+">
-                                {{ $stats['total_services'] }}+
-                            </div>
-                            <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mt-0.5">Specialized Trades</div>
-                        </div>
-
-                        <div class="p-3.5 rounded-xl bg-white/80 border border-slate-200/90 shadow-2xs backdrop-blur-xs">
-                            <div class="text-2xl sm:text-3xl font-extrabold text-[#8F6B20] font-mono" data-counter-target="3">
-                                3
-                            </div>
-                            <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mt-0.5">Regional Markets</div>
-                        </div>
-
-                        <div class="p-3.5 rounded-xl bg-white/80 border border-slate-200/90 shadow-2xs backdrop-blur-xs">
-                            <div class="text-2xl sm:text-3xl font-extrabold text-emerald-600">
-                                Certified
-                            </div>
-                            <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mt-0.5">General & Plumbing</div>
-                        </div>
-                    </div>
                 </div>
 
                 {{-- Right: 3D Interactive Showcase Card --}}

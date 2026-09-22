@@ -102,6 +102,32 @@
             </div>
         </div>
 
+        {{-- Section: Legal & Compliance --}}
+        <div>
+            <div class="px-3 text-[10px] font-bold uppercase tracking-wider text-[#8F6B20] mb-2">Legal & Compliance</div>
+            <div class="space-y-1">
+                @can('terms.view')
+                    <a
+                        href="{{ route('dashboard.terms.index') }}"
+                        class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition-all {{ request()->routeIs('dashboard.terms.*') ? 'bg-gradient-to-r from-[#C5A059] to-[#D4AF37] text-slate-950 font-bold shadow-sm shadow-[#C5A059]/25' : 'text-slate-600 hover:bg-amber-50/60 hover:text-[#8F6B20]' }}"
+                    >
+                        <svg class="w-4 h-4 shrink-0 text-[#C5A059]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        <span>Terms & Conditions</span>
+                    </a>
+                @endcan
+
+                @can('privacy.view')
+                    <a
+                        href="{{ route('dashboard.privacy.index') }}"
+                        class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition-all {{ request()->routeIs('dashboard.privacy.*') ? 'bg-gradient-to-r from-[#C5A059] to-[#D4AF37] text-slate-950 font-bold shadow-sm shadow-[#C5A059]/25' : 'text-slate-600 hover:bg-amber-50/60 hover:text-[#8F6B20]' }}"
+                    >
+                        <svg class="w-4 h-4 shrink-0 text-[#C5A059]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                        <span>Privacy Policy</span>
+                    </a>
+                @endcan
+            </div>
+        </div>
+
         {{-- Section: Security & Access Control --}}
         <div>
             <div class="px-3 text-[10px] font-bold uppercase tracking-wider text-[#8F6B20] mb-2">Security & Governance</div>
