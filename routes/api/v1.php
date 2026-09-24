@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\V1\Category\CategoryController;
 use App\Http\Controllers\Api\V1\Category\SubcategoryController;
 use App\Http\Controllers\Api\V1\Legal\LegalDocumentController;
 use App\Http\Controllers\Api\V1\Role\RoleController;
+use App\Http\Controllers\Api\V1\ServiceRequest\ServiceRequestController;
 use App\Http\Controllers\Api\V1\User\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -50,6 +51,11 @@ Route::prefix('v1')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('profile', [ProfileController::class, 'show']);
         Route::match(['put', 'patch'], 'profile', [ProfileController::class, 'update']);
+
+        // Customer Service Request Endpoints
+        Route::get('service-requests', [ServiceRequestController::class, 'index']);
+        Route::post('service-requests', [ServiceRequestController::class, 'store']);
+        Route::get('service-requests/{id}', [ServiceRequestController::class, 'show']);
     });
 
     // ---------------------------------------------------------

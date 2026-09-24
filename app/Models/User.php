@@ -88,6 +88,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Service requests created by the user.
+     */
+    public function serviceRequests(): HasMany
+    {
+        return $this->hasMany(ServiceRequest::class, 'user_id');
+    }
+
+    /**
      * Social accounts linked to the user.
      */
     public function socialAccounts(): HasMany

@@ -51,6 +51,26 @@
                         @endif
                     </a>
                 @endcan
+
+                @can('service_requests.view')
+                    @php
+                        $pendingRequestsCount = \App\Models\ServiceRequest::where('status', 'pending')->count();
+                    @endphp
+                    <a
+                        href="{{ route('dashboard.service-requests.index') }}"
+                        class="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold transition-colors {{ request()->routeIs('dashboard.service-requests.*') ? 'bg-amber-50 text-[#8F6B20] font-bold' : 'text-slate-700 hover:bg-slate-100' }}"
+                    >
+                        <div class="flex items-center gap-3">
+                            <svg class="w-4 h-4 shrink-0 text-[#C5A059]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                            <span>Customer Requests</span>
+                        </div>
+                        @if ($pendingRequestsCount > 0)
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#C5A059] text-slate-900">
+                                {{ $pendingRequestsCount }}
+                            </span>
+                        @endif
+                    </a>
+                @endcan
             </div>
         </div>
 

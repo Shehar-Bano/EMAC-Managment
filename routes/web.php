@@ -8,6 +8,7 @@ use App\Http\Controllers\Web\Admin\Legal\PrivacyController;
 use App\Http\Controllers\Web\Admin\Legal\TermsController;
 use App\Http\Controllers\Web\Admin\Permission\PermissionController;
 use App\Http\Controllers\Web\Admin\Role\RoleController;
+use App\Http\Controllers\Web\Admin\ServiceRequest\ServiceRequestController;
 use App\Http\Controllers\Web\Admin\Setting\SettingController;
 use App\Http\Controllers\Web\Admin\User\UserController;
 use App\Http\Controllers\Web\Auth\AuthController;
@@ -57,6 +58,13 @@ Route::prefix('dashboard')->name('dashboard.')->middleware(['auth'])->group(func
     Route::delete('inquiries/bulk-delete', [InquiryController::class, 'bulkDelete']);
     Route::patch('inquiries/{inquiry}/status', [InquiryController::class, 'updateStatus'])->name('inquiries.status');
     Route::resource('inquiries', InquiryController::class)->only(['index', 'show', 'destroy']);
+
+    // Customer Service Requests Module
+    Route::get('service-requests/export', [ServiceRequestController::class, 'export'])->name('service-requests.export');
+    Route::post('service-requests/bulk-delete', [ServiceRequestController::class, 'bulkDelete'])->name('service-requests.bulk-delete');
+    Route::delete('service-requests/bulk-delete', [ServiceRequestController::class, 'bulkDelete']);
+    Route::patch('service-requests/{service_request}/status', [ServiceRequestController::class, 'updateStatus'])->name('service-requests.status');
+    Route::resource('service-requests', ServiceRequestController::class)->only(['index', 'show', 'destroy']);
 
     // Category Management Module
     Route::get('categories/export', [CategoryController::class, 'export'])->name('categories.export');

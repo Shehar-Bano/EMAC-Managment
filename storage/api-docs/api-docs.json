@@ -7,7 +7,7 @@
     },
     "servers": [
         {
-            "url": "http://localhost:8000",
+            "url": "/",
             "description": "Current Server Environment"
         }
     ],
@@ -384,8 +384,7 @@
                             "schema": {
                                 "required": [
                                     "email",
-                                    "password",
-                                    "role"
+                                    "password"
                                 ],
                                 "properties": {
                                     "email": {
@@ -397,13 +396,6 @@
                                         "type": "string",
                                         "format": "password",
                                         "example": "StrongPassword123!"
-                                    },
-                                    "role": {
-                                        "type": "string",
-                                        "example": "customer",
-                                        "enum": [
-                                            "customer"
-                                        ]
                                     }
                                 },
                                 "type": "object"
@@ -1059,6 +1051,437 @@
                     }
                 ]
             }
+        },
+        "/api/v1/service-requests": {
+            "get": {
+                "tags": [
+                    "Service Requests"
+                ],
+                "summary": "List customer service requests",
+                "description": "Get a paginated list of service requests submitted by the authenticated customer (or all requests if admin/staff). Supports filtering by status, priority, and pagination.",
+                "operationId": "4f37ed85bbce70a25b1dc19a323829cb",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "pending",
+                                "in_review",
+                                "approved",
+                                "in_progress",
+                                "completed",
+                                "cancelled"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "priority",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "low",
+                                "medium",
+                                "high",
+                                "emergency"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 15
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of service requests retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "status_code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Service requests retrieved successfully."
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "description": {
+                                                        "type": "string",
+                                                        "example": "Central AC issue"
+                                                    },
+                                                    "priority": {
+                                                        "type": "string",
+                                                        "example": "high"
+                                                    },
+                                                    "status": {
+                                                        "type": "string",
+                                                        "example": "pending"
+                                                    },
+                                                    "preferred_service_date": {
+                                                        "type": "string",
+                                                        "example": "2026-10-05"
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string",
+                                                        "example": "2026-09-24T16:30:00+05:00"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "meta": {
+                                            "properties": {
+                                                "current_page": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "per_page": {
+                                                    "type": "integer",
+                                                    "example": 15
+                                                },
+                                                "total": {
+                                                    "type": "integer",
+                                                    "example": 5
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Service Requests"
+                ],
+                "summary": "Submit a new customer service request",
+                "description": "Allows authenticated customers to submit a service request with description, property details, location address ID, schedule preferences, priority, optional notes, photographs (jpg/png/webp max 10MB), and videos (mp4/mov/avi max 50MB).",
+                "operationId": "a1d7feeea93bbb6c65d8e14b4149b99c",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "description",
+                                    "property_information",
+                                    "user_address_id",
+                                    "preferred_service_date",
+                                    "preferred_service_time"
+                                ],
+                                "properties": {
+                                    "description": {
+                                        "description": "Detailed written description of the issue",
+                                        "type": "string",
+                                        "example": "Central AC is making a loud rattling noise and not blowing cold air."
+                                    },
+                                    "property_information": {
+                                        "description": "Property details and access instructions",
+                                        "type": "string",
+                                        "example": "2-storey residential villa, Unit 4B, rooftop AC compressor access via exterior ladder."
+                                    },
+                                    "user_address_id": {
+                                        "description": "ID of existing user address record from user_addresses table",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "preferred_service_date": {
+                                        "description": "Requested service date (YYYY-MM-DD)",
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2026-10-05"
+                                    },
+                                    "preferred_service_time": {
+                                        "description": "Requested time slot or hour",
+                                        "type": "string",
+                                        "example": "10:00 AM - 12:00 PM"
+                                    },
+                                    "priority": {
+                                        "description": "Priority of service (defaults to medium)",
+                                        "type": "string",
+                                        "example": "high",
+                                        "enum": [
+                                            "low",
+                                            "medium",
+                                            "high",
+                                            "emergency"
+                                        ]
+                                    },
+                                    "additional_notes": {
+                                        "type": "string",
+                                        "example": "Gate code is 4321. Please call 15 minutes before arrival.",
+                                        "nullable": true
+                                    },
+                                    "photographs[]": {
+                                        "description": "Up to 10 image files (JPEG, PNG, WEBP, max 10MB each)",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "binary"
+                                        }
+                                    },
+                                    "videos[]": {
+                                        "description": "Up to 3 video files (MP4, MOV, AVI, WEBM, max 50MB each)",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "binary"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Service request created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "status_code": {
+                                            "type": "integer",
+                                            "example": 201
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Service request submitted successfully."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "description": {
+                                                    "type": "string",
+                                                    "example": "Central AC is making a loud rattling noise."
+                                                },
+                                                "property_information": {
+                                                    "type": "string",
+                                                    "example": "2-storey residential villa, Unit 4B."
+                                                },
+                                                "preferred_service_date": {
+                                                    "type": "string",
+                                                    "example": "2026-10-05"
+                                                },
+                                                "preferred_service_time": {
+                                                    "type": "string",
+                                                    "example": "10:00 AM - 12:00 PM"
+                                                },
+                                                "priority": {
+                                                    "type": "string",
+                                                    "example": "high"
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "pending"
+                                                },
+                                                "additional_notes": {
+                                                    "type": "string",
+                                                    "example": "Gate code is 4321."
+                                                },
+                                                "location": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "address": {
+                                                            "type": "string",
+                                                            "example": "123 Example Street"
+                                                        },
+                                                        "city": {
+                                                            "type": "string",
+                                                            "example": "George Town"
+                                                        },
+                                                        "state": {
+                                                            "type": "string",
+                                                            "example": "Grand Cayman"
+                                                        },
+                                                        "country": {
+                                                            "type": "string",
+                                                            "example": "Cayman Islands"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "photographs": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "file_url": {
+                                                                "type": "string",
+                                                                "example": "http://localhost:8000/storage/service_requests/photos/abc123.jpg"
+                                                            },
+                                                            "file_name": {
+                                                                "type": "string",
+                                                                "example": "ac_unit.jpg"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "videos": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "file_url": {
+                                                                "type": "string",
+                                                                "example": "http://localhost:8000/storage/service_requests/videos/xyz789.mp4"
+                                                            },
+                                                            "file_name": {
+                                                                "type": "string",
+                                                                "example": "ac_noise.mp4"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "created_at": {
+                                                    "type": "string",
+                                                    "example": "2026-09-24T16:30:00+05:00"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/service-requests/{id}": {
+            "get": {
+                "tags": [
+                    "Service Requests"
+                ],
+                "summary": "Get details of a specific service request",
+                "operationId": "b1d17d820bc9754c2b51e1a6f3ca418e",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Service request details retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "status_code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Service request details retrieved successfully."
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Service request not found"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -1091,6 +1514,10 @@
         {
             "name": "Legal & Compliance",
             "description": "Terms and Conditions & Privacy Policy public documentation endpoints"
+        },
+        {
+            "name": "Service Requests",
+            "description": "Customer service request submission and tracking APIs"
         }
     ]
 }

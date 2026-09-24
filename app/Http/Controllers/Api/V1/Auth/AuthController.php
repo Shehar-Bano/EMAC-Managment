@@ -103,15 +103,6 @@ class AuthController extends Controller
             );
         }
 
-        // Check requested role
-        if ($user->role !== $request->role && ! $user->hasRole($request->role)) {
-            return ApiResponse::error(
-                message: 'The provided credentials are invalid.',
-                errorCode: 'ERR_INVALID_CREDENTIALS',
-                statusCode: 401
-            );
-        }
-
         // Check account status
         if ($user->account_status === AccountStatus::PENDING) {
             return ApiResponse::error(

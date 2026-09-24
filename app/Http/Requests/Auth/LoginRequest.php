@@ -16,7 +16,6 @@ class LoginRequest extends BaseAuthRequest
         return [
             'email' => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
-            'role' => ['required', 'string', 'in:customer'],
         ];
     }
 }

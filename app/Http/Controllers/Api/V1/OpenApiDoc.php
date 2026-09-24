@@ -40,6 +40,10 @@ use OpenApi\Attributes as OA;
     name: 'Legal & Compliance',
     description: 'Terms and Conditions & Privacy Policy public documentation endpoints'
 )]
+#[OA\Tag(
+    name: 'Service Requests',
+    description: 'Customer service request submission and tracking APIs'
+)]
 class OpenApiDoc
 {
     #[OA\Post(
@@ -130,11 +134,10 @@ class OpenApiDoc
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ['email', 'password', 'role'],
+                required: ['email', 'password'],
                 properties: [
                     new OA\Property(property: 'email', type: 'string', format: 'email', example: 'john@example.com'),
                     new OA\Property(property: 'password', type: 'string', format: 'password', example: 'StrongPassword123!'),
-                    new OA\Property(property: 'role', type: 'string', enum: ['customer'], example: 'customer'),
                 ]
             )
         ),
@@ -442,4 +445,185 @@ class OpenApiDoc
         ]
     )]
     public function updateProfileDoc() {}
+
+    #[OA\Post(
+        path: '/api/v1/service-requests',
+        summary: 'Submit a new customer service request',
+        description: 'Allows authenticated customers to submit a service request with description, property details, location address ID, schedule preferences, priority, optional notes, photographs (jpg/png/webp max 10MB), and videos (mp4/mov/avi max 50MB).',
+        security: [['bearerAuth' => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\MediaType(
+                mediaType: 'multipart/form-data',
+                schema: new OA\Schema(
+                    required: ['description', 'property_information', 'user_address_id', 'preferred_service_date', 'preferred_service_time'],
+                    properties: [
+                        new OA\Property(property: 'description', type: 'string', example: 'Central AC is making a loud rattling noise and not blowing cold air.', description: 'Detailed written description of the issue'),
+                        new OA\Property(property: 'property_information', type: 'string', example: '2-storey residential villa, Unit 4B, rooftop AC compressor access via exterior ladder.', description: 'Property details and access instructions'),
+                        new OA\Property(property: 'user_address_id', type: 'integer', example: 1, description: 'ID of existing user address record from user_addresses table'),
+                        new OA\Property(property: 'preferred_service_date', type: 'string', format: 'date', example: '2026-10-05', description: 'Requested service date (YYYY-MM-DD)'),
+                        new OA\Property(property: 'preferred_service_time', type: 'string', example: '10:00 AM - 12:00 PM', description: 'Requested time slot or hour'),
+                        new OA\Property(property: 'priority', type: 'string', enum: ['low', 'medium', 'high', 'emergency'], example: 'high', description: 'Priority of service (defaults to medium)'),
+                        new OA\Property(property: 'additional_notes', type: 'string', example: 'Gate code is 4321. Please call 15 minutes before arrival.', nullable: true),
+                        new OA\Property(
+                            property: 'photographs[]',
+                            type: 'array',
+                            items: new OA\Items(type: 'string', format: 'binary'),
+                            description: 'Up to 10 image files (JPEG, PNG, WEBP, max 10MB each)'
+                        ),
+                        new OA\Property(
+                            property: 'videos[]',
+                            type: 'array',
+                            items: new OA\Items(type: 'string', format: 'binary'),
+                            description: 'Up to 3 video files (MP4, MOV, AVI, WEBM, max 50MB each)'
+                        ),
+                    ]
+                )
+            )
+        ),
+        tags: ['Service Requests'],
+        responses: [
+            new OA\Response(
+                response: 201,
+                description: 'Service request created successfully',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'success', type: 'boolean', example: true),
+                        new OA\Property(property: 'status_code', type: 'integer', example: 201),
+                        new OA\Property(property: 'message', type: 'string', example: 'Service request submitted successfully.'),
+                        new OA\Property(
+                            property: 'data',
+                            properties: [
+                                new OA\Property(property: 'id', type: 'integer', example: 1),
+                                new OA\Property(property: 'description', type: 'string', example: 'Central AC is making a loud rattling noise.'),
+                                new OA\Property(property: 'property_information', type: 'string', example: '2-storey residential villa, Unit 4B.'),
+                                new OA\Property(property: 'preferred_service_date', type: 'string', example: '2026-10-05'),
+                                new OA\Property(property: 'preferred_service_time', type: 'string', example: '10:00 AM - 12:00 PM'),
+                                new OA\Property(property: 'priority', type: 'string', example: 'high'),
+                                new OA\Property(property: 'status', type: 'string', example: 'pending'),
+                                new OA\Property(property: 'additional_notes', type: 'string', example: 'Gate code is 4321.'),
+                                new OA\Property(
+                                    property: 'location',
+                                    properties: [
+                                        new OA\Property(property: 'id', type: 'integer', example: 1),
+                                        new OA\Property(property: 'address', type: 'string', example: '123 Example Street'),
+                                        new OA\Property(property: 'city', type: 'string', example: 'George Town'),
+                                        new OA\Property(property: 'state', type: 'string', example: 'Grand Cayman'),
+                                        new OA\Property(property: 'country', type: 'string', example: 'Cayman Islands'),
+                                    ],
+                                    type: 'object'
+                                ),
+                                new OA\Property(
+                                    property: 'photographs',
+                                    type: 'array',
+                                    items: new OA\Items(
+                                        properties: [
+                                            new OA\Property(property: 'id', type: 'integer', example: 1),
+                                            new OA\Property(property: 'file_url', type: 'string', example: 'http://localhost:8000/storage/service_requests/photos/abc123.jpg'),
+                                            new OA\Property(property: 'file_name', type: 'string', example: 'ac_unit.jpg'),
+                                        ]
+                                    )
+                                ),
+                                new OA\Property(
+                                    property: 'videos',
+                                    type: 'array',
+                                    items: new OA\Items(
+                                        properties: [
+                                            new OA\Property(property: 'id', type: 'integer', example: 1),
+                                            new OA\Property(property: 'file_url', type: 'string', example: 'http://localhost:8000/storage/service_requests/videos/xyz789.mp4'),
+                                            new OA\Property(property: 'file_name', type: 'string', example: 'ac_noise.mp4'),
+                                        ]
+                                    )
+                                ),
+                                new OA\Property(property: 'created_at', type: 'string', example: '2026-09-24T16:30:00+05:00'),
+                            ],
+                            type: 'object'
+                        ),
+                    ]
+                )
+            ),
+            new OA\Response(response: 422, description: 'Validation error'),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+        ]
+    )]
+    public function createServiceRequestDoc() {}
+
+    #[OA\Get(
+        path: '/api/v1/service-requests',
+        summary: 'List customer service requests',
+        description: 'Get a paginated list of service requests submitted by the authenticated customer (or all requests if admin/staff). Supports filtering by status, priority, and pagination.',
+        security: [['bearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'status', in: 'query', required: false, schema: new OA\Schema(type: 'string', enum: ['pending', 'in_review', 'approved', 'in_progress', 'completed', 'cancelled'])),
+            new OA\Parameter(name: 'priority', in: 'query', required: false, schema: new OA\Schema(type: 'string', enum: ['low', 'medium', 'high', 'emergency'])),
+            new OA\Parameter(name: 'per_page', in: 'query', required: false, schema: new OA\Schema(type: 'integer', example: 15)),
+            new OA\Parameter(name: 'page', in: 'query', required: false, schema: new OA\Schema(type: 'integer', example: 1)),
+        ],
+        tags: ['Service Requests'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'List of service requests retrieved successfully',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'success', type: 'boolean', example: true),
+                        new OA\Property(property: 'status_code', type: 'integer', example: 200),
+                        new OA\Property(property: 'message', type: 'string', example: 'Service requests retrieved successfully.'),
+                        new OA\Property(
+                            property: 'data',
+                            type: 'array',
+                            items: new OA\Items(
+                                properties: [
+                                    new OA\Property(property: 'id', type: 'integer', example: 1),
+                                    new OA\Property(property: 'description', type: 'string', example: 'Central AC issue'),
+                                    new OA\Property(property: 'priority', type: 'string', example: 'high'),
+                                    new OA\Property(property: 'status', type: 'string', example: 'pending'),
+                                    new OA\Property(property: 'preferred_service_date', type: 'string', example: '2026-10-05'),
+                                    new OA\Property(property: 'created_at', type: 'string', example: '2026-09-24T16:30:00+05:00'),
+                                ]
+                            )
+                        ),
+                        new OA\Property(
+                            property: 'meta',
+                            properties: [
+                                new OA\Property(property: 'current_page', type: 'integer', example: 1),
+                                new OA\Property(property: 'per_page', type: 'integer', example: 15),
+                                new OA\Property(property: 'total', type: 'integer', example: 5),
+                            ],
+                            type: 'object'
+                        ),
+                    ]
+                )
+            ),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+        ]
+    )]
+    public function listServiceRequestsDoc() {}
+
+    #[OA\Get(
+        path: '/api/v1/service-requests/{id}',
+        summary: 'Get details of a specific service request',
+        security: [['bearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer', example: 1)),
+        ],
+        tags: ['Service Requests'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Service request details retrieved successfully',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'success', type: 'boolean', example: true),
+                        new OA\Property(property: 'status_code', type: 'integer', example: 200),
+                        new OA\Property(property: 'message', type: 'string', example: 'Service request details retrieved successfully.'),
+                        new OA\Property(property: 'data', type: 'object'),
+                    ]
+                )
+            ),
+            new OA\Response(response: 404, description: 'Service request not found'),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+        ]
+    )]
+    public function getServiceRequestDoc() {}
 }

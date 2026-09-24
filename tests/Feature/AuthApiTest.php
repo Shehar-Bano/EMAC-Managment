@@ -16,6 +16,22 @@ class AuthApiTest extends TestCase
 {
     use DatabaseTransactions;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        User::whereIn('email', [
+            'john@example.com',
+            'jane@example.com',
+            'admin@example.com',
+            'pending@example.com',
+            'blocked@example.com',
+            'existing@example.com',
+            'googleuser@example.com',
+            'testuser@example.com',
+            'john.profile@example.com',
+        ])->forceDelete();
+    }
+
     /**
      * Test successful customer registration.
      */
@@ -179,7 +195,6 @@ class AuthApiTest extends TestCase
         $response = $this->postJson('/api/v1/auth/login', [
             'email' => 'pending@example.com',
             'password' => 'Password123!',
-            'role' => 'customer',
         ]);
 
         $response->assertStatus(403)
@@ -254,11 +269,10 @@ class AuthApiTest extends TestCase
 
         $this->assertEquals(AccountStatus::VERIFIED, $user->fresh()->account_status);
 
-        // 3. Login now succeeds
+        // 3. Login now succeeds without requiring role
         $loginResponse = $this->postJson('/api/v1/auth/login', [
             'email' => 'john@example.com',
             'password' => 'StrongPassword123!',
-            'role' => 'customer',
         ]);
 
         $loginResponse->assertStatus(200)
@@ -653,7 +667,6 @@ class AuthApiTest extends TestCase
         $response = $this->postJson('/api/v1/auth/login', [
             'email' => 'blocked@example.com',
             'password' => 'Password123!',
-            'role' => 'customer',
         ]);
 
         $response->assertStatus(403)

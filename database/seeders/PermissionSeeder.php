@@ -198,6 +198,44 @@ class PermissionSeeder extends Seeder
                 'description' => 'Change inquiry progress state (new, contacted, quoted, completed)',
             ],
 
+            // Service Request Management
+            [
+                'group' => 'service_requests',
+                'name' => 'service_requests.view',
+                'label' => 'View Service Requests',
+                'description' => 'View customer service requests, attachments, and schedules',
+            ],
+            [
+                'group' => 'service_requests',
+                'name' => 'service_requests.edit',
+                'label' => 'Edit Service Request',
+                'description' => 'Update service request details and notes',
+            ],
+            [
+                'group' => 'service_requests',
+                'name' => 'service_requests.status',
+                'label' => 'Update Request Status',
+                'description' => 'Update workflow progress status of service requests',
+            ],
+            [
+                'group' => 'service_requests',
+                'name' => 'service_requests.delete',
+                'label' => 'Delete Service Request',
+                'description' => 'Delete a service request record',
+            ],
+            [
+                'group' => 'service_requests',
+                'name' => 'service_requests.bulk-delete',
+                'label' => 'Bulk Delete Service Requests',
+                'description' => 'Delete multiple selected customer service requests',
+            ],
+            [
+                'group' => 'service_requests',
+                'name' => 'service_requests.export',
+                'label' => 'Export Service Requests',
+                'description' => 'Export customer service requests to CSV',
+            ],
+
             // Legal & Compliance Management
             [
                 'group' => 'legal',
