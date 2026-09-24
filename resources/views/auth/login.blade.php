@@ -1,6 +1,6 @@
-<x-auth.layout :title="'Sign In to ERP Dashboard — EMAC Development'">
+<x-auth.layout :title="'Sign In to Dashboard — EMAC Development'">
     <div class="mb-6 text-center">
-        <h1 class="text-2xl font-bold tracking-tight text-slate-900">ERP Sign In</h1>
+        <h1 class="text-2xl font-bold tracking-tight text-slate-900">Sign In</h1>
         <p class="text-xs text-slate-500 mt-1">Enter your authorized credentials to access the administrative console</p>
     </div>
 
@@ -20,7 +20,7 @@
                 label="Email Address"
                 name="email"
                 type="email"
-                value="{{ old('email', 'admin@emac.test') }}"
+                value="{{ old('email') }}"
                 placeholder="name@emac.test"
                 required
                 autofocus
@@ -46,7 +46,6 @@
                     type="password"
                     name="password"
                     id="password"
-                    value="password"
                     required
                     class="block w-full rounded-lg border border-slate-300 text-sm pl-9 pr-3.5 py-2 text-slate-900 placeholder-slate-400 focus:border-[#C5A059] focus:ring-[#C5A059] bg-white transition-all"
                     placeholder="••••••••"
@@ -75,26 +74,4 @@
             </x-button>
         </div>
     </form>
-
-    {{-- Quick Test Credentials Box --}}
-    <div class="mt-6 pt-5 border-t border-slate-100 text-xs text-slate-500 space-y-2 bg-gradient-to-br from-[#FAF8F4] to-[#F5EFE6] p-4 rounded-xl border border-[#C5A059]/30">
-        <div class="font-bold text-slate-800 flex items-center gap-1.5">
-            <svg class="w-4 h-4 text-[#8F6B20]" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
-            <span>Demo Role Logins (Password: <code class="bg-[#FAF8F4] px-1.5 py-0.5 rounded text-[#8F6B20] font-mono border border-[#C5A059]/30">password</code>)</span>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 font-mono text-[10.5px]">
-            <div class="bg-white p-2.5 rounded-lg border border-slate-200/80 shadow-2xs">
-                <span class="text-[#8F6B20] font-bold block">Super Admin:</span>
-                <span class="text-slate-700 truncate block">admin@emac.test</span>
-            </div>
-            <div class="bg-white p-2.5 rounded-lg border border-slate-200/80 shadow-2xs">
-                <span class="text-[#8F6B20] font-bold block">Technician:</span>
-                <span class="text-slate-700 truncate block">technician@emac.test</span>
-            </div>
-            <div class="bg-white p-2.5 rounded-lg border border-slate-200/80 shadow-2xs">
-                <span class="text-[#8F6B20] font-bold block">Customer:</span>
-                <span class="text-slate-700 truncate block">customer@emac.test</span>
-            </div>
-        </div>
-    </div>
 </x-auth.layout>

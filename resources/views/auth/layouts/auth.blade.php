@@ -39,7 +39,7 @@
         <div class="mt-6 text-center text-xs text-slate-500 flex items-center justify-center gap-4">
             <a href="{{ route('home') }}" class="hover:text-[#8F6B20] transition-colors font-medium">&larr; Return to Public Website</a>
             <span>•</span>
-            <span class="text-slate-500">EMAC Development ERP</span>
+            <span class="text-slate-500">EMAC Development</span>
         </div>
     </div>
 
