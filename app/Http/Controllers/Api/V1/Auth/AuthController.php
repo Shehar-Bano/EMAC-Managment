@@ -18,6 +18,7 @@ use App\Services\Auth\SocialAuthService;
 use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\PersonalAccessToken;
 
@@ -28,17 +29,45 @@ class AuthController extends Controller
      */
     public function register(RegisterRequest $request, OtpService $otpService): JsonResponse
     {
-        $user = User::create([
-            'name' => $request->name,
-            'email' => strtolower($request->email),
-            'phone' => $request->phone,
-            'address' => $request->address,
-            'password' => Hash::make($request->password),
-            'role' => 'customer',
-            'source' => AuthSource::EMAIL,
-            'account_status' => AccountStatus::PENDING,
-            'profile_status' => ProfileStatus::INCOMPLETE,
-        ]);
+        $user = DB::transaction(function () use ($request) {
+            $user = User::create([
+                'name' => $request->name,
+                'email' => strtolower($request->email),
+                'phone' => $request->phone,
+                'password' => Hash::make($request->password),
+                'role' => 'customer',
+                'source' => AuthSource::EMAIL,
+                'account_status' => AccountStatus::PENDING,
+                'profile_status' => ProfileStatus::INCOMPLETE,
+            ]);
+
+            // Save address into user_addresses table
+            if ($request->has('addresses') && is_array($request->addresses) && count($request->addresses) > 0) {
+                foreach ($request->addresses as $index => $addr) {
+                    if (! empty($addr['address']) || ! empty($addr['city']) || ! empty($addr['country']) || ! empty($addr['state'])) {
+                        $isPrimary = isset($addr['is_primary']) ? (bool) $addr['is_primary'] : ($index === 0);
+
+                        $user->addresses()->create([
+                            'country' => $addr['country'] ?? null,
+                            'state' => $addr['state'] ?? null,
+                            'city' => $addr['city'] ?? null,
+                            'address' => $addr['address'] ?? null,
+                            'is_primary' => $isPrimary,
+                        ]);
+                    }
+                }
+            } elseif ($request->filled('address')) {
+                $user->addresses()->create([
+                    'country' => $request->country ?? null,
+                    'state' => $request->state ?? null,
+                    'city' => $request->city ?? null,
+                    'address' => $request->address,
+                    'is_primary' => true,
+                ]);
+            }
+
+            return $user;
+        });
 
         // Generate registration OTP
         $otpService->sendOtp($user->email, OtpPurpose::REGISTRATION, $user);

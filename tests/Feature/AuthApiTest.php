@@ -51,7 +51,10 @@ class AuthApiTest extends TestCase
                 ],
             ]);
 
+        $userId = $response->json('data.user_id');
+
         $this->assertDatabaseHas('users', [
+            'id' => $userId,
             'email' => 'john@example.com',
             'account_status' => 'pending',
             'profile_status' => 'incomplete',
@@ -59,9 +62,74 @@ class AuthApiTest extends TestCase
             'source' => 'email',
         ]);
 
+        $this->assertDatabaseHas('user_addresses', [
+            'user_id' => $userId,
+            'address' => '123 Example Street',
+            'is_primary' => 1,
+        ]);
+
         $this->assertDatabaseHas('otps', [
             'identifier' => 'john@example.com',
             'purpose' => 'registration',
+        ]);
+    }
+
+    /**
+     * Test registration with multiple structured addresses in user_addresses table.
+     */
+    public function test_customer_can_register_with_addresses_array(): void
+    {
+        $payload = [
+            'name' => 'Jane Doe',
+            'email' => 'jane@example.com',
+            'phone' => '+1987654321',
+            'addresses' => [
+                [
+                    'country' => 'Cayman Islands',
+                    'state' => 'Grand Cayman',
+                    'city' => 'George Town',
+                    'address' => '789 West Bay Road',
+                    'is_primary' => true,
+                ],
+                [
+                    'country' => 'United States',
+                    'state' => 'Florida',
+                    'city' => 'Miami',
+                    'address' => '100 Biscayne Blvd',
+                    'is_primary' => false,
+                ],
+            ],
+            'password' => 'StrongPassword123!',
+            'confirm_password' => 'StrongPassword123!',
+            'terms_accepted' => true,
+            'privacy_policy_accepted' => true,
+            'role' => 'customer',
+        ];
+
+        $response = $this->postJson('/api/v1/auth/register', $payload);
+
+        $response->assertStatus(201)
+            ->assertJson([
+                'success' => true,
+                'status_code' => 201,
+            ]);
+
+        $userId = $response->json('data.user_id');
+
+        $this->assertDatabaseHas('user_addresses', [
+            'user_id' => $userId,
+            'country' => 'Cayman Islands',
+            'city' => 'George Town',
+            'address' => '789 West Bay Road',
+            'is_primary' => 1,
+        ]);
+
+        $this->assertDatabaseHas('user_addresses', [
+            'user_id' => $userId,
+            'country' => 'United States',
+            'city' => 'Miami',
+            'address' => '100 Biscayne Blvd',
+            'is_primary' => 0,
         ]);
     }
 

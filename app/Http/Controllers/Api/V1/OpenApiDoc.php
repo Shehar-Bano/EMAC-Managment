@@ -53,7 +53,25 @@ class OpenApiDoc
                     new OA\Property(property: 'name', type: 'string', example: 'John Doe'),
                     new OA\Property(property: 'email', type: 'string', format: 'email', example: 'john@example.com'),
                     new OA\Property(property: 'phone', type: 'string', example: '+1234567890'),
-                    new OA\Property(property: 'address', type: 'string', example: '123 Example Street'),
+                    new OA\Property(property: 'address', type: 'string', example: '123 Example Street', description: 'Primary address line (stored in user_addresses table)'),
+                    new OA\Property(property: 'country', type: 'string', example: 'Cayman Islands', nullable: true),
+                    new OA\Property(property: 'state', type: 'string', example: 'Grand Cayman', nullable: true),
+                    new OA\Property(property: 'city', type: 'string', example: 'George Town', nullable: true),
+                    new OA\Property(
+                        property: 'addresses',
+                        type: 'array',
+                        items: new OA\Items(
+                            properties: [
+                                new OA\Property(property: 'country', type: 'string', example: 'Cayman Islands'),
+                                new OA\Property(property: 'state', type: 'string', example: 'Grand Cayman'),
+                                new OA\Property(property: 'city', type: 'string', example: 'George Town'),
+                                new OA\Property(property: 'address', type: 'string', example: '123 Example Street, Apt 4B'),
+                                new OA\Property(property: 'is_primary', type: 'boolean', example: true),
+                            ]
+                        ),
+                        nullable: true,
+                        description: 'Optional list of user addresses'
+                    ),
                     new OA\Property(property: 'password', type: 'string', format: 'password', example: 'StrongPassword123!'),
                     new OA\Property(property: 'confirm_password', type: 'string', format: 'password', example: 'StrongPassword123!'),
                     new OA\Property(property: 'terms_accepted', type: 'boolean', example: true),
