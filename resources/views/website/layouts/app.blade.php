@@ -85,9 +85,6 @@
                             <span>Dashboard</span>
                         </a>
                     @else
-                        <a href="{{ route('login') }}" class="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-slate-700 hover:text-slate-950 hover:bg-slate-100 rounded-lg transition-colors border border-slate-200">
-                            <span>Client / Employee Portal</span>
-                        </a>
                         <a href="{{ route('contact') }}" class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-slate-900 bg-[#C5A059] hover:bg-[#b8934b] rounded-lg shadow-xs transition-colors">
                             <span>Request a Quote</span>
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
@@ -126,7 +123,6 @@
                 @auth
                     <a href="{{ route('dashboard.index') }}" class="block w-full text-center px-4 py-2.5 text-xs font-bold text-slate-900 bg-[#C5A059] rounded-lg">Open Dashboard</a>
                 @else
-                    <a href="{{ route('login') }}" class="block w-full text-center px-4 py-2 text-xs font-semibold text-slate-800 bg-slate-100 rounded-lg">Client / Employee Portal</a>
                     <a href="{{ route('contact') }}" class="block w-full text-center px-4 py-2.5 text-xs font-bold text-slate-900 bg-[#C5A059] rounded-lg">Request a Quote</a>
                 @endauth
             </div>
