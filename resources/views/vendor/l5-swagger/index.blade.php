@@ -141,7 +141,45 @@
 
             requestInterceptor: function(request) {
                 request.headers['X-CSRF-TOKEN'] = '{{ csrf_token() }}';
+
+                @php
+                    $rawAppUrl = env('APP_URL') ?: config('app.url');
+                    $formattedAppUrl = $rawAppUrl ? (str_starts_with($rawAppUrl, 'http://') || str_starts_with($rawAppUrl, 'https://') ? $rawAppUrl : 'https://' . $rawAppUrl) : url('/');
+                    $formattedAppUrl = rtrim($formattedAppUrl, '/');
+                @endphp
+
+                const appUrl = "{!! $formattedAppUrl !!}";
+                try {
+                    const targetBase = new URL(appUrl);
+                    const currentRequestUrl = new URL(request.url, window.location.origin);
+
+                    const subPath = targetBase.pathname === '/' ? '' : targetBase.pathname.replace(/\/$/, '');
+                    let reqPath = currentRequestUrl.pathname;
+
+                    if (subPath && !reqPath.startsWith(subPath)) {
+                        reqPath = subPath + reqPath;
+                    }
+
+                    request.url = targetBase.origin + reqPath + currentRequestUrl.search;
+                } catch(e) {
+                    console.warn('Swagger URL rewriting error:', e);
+                }
+
                 return request;
+            },
+
+            responseInterceptor: function(response) {
+                if (response.obj && (response.obj.openapi || response.obj.swagger)) {
+                    @php
+                        $rawAppUrl = env('APP_URL') ?: config('app.url');
+                        $formattedAppUrl = $rawAppUrl ? (str_starts_with($rawAppUrl, 'http://') || str_starts_with($rawAppUrl, 'https://') ? $rawAppUrl : 'https://' . $rawAppUrl) : url('/');
+                        $formattedAppUrl = rtrim($formattedAppUrl, '/');
+                    @endphp
+                    response.obj.servers = [
+                        { url: "{!! $formattedAppUrl !!}", description: 'Server from APP_URL' }
+                    ];
+                }
+                return response;
             },
 
             presets: [

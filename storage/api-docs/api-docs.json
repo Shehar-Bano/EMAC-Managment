@@ -7,7 +7,7 @@
     },
     "servers": [
         {
-            "url": "/",
+            "url": "http://localhost:8000",
             "description": "Current Server Environment"
         }
     ],
@@ -194,8 +194,54 @@
                                         "example": "+1234567890"
                                     },
                                     "address": {
+                                        "description": "Primary address line (stored in user_addresses table)",
                                         "type": "string",
                                         "example": "123 Example Street"
+                                    },
+                                    "country": {
+                                        "type": "string",
+                                        "example": "Cayman Islands",
+                                        "nullable": true
+                                    },
+                                    "state": {
+                                        "type": "string",
+                                        "example": "Grand Cayman",
+                                        "nullable": true
+                                    },
+                                    "city": {
+                                        "type": "string",
+                                        "example": "George Town",
+                                        "nullable": true
+                                    },
+                                    "addresses": {
+                                        "description": "Optional list of user addresses",
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "country": {
+                                                    "type": "string",
+                                                    "example": "Cayman Islands"
+                                                },
+                                                "state": {
+                                                    "type": "string",
+                                                    "example": "Grand Cayman"
+                                                },
+                                                "city": {
+                                                    "type": "string",
+                                                    "example": "George Town"
+                                                },
+                                                "address": {
+                                                    "type": "string",
+                                                    "example": "123 Example Street, Apt 4B"
+                                                },
+                                                "is_primary": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "nullable": true
                                     },
                                     "password": {
                                         "type": "string",
