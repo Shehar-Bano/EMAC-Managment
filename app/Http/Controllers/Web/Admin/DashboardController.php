@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Web\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Permission;
+use App\Models\Region;
+use App\Models\RegionalServicePrice;
 use App\Models\Role;
 use App\Models\Subcategory;
 use App\Models\User;
@@ -24,6 +26,8 @@ class DashboardController extends Controller
             'total_permissions' => Permission::count(),
             'total_categories' => Category::count(),
             'total_subcategories' => Subcategory::count(),
+            'total_regions' => Region::count(),
+            'total_regional_prices' => RegionalServicePrice::count(),
         ];
 
         $recentUsers = User::with(['roles'])

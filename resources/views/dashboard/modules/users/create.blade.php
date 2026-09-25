@@ -1,21 +1,33 @@
-<x-dashboard.layout :title="'Create Employee Account — EMAC Development ERP'">
+<x-dashboard.layout :title="'Add ' . ($activeType === 'customers' ? 'Customer' : ($activeType === 'technicians' ? 'Technician' : 'Administrator')) . ' — EMAC Development ERP'">
+
+    @php
+        $typeNames = [
+            'customers' => ['singular' => 'Customer', 'plural' => 'Customers Directory', 'role_slug' => 'customer', 'desc' => 'Register a new customer account, contact details, and physical service addresses'],
+            'technicians' => ['singular' => 'Technician / Employee', 'plural' => 'Technicians & Field Staff', 'role_slug' => 'technician', 'desc' => 'Register a field operations technician, assign operational skills, and credentials'],
+            'admins' => ['singular' => 'Administrator User', 'plural' => 'Administrator Users', 'role_slug' => 'super-admin', 'desc' => 'Register a root administrator account with system governance permissions'],
+        ];
+
+        $typeInfo = $typeNames[$activeType] ?? $typeNames['customers'];
+    @endphp
 
     <x-slot:breadcrumbs>
         <span class="text-slate-400">/</span>
-        <a href="{{ route('dashboard.users.index') }}" class="hover:text-[#C5A059]">User Management</a>
+        <a href="{{ route('dashboard.users.index') }}" class="hover:text-[#8F6B20]">User Management</a>
         <span class="text-slate-400">/</span>
-        <span class="font-semibold text-slate-800">Add Employee</span>
+        <a href="{{ route('dashboard.users.index', ['type' => $activeType]) }}" class="hover:text-[#8F6B20]">User Directory</a>
+        <span class="text-slate-400">/</span>
+        <span class="font-semibold text-slate-800">Add {{ $typeInfo['singular'] }}</span>
     </x-slot:breadcrumbs>
 
     <x-slot:header>
         <div>
-            <h1 class="text-2xl font-bold tracking-tight text-slate-900">Add New Employee</h1>
-            <p class="text-xs text-slate-500 mt-1">Register a corporate employee account and configure security role permissions</p>
+            <h1 class="text-2xl font-bold tracking-tight text-slate-900">Add New {{ $typeInfo['singular'] }}</h1>
+            <p class="text-xs text-slate-500 mt-1">{{ $typeInfo['desc'] }}</p>
         </div>
 
         <div>
-            <x-button href="{{ route('dashboard.users.index') }}" variant="secondary" size="sm">
-                &larr; Back to Directory
+            <x-button href="{{ route('dashboard.users.index', ['type' => $activeType]) }}" variant="secondary" size="sm">
+                &larr; Back to {{ $typeInfo['plural'] }}
             </x-button>
         </div>
     </x-slot:header>
@@ -36,9 +48,10 @@
             }
         }">
             @csrf
+            <input type="hidden" name="type" value="{{ $activeType }}">
 
             {{-- Account Identity & Photo Card --}}
-            <x-card title="Account Identity & Profile Photo" subtitle="Primary credentials and avatar photograph">
+            <x-card title="Account Identity & Profile Photo" subtitle="Primary user credentials and profile image">
                 {{-- Avatar Upload Section --}}
                 <div class="mb-6 p-4 rounded-2xl bg-[#FAF8F4] border border-[#C5A059]/25 flex flex-col sm:flex-row items-center gap-5">
                     <div class="relative shrink-0">
@@ -80,17 +93,17 @@
                     <x-input
                         label="Full Name"
                         name="name"
-                        placeholder="e.g. Eleanor Vance"
+                        placeholder="e.g. {{ $activeType === 'customers' ? 'John Doe' : ($activeType === 'technicians' ? 'David Miller' : 'Admin User') }}"
                         required
                         autofocus
                     />
 
                     {{-- Email --}}
                     <x-input
-                        label="Corporate Email Address"
+                        label="Email Address"
                         name="email"
                         type="email"
-                        placeholder="e.g. eleanor.vance@emac.test"
+                        placeholder="e.g. user@emac.test"
                         required
                     />
                 </div>
@@ -113,18 +126,18 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     {{-- Password --}}
                     <x-input
-                        label="Initial Password"
+                        label="Account Password"
                         name="password"
                         type="password"
                         placeholder="Minimum 8 characters..."
                         required
-                        hint="Employee can reset their password on first login."
+                        hint="User can use these credentials to log in."
                     />
                 </div>
             </x-card>
 
             {{-- Multiple User Addresses Card --}}
-            <x-card title="Registered User Addresses" subtitle="Store multiple physical and mailing addresses for this user">
+            <x-card title="Registered Addresses" subtitle="Store physical, service, and mailing addresses">
                 <x-slot:actions>
                     <button
                         type="button"
@@ -203,21 +216,30 @@
                 </div>
             </x-card>
 
-            {{-- Role Assignment Multi-Checkbox Grid Card --}}
-            <x-card title="Assigned Security Roles" subtitle="Grant functional role permissions to this employee">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {{-- Assigned Role Section --}}
+            <x-card title="Assigned Role & Privileges" subtitle="Designate the specific role for this {{ strtolower($typeInfo['singular']) }} account">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     @foreach ($roles as $role)
-                        <label class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 hover:border-[#C5A059] hover:bg-[#C5A059]/5 transition-colors cursor-pointer">
+                        @php
+                            $isTargetRole = ($role->slug === $typeInfo['role_slug']);
+                            $isChecked = in_array($role->id, old('roles', ($isTargetRole ? [$role->id] : [])));
+                        @endphp
+                        <label class="flex items-start gap-3 p-3.5 rounded-xl border transition-colors cursor-pointer {{ $isTargetRole ? 'border-[#C5A059] bg-[#C5A059]/10' : 'border-slate-200 hover:border-slate-300 bg-white' }}">
                             <input
                                 type="checkbox"
                                 name="roles[]"
                                 value="{{ $role->id }}"
-                                {{ in_array($role->id, old('roles', [])) ? 'checked' : '' }}
+                                {{ $isChecked ? 'checked' : '' }}
                                 class="mt-0.5 rounded-sm border-slate-300 text-[#C5A059] focus:ring-[#C5A059] w-4 h-4 cursor-pointer"
                             >
                             <div class="text-xs">
-                                <span class="font-bold text-slate-900 block">{{ $role->name }}</span>
-                                <span class="text-slate-500 text-[11px]">{{ $role->description ?? 'Standard system role.' }}</span>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="font-bold text-slate-900">{{ $role->name }}</span>
+                                    @if ($isTargetRole)
+                                        <span class="text-[9px] font-bold bg-[#C5A059] text-white px-1.5 py-0.2 rounded">Recommended</span>
+                                    @endif
+                                </div>
+                                <span class="text-slate-500 text-[11px] mt-0.5 block">{{ $role->description ?? 'Standard system role.' }}</span>
                             </div>
                         </label>
                     @endforeach
@@ -228,11 +250,11 @@
 
                 <x-slot:footer>
                     <div class="flex items-center justify-end gap-3 w-full">
-                        <x-button href="{{ route('dashboard.users.index') }}" variant="secondary">
+                        <x-button href="{{ route('dashboard.users.index', ['type' => $activeType]) }}" variant="secondary">
                             Cancel
                         </x-button>
                         <x-button type="submit" variant="primary">
-                            Create Employee Account
+                            Create {{ $typeInfo['singular'] }} Account
                         </x-button>
                     </div>
                 </x-slot:footer>

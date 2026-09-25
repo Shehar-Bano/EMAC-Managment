@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\ContactInquiry;
 use App\Models\LegalDocument;
+use App\Models\Region;
 use App\Models\Subcategory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -26,7 +27,7 @@ class WebsiteController extends Controller
         $stats = [
             'total_categories' => Category::active()->count(),
             'total_services' => Subcategory::active()->count(),
-            'markets_count' => 3, // Florida, Jamaica, Cayman Islands
+            'markets_count' => Region::active()->count() ?: 3,
         ];
 
         return view('website.home', compact('categories', 'stats'));

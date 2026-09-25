@@ -44,6 +44,10 @@ use OpenApi\Attributes as OA;
     name: 'Service Requests',
     description: 'Customer service request submission and tracking APIs'
 )]
+#[OA\Tag(
+    name: 'Quotes',
+    description: 'Price quotation review and customer response (approve, decline, ask question) APIs'
+)]
 class OpenApiDoc
 {
     #[OA\Post(
@@ -626,4 +630,98 @@ class OpenApiDoc
         ]
     )]
     public function getServiceRequestDoc() {}
+
+    #[OA\Get(
+        path: '/api/v1/quotes/{id}',
+        summary: 'Get details of a price quote',
+        description: 'Allows customer to view itemized pricing, labor, materials, trip charges, discounts, taxes, and terms for an issued quote.',
+        security: [['bearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer', example: 1)),
+        ],
+        tags: ['Quotes'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Quote details retrieved successfully',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'success', type: 'boolean', example: true),
+                        new OA\Property(property: 'status_code', type: 'integer', example: 200),
+                        new OA\Property(property: 'message', type: 'string', example: 'Quote retrieved successfully.'),
+                        new OA\Property(
+                            property: 'data',
+                            properties: [
+                                new OA\Property(property: 'id', type: 'integer', example: 1),
+                                new OA\Property(property: 'quote_number', type: 'string', example: 'QUO-2026-00001'),
+                                new OA\Property(property: 'service_request_id', type: 'integer', example: 1),
+                                new OA\Property(property: 'service_description', type: 'string', example: 'Compressor replacement & AC system recharge.'),
+                                new OA\Property(
+                                    property: 'costs',
+                                    properties: [
+                                        new OA\Property(property: 'labor', type: 'number', example: 150.00),
+                                        new OA\Property(property: 'materials', type: 'number', example: 320.00),
+                                        new OA\Property(property: 'equipment', type: 'number', example: 50.00),
+                                        new OA\Property(property: 'trip_charge', type: 'number', example: 25.00),
+                                        new OA\Property(property: 'additional_charges', type: 'number', example: 0.00),
+                                        new OA\Property(property: 'subtotal', type: 'number', example: 545.00),
+                                        new OA\Property(property: 'discount', type: 'number', example: 25.00),
+                                        new OA\Property(property: 'tax_rate', type: 'number', example: 5.0),
+                                        new OA\Property(property: 'tax_amount', type: 'number', example: 26.00),
+                                        new OA\Property(property: 'total_price', type: 'number', example: 546.00),
+                                    ],
+                                    type: 'object'
+                                ),
+                                new OA\Property(property: 'status', type: 'string', example: 'pending'),
+                                new OA\Property(property: 'status_label', type: 'string', example: 'Pending Review'),
+                                new OA\Property(property: 'expires_at', type: 'string', example: '2026-10-15'),
+                            ],
+                            type: 'object'
+                        ),
+                    ]
+                )
+            ),
+            new OA\Response(response: 404, description: 'Quote not found'),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+        ]
+    )]
+    public function getQuoteDoc() {}
+
+    #[OA\Post(
+        path: '/api/v1/quotes/{id}/respond',
+        summary: 'Customer responds to a quote',
+        description: 'Customer can approve, decline, or ask a question regarding an issued price quote.',
+        security: [['bearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer', example: 1)),
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['action'],
+                properties: [
+                    new OA\Property(property: 'action', type: 'string', enum: ['approve', 'decline', 'ask_question'], example: 'approve'),
+                    new OA\Property(property: 'customer_notes', type: 'string', example: 'Can we schedule this for Friday morning?', nullable: true),
+                ]
+            )
+        ),
+        tags: ['Quotes'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Response recorded successfully',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'success', type: 'boolean', example: true),
+                        new OA\Property(property: 'status_code', type: 'integer', example: 200),
+                        new OA\Property(property: 'message', type: 'string', example: 'Quote approved successfully.'),
+                        new OA\Property(property: 'data', type: 'object'),
+                    ]
+                )
+            ),
+            new OA\Response(response: 422, description: 'Invalid action or validation error'),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+        ]
+    )]
+    public function respondQuoteDoc() {}
 }

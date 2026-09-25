@@ -19,21 +19,21 @@ class UserSeeder extends Seeder
         $customerRole = Role::where('slug', 'customer')->first();
 
         // 1. Super Admin User
-        $superAdmin = User::updateOrCreate(
-            ['email' => 'admin@emac.test'],
-            [
-                'name' => 'EMAC Super Admin',
-                'phone' => '+1 (555) 019-2834',
-                'password' => Hash::make('password'),
-                'status' => 'active',
-                'email_verified_at' => now(),
-            ]
-        );
+        $superAdmin = User::withTrashed()->where('email', 'admin@emac.test')->first() ?? new User(['email' => 'admin@emac.test']);
+        $superAdmin->name = 'EMAC Super Admin';
+        $superAdmin->phone = '+1 (555) 019-2834';
+        $superAdmin->password = Hash::make('password');
+        $superAdmin->role = 'super-admin';
+        $superAdmin->status = 'active';
+        $superAdmin->email_verified_at = now();
+        $superAdmin->deleted_at = null;
+        $superAdmin->save();
+
         if ($superAdminRole) {
             $superAdmin->roles()->sync([$superAdminRole->id]);
         }
 
-        // 2. Technicians
+        // 2. Technicians (Employees)
         $technicians = [
             [
                 'name' => 'Alexander Wright',
@@ -74,22 +74,22 @@ class UserSeeder extends Seeder
         ];
 
         foreach ($technicians as $t) {
-            $u = User::updateOrCreate(
-                ['email' => $t['email']],
-                [
-                    'name' => $t['name'],
-                    'phone' => $t['phone'],
-                    'password' => Hash::make('password'),
-                    'status' => $t['status'],
-                    'email_verified_at' => now(),
-                ]
-            );
+            $u = User::withTrashed()->where('email', $t['email'])->first() ?? new User(['email' => $t['email']]);
+            $u->name = $t['name'];
+            $u->phone = $t['phone'];
+            $u->password = Hash::make('password');
+            $u->role = 'technician';
+            $u->status = $t['status'];
+            $u->email_verified_at = now();
+            $u->deleted_at = null;
+            $u->save();
+
             if ($technicianRole) {
                 $u->roles()->sync([$technicianRole->id]);
             }
         }
 
-        // 3. Customers
+        // 3. Customers (App Registrations)
         $customers = [
             [
                 'name' => 'Sarah Jenkins',
@@ -154,16 +154,16 @@ class UserSeeder extends Seeder
         ];
 
         foreach ($customers as $c) {
-            $u = User::updateOrCreate(
-                ['email' => $c['email']],
-                [
-                    'name' => $c['name'],
-                    'phone' => $c['phone'],
-                    'password' => Hash::make('password'),
-                    'status' => $c['status'],
-                    'email_verified_at' => now(),
-                ]
-            );
+            $u = User::withTrashed()->where('email', $c['email'])->first() ?? new User(['email' => $c['email']]);
+            $u->name = $c['name'];
+            $u->phone = $c['phone'];
+            $u->password = Hash::make('password');
+            $u->role = 'customer';
+            $u->status = $c['status'];
+            $u->email_verified_at = now();
+            $u->deleted_at = null;
+            $u->save();
+
             if ($customerRole) {
                 $u->roles()->sync([$customerRole->id]);
             }

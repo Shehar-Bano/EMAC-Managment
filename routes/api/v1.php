@@ -7,6 +7,9 @@ use App\Http\Controllers\Api\V1\Auth\ProfileController;
 use App\Http\Controllers\Api\V1\Category\CategoryController;
 use App\Http\Controllers\Api\V1\Category\SubcategoryController;
 use App\Http\Controllers\Api\V1\Legal\LegalDocumentController;
+use App\Http\Controllers\Api\V1\Pricing\RegionalServicePriceController;
+use App\Http\Controllers\Api\V1\Quote\QuoteController;
+use App\Http\Controllers\Api\V1\Region\RegionController;
 use App\Http\Controllers\Api\V1\Role\RoleController;
 use App\Http\Controllers\Api\V1\ServiceRequest\ServiceRequestController;
 use App\Http\Controllers\Api\V1\User\UserController;
@@ -56,6 +59,10 @@ Route::prefix('v1')->group(function () {
         Route::get('service-requests', [ServiceRequestController::class, 'index']);
         Route::post('service-requests', [ServiceRequestController::class, 'store']);
         Route::get('service-requests/{id}', [ServiceRequestController::class, 'show']);
+
+        // Customer Quote Endpoints
+        Route::get('quotes/{id}', [QuoteController::class, 'show']);
+        Route::post('quotes/{id}/respond', [QuoteController::class, 'respond']);
     });
 
     // ---------------------------------------------------------
@@ -78,6 +85,16 @@ Route::prefix('v1')->group(function () {
     Route::delete('subcategories/bulk-delete', [SubcategoryController::class, 'bulkDelete']);
     Route::patch('subcategories/{subcategory}/status', [SubcategoryController::class, 'toggleStatus']);
     Route::apiResource('subcategories', SubcategoryController::class);
+
+    // Region Endpoints
+    Route::delete('regions/bulk-delete', [RegionController::class, 'bulkDelete']);
+    Route::patch('regions/{region}/status', [RegionController::class, 'toggleStatus']);
+    Route::apiResource('regions', RegionController::class);
+
+    // Regional Service Pricing Endpoints
+    Route::delete('regional-service-prices/bulk-delete', [RegionalServicePriceController::class, 'bulkDelete']);
+    Route::patch('regional-service-prices/{regional_service_price}/status', [RegionalServicePriceController::class, 'toggleStatus']);
+    Route::apiResource('regional-service-prices', RegionalServicePriceController::class);
 
     // User Management Endpoints
     Route::delete('users/bulk-delete', [UserController::class, 'bulkDelete']);

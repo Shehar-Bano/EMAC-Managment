@@ -251,32 +251,55 @@
                                 @endif
                             </td>
 
-                            {{-- Actions --}}
-                            <td class="py-3 px-3.5 text-right">
-                                <div class="flex items-center justify-end gap-1.5">
-                                    <a
-                                        href="{{ route('dashboard.service-requests.show', $requestItem) }}"
-                                        class="p-1 text-slate-400 hover:text-[#C5A059] rounded-lg hover:bg-slate-100 transition-colors"
-                                        title="View Details"
-                                    >
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                                    </a>
+                            {{-- Actions Dropdown (Same as Categories standard) --}}
+                            <td class="px-3.5 py-2 text-right">
+                                <x-action-dropdown>
+                                    @can('service_requests.view')
+                                        <a href="{{ route('dashboard.service-requests.show', $requestItem) }}" class="flex items-center gap-2 px-3 py-1.5 text-xs text-slate-700 hover:bg-[#C5A059]/10 hover:text-[#B8903B] transition-colors">
+                                            <svg class="w-3.5 h-3.5 text-[#C5A059]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                            <span>View Details</span>
+                                        </a>
+                                    @endcan
+
+                                    @can('quotes.create')
+                                        <button
+                                            type="button"
+                                            data-request-id="{{ $requestItem->id }}"
+                                            data-request-number="#REQ-{{ str_pad($requestItem->id, 5, '0', STR_PAD_LEFT) }}"
+                                            data-customer-name="{{ $requestItem->user?->name ?? 'Customer' }}"
+                                            data-description="{{ $requestItem->description }}"
+                                            onclick="openQuoteModalFromButton(this)"
+                                            class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-amber-700 hover:bg-[#C5A059]/10 transition-colors cursor-pointer text-left font-medium"
+                                        >
+                                            <svg class="w-3.5 h-3.5 text-[#C5A059]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                            <span>Create / Send Quote</span>
+                                        </button>
+                                    @endcan
+
+                                    @if ($requestItem->latestQuote)
+                                        @can('quotes.view')
+                                            <a href="{{ route('dashboard.quotes.show', $requestItem->latestQuote) }}" class="flex items-center gap-2 px-3 py-1.5 text-xs text-indigo-700 hover:bg-indigo-50 transition-colors">
+                                                <svg class="w-3.5 h-3.5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                                                <span>View Quote ({{ $requestItem->latestQuote->quote_number }})</span>
+                                            </a>
+                                        @endcan
+                                    @endif
 
                                     @can('service_requests.delete')
-                                        <form method="POST" action="{{ route('dashboard.service-requests.destroy', $requestItem) }}" class="inline">
+                                        <form method="POST" action="{{ route('dashboard.service-requests.destroy', $requestItem) }}">
                                             @csrf
                                             @method('DELETE')
                                             <button
                                                 type="button"
                                                 data-confirm-delete="Are you sure you want to delete this service request record?"
-                                                class="p-1 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors cursor-pointer"
-                                                title="Delete Request"
+                                                class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer text-left font-medium"
                                             >
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                                <svg class="w-3.5 h-3.5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                                <span>Delete Request</span>
                                             </button>
                                         </form>
                                     @endcan
-                                </div>
+                                </x-action-dropdown>
                             </td>
                         </tr>
                     @empty
@@ -302,5 +325,8 @@
             </div>
         @endif
     </x-card>
+
+    {{-- Include Create Quote Modal Popup --}}
+    @include('dashboard.modules.quotes.partials.create-modal')
 
 </x-dashboard.layout>

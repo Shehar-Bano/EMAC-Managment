@@ -71,6 +71,26 @@
                         @endif
                     </a>
                 @endcan
+
+                @can('quotes.view')
+                    @php
+                        $pendingQuotesCount = \App\Models\Quote::where('status', 'pending')->count();
+                    @endphp
+                    <a
+                        href="{{ route('dashboard.quotes.index') }}"
+                        class="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold transition-colors {{ request()->routeIs('dashboard.quotes.*') ? 'bg-amber-50 text-[#8F6B20] font-bold' : 'text-slate-700 hover:bg-slate-100' }}"
+                    >
+                        <div class="flex items-center gap-3">
+                            <svg class="w-4 h-4 shrink-0 text-[#C5A059]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            <span>Quotes & Estimates</span>
+                        </div>
+                        @if ($pendingQuotesCount > 0)
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                                {{ $pendingQuotesCount }}
+                            </span>
+                        @endif
+                    </a>
+                @endcan
             </div>
         </div>
 
@@ -101,6 +121,30 @@
                         </div>
                     </a>
                 @endcan
+
+                @can('regions.view')
+                    <a
+                        href="{{ route('dashboard.regions.index') }}"
+                        class="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold transition-colors {{ request()->routeIs('dashboard.regions.*') ? 'bg-amber-50 text-[#8F6B20] font-bold' : 'text-slate-700 hover:bg-slate-100' }}"
+                    >
+                        <div class="flex items-center gap-3">
+                            <svg class="w-4 h-4 shrink-0 text-[#C5A059]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span>Service Regions</span>
+                        </div>
+                    </a>
+                @endcan
+
+                @can('regional_prices.view')
+                    <a
+                        href="{{ route('dashboard.regional-service-prices.index') }}"
+                        class="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold transition-colors {{ request()->routeIs('dashboard.regional-service-prices.*') ? 'bg-amber-50 text-[#8F6B20] font-bold' : 'text-slate-700 hover:bg-slate-100' }}"
+                    >
+                        <div class="flex items-center gap-3">
+                            <svg class="w-4 h-4 shrink-0 text-[#C5A059]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span>Regional Pricing</span>
+                        </div>
+                    </a>
+                @endcan
             </div>
         </div>
 
@@ -109,14 +153,22 @@
             <div class="px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">User Management</div>
             <div class="space-y-1">
                 @can('users.view')
+                    @php
+                        $totalUsersCount = \App\Models\User::count();
+                    @endphp
                     <a
                         href="{{ route('dashboard.users.index') }}"
                         class="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold transition-colors {{ request()->routeIs('dashboard.users.*') ? 'bg-amber-50 text-[#8F6B20] font-bold' : 'text-slate-700 hover:bg-slate-100' }}"
                     >
                         <div class="flex items-center gap-3">
                             <svg class="w-4 h-4 shrink-0 text-[#C5A059]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                            <span>Users</span>
+                            <span>User Directory</span>
                         </div>
+                        @if ($totalUsersCount > 0)
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#C5A059]/15 text-[#8F6B20] border border-[#C5A059]/20">
+                                {{ $totalUsersCount }}
+                            </span>
+                        @endif
                     </a>
                 @endcan
             </div>

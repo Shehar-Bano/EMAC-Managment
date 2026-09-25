@@ -96,6 +96,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Quotes issued for or received by the user.
+     */
+    public function quotes(): HasMany
+    {
+        return $this->hasMany(Quote::class, 'user_id');
+    }
+
+    /**
      * Social accounts linked to the user.
      */
     public function socialAccounts(): HasMany

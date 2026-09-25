@@ -38,6 +38,14 @@ class Category extends Model
     }
 
     /**
+     * Regional service pricing configurations for this category.
+     */
+    public function regionalServicePrices(): HasMany
+    {
+        return $this->hasMany(RegionalServicePrice::class, 'category_id');
+    }
+
+    /**
      * Category image URL accessor with elegant fallback.
      */
     protected function imageUrl(): Attribute

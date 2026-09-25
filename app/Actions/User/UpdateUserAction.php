@@ -2,6 +2,7 @@
 
 namespace App\Actions\User;
 
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -40,10 +41,19 @@ class UpdateUserAction
                 $updateData['password'] = Hash::make($data['password']);
             }
 
+            if (isset($data['role'])) {
+                $updateData['role'] = $data['role'];
+            }
+
             $user->update($updateData);
 
             if (isset($data['roles'])) {
                 $user->roles()->sync($data['roles']);
+            } elseif (isset($data['role'])) {
+                $roleModel = Role::where('slug', $data['role'])->first();
+                if ($roleModel) {
+                    $user->roles()->sync([$roleModel->id]);
+                }
             }
 
             // Sync Addresses

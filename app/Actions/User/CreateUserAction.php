@@ -2,6 +2,7 @@
 
 namespace App\Actions\User;
 
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -27,11 +28,17 @@ class CreateUserAction
                 'avatar' => $avatarPath,
                 'status' => $data['status'] ?? 'active',
                 'password' => Hash::make($data['password']),
+                'role' => $data['role'] ?? null,
                 'email_verified_at' => now(),
             ]);
 
             if (! empty($data['roles'])) {
                 $user->roles()->sync($data['roles']);
+            } elseif (! empty($data['role'])) {
+                $roleModel = Role::where('slug', $data['role'])->first();
+                if ($roleModel) {
+                    $user->roles()->sync([$roleModel->id]);
+                }
             }
 
             if (! empty($data['addresses']) && is_array($data['addresses'])) {

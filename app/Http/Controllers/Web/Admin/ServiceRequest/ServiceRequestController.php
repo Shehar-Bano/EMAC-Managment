@@ -22,7 +22,7 @@ class ServiceRequestController extends Controller
         $this->authorize('service_requests.view');
 
         $perPageParam = strtolower($request->get('per_page', '10'));
-        $query = ServiceRequest::with(['user', 'address', 'photographs', 'videos'])
+        $query = ServiceRequest::with(['user', 'address', 'photographs', 'videos', 'latestQuote'])
             ->filter($request->only(['search', 'status', 'priority', 'date_from', 'date_to']))
             ->latest('id');
 
@@ -53,7 +53,7 @@ class ServiceRequestController extends Controller
     {
         $this->authorize('service_requests.view');
 
-        $serviceRequest->load(['user.addresses', 'address', 'photographs', 'videos']);
+        $serviceRequest->load(['user.addresses', 'address', 'photographs', 'videos', 'quotes.sender']);
 
         return view('dashboard.modules.service-requests.show', compact('serviceRequest'));
     }

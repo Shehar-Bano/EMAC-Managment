@@ -12,6 +12,7 @@ use App\Http\Requests\Auth\RefreshTokenRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Requests\Auth\SocialLoginRequest;
 use App\Http\Resources\Auth\UserAuthResource;
+use App\Models\Role;
 use App\Models\User;
 use App\Services\Auth\OtpService;
 use App\Services\Auth\SocialAuthService;
@@ -64,6 +65,12 @@ class AuthController extends Controller
                     'address' => $request->address,
                     'is_primary' => true,
                 ]);
+            }
+
+            // Assign customer role in pivot table
+            $customerRole = Role::where('slug', 'customer')->first();
+            if ($customerRole) {
+                $user->roles()->syncWithoutDetaching([$customerRole->id]);
             }
 
             return $user;

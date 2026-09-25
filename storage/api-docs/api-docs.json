@@ -1482,6 +1482,232 @@
                     }
                 ]
             }
+        },
+        "/api/v1/quotes/{id}": {
+            "get": {
+                "tags": [
+                    "Quotes"
+                ],
+                "summary": "Get details of a price quote",
+                "description": "Allows customer to view itemized pricing, labor, materials, trip charges, discounts, taxes, and terms for an issued quote.",
+                "operationId": "d020764db086edf02ed9434ee3161625",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Quote details retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "status_code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Quote retrieved successfully."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "quote_number": {
+                                                    "type": "string",
+                                                    "example": "QUO-2026-00001"
+                                                },
+                                                "service_request_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "service_description": {
+                                                    "type": "string",
+                                                    "example": "Compressor replacement & AC system recharge."
+                                                },
+                                                "costs": {
+                                                    "properties": {
+                                                        "labor": {
+                                                            "type": "number",
+                                                            "example": 150
+                                                        },
+                                                        "materials": {
+                                                            "type": "number",
+                                                            "example": 320
+                                                        },
+                                                        "equipment": {
+                                                            "type": "number",
+                                                            "example": 50
+                                                        },
+                                                        "trip_charge": {
+                                                            "type": "number",
+                                                            "example": 25
+                                                        },
+                                                        "additional_charges": {
+                                                            "type": "number",
+                                                            "example": 0
+                                                        },
+                                                        "subtotal": {
+                                                            "type": "number",
+                                                            "example": 545
+                                                        },
+                                                        "discount": {
+                                                            "type": "number",
+                                                            "example": 25
+                                                        },
+                                                        "tax_rate": {
+                                                            "type": "number",
+                                                            "example": 5
+                                                        },
+                                                        "tax_amount": {
+                                                            "type": "number",
+                                                            "example": 26
+                                                        },
+                                                        "total_price": {
+                                                            "type": "number",
+                                                            "example": 546
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "pending"
+                                                },
+                                                "status_label": {
+                                                    "type": "string",
+                                                    "example": "Pending Review"
+                                                },
+                                                "expires_at": {
+                                                    "type": "string",
+                                                    "example": "2026-10-15"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Quote not found"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/quotes/{id}/respond": {
+            "post": {
+                "tags": [
+                    "Quotes"
+                ],
+                "summary": "Customer responds to a quote",
+                "description": "Customer can approve, decline, or ask a question regarding an issued price quote.",
+                "operationId": "a5d3c9c03513b3ec44d15734c82a14bc",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "action"
+                                ],
+                                "properties": {
+                                    "action": {
+                                        "type": "string",
+                                        "example": "approve",
+                                        "enum": [
+                                            "approve",
+                                            "decline",
+                                            "ask_question"
+                                        ]
+                                    },
+                                    "customer_notes": {
+                                        "type": "string",
+                                        "example": "Can we schedule this for Friday morning?",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Response recorded successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "status_code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Quote approved successfully."
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid action or validation error"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -1518,6 +1744,10 @@
         {
             "name": "Service Requests",
             "description": "Customer service request submission and tracking APIs"
+        },
+        {
+            "name": "Quotes",
+            "description": "Price quotation review and customer response (approve, decline, ask question) APIs"
         }
     ]
 }

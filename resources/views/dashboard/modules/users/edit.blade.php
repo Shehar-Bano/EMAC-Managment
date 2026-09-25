@@ -1,21 +1,32 @@
-<x-dashboard.layout :title="'Edit Employee Account — EMAC Development ERP'">
+<x-dashboard.layout :title="'Edit Profile — ' . $user->name . ' — EMAC Development ERP'">
+
+    @php
+        $typeNames = [
+            'customers' => ['singular' => 'Customer', 'plural' => 'Customers Directory'],
+            'technicians' => ['singular' => 'Technician', 'plural' => 'Technicians & Field Staff'],
+            'admins' => ['singular' => 'Administrator', 'plural' => 'Administrator Users'],
+        ];
+        $typeInfo = $typeNames[$activeType] ?? $typeNames['customers'];
+    @endphp
 
     <x-slot:breadcrumbs>
         <span class="text-slate-400">/</span>
-        <a href="{{ route('dashboard.users.index') }}" class="hover:text-[#C5A059]">User Management</a>
+        <a href="{{ route('dashboard.users.index') }}" class="hover:text-[#8F6B20]">User Management</a>
+        <span class="text-slate-400">/</span>
+        <a href="{{ route('dashboard.users.index', ['type' => $activeType]) }}" class="hover:text-[#8F6B20]">User Directory</a>
         <span class="text-slate-400">/</span>
         <span class="font-semibold text-slate-800">Edit {{ $user->name }}</span>
     </x-slot:breadcrumbs>
 
     <x-slot:header>
         <div>
-            <h1 class="text-2xl font-bold tracking-tight text-slate-900">Edit Employee Account</h1>
+            <h1 class="text-2xl font-bold tracking-tight text-slate-900">Edit {{ $typeInfo['singular'] }} Account</h1>
             <p class="text-xs text-slate-500 mt-1">Update profile information, contact channels, physical addresses, and security role permissions</p>
         </div>
 
         <div>
-            <x-button href="{{ route('dashboard.users.index') }}" variant="secondary" size="sm">
-                &larr; Back to Directory
+            <x-button href="{{ route('dashboard.users.index', ['type' => $activeType]) }}" variant="secondary" size="sm">
+                &larr; Back to {{ $typeInfo['plural'] }}
             </x-button>
         </div>
     </x-slot:header>
@@ -38,9 +49,10 @@
         }">
             @csrf
             @method('PUT')
+            <input type="hidden" name="type" value="{{ $activeType }}">
 
             {{-- Account Information & Profile Photo Card --}}
-            <x-card title="Account Identity & Profile Photo" subtitle="Employee profile ID: #{{ $user->id }}">
+            <x-card title="Account Identity & Profile Photo" subtitle="User ID: #{{ $user->id }}">
                 {{-- Avatar Upload & Current Display Section --}}
                 <div class="mb-6 p-4 rounded-2xl bg-[#FAF8F4] border border-[#C5A059]/25 flex flex-col sm:flex-row items-center gap-5">
                     <div class="relative shrink-0">
@@ -99,7 +111,7 @@
 
                     {{-- Email --}}
                     <x-input
-                        label="Corporate Email Address"
+                        label="Email Address"
                         name="email"
                         type="email"
                         :value="$user->email"
@@ -137,7 +149,7 @@
             </x-card>
 
             {{-- Multiple User Addresses Card --}}
-            <x-card title="Registered User Addresses" subtitle="Store multiple physical and mailing addresses for this user">
+            <x-card title="Registered User Addresses" subtitle="Store multiple physical, service, and mailing addresses">
                 <x-slot:actions>
                     <button
                         type="button"
@@ -222,7 +234,7 @@
                     $userRoleIds = old('roles', $user->roles->pluck('id')->toArray());
                 @endphp
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     @foreach ($roles as $role)
                         <label class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 hover:border-[#C5A059] hover:bg-[#C5A059]/5 transition-colors cursor-pointer">
                             <input
@@ -245,7 +257,7 @@
 
                 <x-slot:footer>
                     <div class="flex items-center justify-end gap-3 w-full">
-                        <x-button href="{{ route('dashboard.users.index') }}" variant="secondary">
+                        <x-button href="{{ route('dashboard.users.index', ['type' => $activeType]) }}" variant="secondary">
                             Cancel
                         </x-button>
                         <x-button type="submit" variant="primary">

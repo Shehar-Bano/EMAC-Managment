@@ -38,6 +38,21 @@
         </div>
 
         <div class="flex items-center gap-2.5">
+            @can('quotes.create')
+                <button
+                    type="button"
+                    data-request-id="{{ $serviceRequest->id }}"
+                    data-request-number="#REQ-{{ str_pad($serviceRequest->id, 5, '0', STR_PAD_LEFT) }}"
+                    data-customer-name="{{ $serviceRequest->user?->name ?? 'Customer' }}"
+                    data-description="{{ $serviceRequest->description }}"
+                    onclick="openQuoteModalFromButton(this)"
+                    class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#C5A059] text-slate-950 hover:brightness-105 shadow-2xs transition-all cursor-pointer"
+                >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    <span>Create / Send Quote</span>
+                </button>
+            @endcan
+
             <x-button href="{{ route('dashboard.service-requests.index') }}" variant="secondary" size="sm">
                 &larr; Back to Requests
             </x-button>
@@ -164,6 +179,71 @@
                     </div>
                 @endif
             </div>
+
+            {{-- Price Quotations & Estimates Section --}}
+            <div class="p-6 rounded-3xl bg-white border border-slate-200/90 shadow-xs space-y-4">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                    <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-[#C5A059]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        <span>Issued Price Quotations & Estimates ({{ $serviceRequest->quotes->count() }})</span>
+                    </h3>
+                    @can('quotes.create')
+                        <button
+                            type="button"
+                            data-request-id="{{ $serviceRequest->id }}"
+                            data-request-number="#REQ-{{ str_pad($serviceRequest->id, 5, '0', STR_PAD_LEFT) }}"
+                            data-customer-name="{{ $serviceRequest->user?->name ?? 'Customer' }}"
+                            data-description="{{ $serviceRequest->description }}"
+                            onclick="openQuoteModalFromButton(this)"
+                            class="inline-flex items-center gap-1 text-xs font-bold text-[#8F6B20] hover:text-[#C5A059] transition-colors cursor-pointer"
+                        >
+                            <span>+ Issue New Quote</span>
+                        </button>
+                    @endcan
+                </div>
+
+                @if ($serviceRequest->quotes->count() > 0)
+                    <div class="space-y-3">
+                        @foreach ($serviceRequest->quotes as $q)
+                            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-[#C5A059]/40 transition-colors">
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <a href="{{ route('dashboard.quotes.show', $q) }}" class="font-bold text-slate-900 font-mono text-sm hover:text-[#8F6B20]">
+                                            {{ $q->quote_number }}
+                                        </a>
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border {{ $q->status->badgeClasses() }}">
+                                            {{ $q->status->label() }}
+                                        </span>
+                                    </div>
+                                    <div class="text-xs text-slate-500 mt-1 line-clamp-1">
+                                        {{ $q->service_description }}
+                                    </div>
+                                    <div class="text-[11px] text-slate-400 mt-1 flex items-center gap-2">
+                                        <span>Issued: {{ $q->created_at->format('M d, Y') }}</span>
+                                        <span>&bull;</span>
+                                        <span>Expires: {{ $q->expires_at ? $q->expires_at->format('M d, Y') : 'N/A' }}</span>
+                                    </div>
+                                </div>
+                                <div class="sm:text-right shrink-0 flex sm:flex-col items-center sm:items-end justify-between gap-2">
+                                    <div class="text-sm font-extrabold text-[#8F6B20] font-mono">${{ number_format($q->total_price, 2) }}</div>
+                                    <div class="flex items-center gap-1.5">
+                                        <a href="{{ route('dashboard.quotes.show', $q) }}" class="px-2.5 py-1 text-[11px] font-bold bg-white hover:bg-slate-100 text-slate-700 rounded-lg border border-slate-200 transition-colors">
+                                            View Quote
+                                        </a>
+                                        <a href="{{ route('dashboard.quotes.print', $q) }}" target="_blank" class="px-2.5 py-1 text-[11px] font-bold bg-slate-900 hover:bg-slate-800 text-white rounded-lg transition-colors">
+                                            Print
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="p-6 rounded-2xl bg-slate-50 text-center text-xs text-slate-400">
+                        No quotes have been issued for this request yet.
+                    </div>
+                @endif
+            </div>
         </div>
 
         {{-- Metadata & Actions Sidebar --}}
@@ -275,5 +355,8 @@
             </div>
         </div>
     </div>
+
+    {{-- Include Create Quote Modal Popup --}}
+    @include('dashboard.modules.quotes.partials.create-modal')
 
 </x-dashboard.layout>

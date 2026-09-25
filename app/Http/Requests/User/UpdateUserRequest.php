@@ -40,6 +40,8 @@ class UpdateUserRequest extends FormRequest
             'password' => ['nullable', 'string', Password::min(8)],
             'avatar' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
             'remove_avatar' => ['nullable', 'boolean'],
+            'type' => ['nullable', 'string', 'in:customers,technicians,admins'],
+            'role' => ['nullable', 'string', 'max:50'],
             'roles' => ['nullable', 'array'],
             'roles.*' => ['integer', 'exists:roles,id'],
             'addresses' => ['nullable', 'array'],

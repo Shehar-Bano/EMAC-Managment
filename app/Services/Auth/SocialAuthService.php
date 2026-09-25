@@ -5,6 +5,7 @@ namespace App\Services\Auth;
 use App\Enums\AccountStatus;
 use App\Enums\AuthSource;
 use App\Enums\ProfileStatus;
+use App\Models\Role;
 use App\Models\SocialAccount;
 use App\Models\User;
 use Exception;
@@ -93,6 +94,11 @@ class SocialAuthService
             'profile_status' => ProfileStatus::INCOMPLETE,
             'email_verified_at' => now(),
         ]);
+
+        $customerRole = Role::where('slug', $role)->first();
+        if ($customerRole) {
+            $user->roles()->syncWithoutDetaching([$customerRole->id]);
+        }
 
         SocialAccount::create([
             'user_id' => $user->id,

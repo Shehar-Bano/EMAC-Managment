@@ -15,6 +15,7 @@ use App\Models\Role;
 use App\Models\User;
 use Exception;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -23,77 +24,158 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 class UserController extends Controller
 {
     /**
-     * Display a listing of users with filters and dynamic pagination.
+     * Display a listing of users segmented by Customers, Technicians, and Administrators.
      */
     public function index(Request $request): View
     {
         $this->authorize('users.view');
 
+        $activeType = $request->get('type', 'customers');
+        if (! in_array($activeType, ['customers', 'technicians', 'admins', 'all'], true)) {
+            $activeType = 'customers';
+        }
+
+        $counts = [
+            'customers' => User::where(function (Builder $q) {
+                $q->whereHas('roles', fn ($rq) => $rq->where('slug', 'customer'))
+                    ->orWhere('role', 'customer');
+            })->count(),
+            'technicians' => User::where(function (Builder $q) {
+                $q->whereHas('roles', fn ($rq) => $rq->where('slug', 'technician'))
+                    ->orWhere('role', 'technician');
+            })->count(),
+            'admins' => User::where(function (Builder $q) {
+                $q->whereHas('roles', fn ($rq) => $rq->whereIn('slug', ['super-admin', 'admin']))
+                    ->orWhereIn('role', ['super-admin', 'admin']);
+            })->count(),
+            'all' => User::count(),
+        ];
+
         $perPageParam = strtolower($request->get('per_page', '10'));
-        $query = User::with(['roles'])
+        $query = User::with(['roles', 'addresses'])
             ->filter($request->only(['search', 'status', 'role_id', 'from_date', 'to_date']))
+            ->when($activeType !== 'all', function (Builder $q) use ($activeType) {
+                if ($activeType === 'customers') {
+                    $q->where(function (Builder $sub) {
+                        $sub->whereHas('roles', fn ($rq) => $rq->where('slug', 'customer'))
+                            ->orWhere('role', 'customer');
+                    });
+                } elseif ($activeType === 'technicians') {
+                    $q->where(function (Builder $sub) {
+                        $sub->whereHas('roles', fn ($rq) => $rq->where('slug', 'technician'))
+                            ->orWhere('role', 'technician');
+                    });
+                } elseif ($activeType === 'admins') {
+                    $q->where(function (Builder $sub) {
+                        $sub->whereHas('roles', fn ($rq) => $rq->whereIn('slug', ['super-admin', 'admin']))
+                            ->orWhereIn('role', ['super-admin', 'admin']);
+                    });
+                }
+            })
             ->latest();
 
         if ($perPageParam === 'all') {
             $totalCount = (clone $query)->count();
-            $users = $query->paginate(max($totalCount, 1));
+            $users = $query->paginate(max($totalCount, 1))->withQueryString();
         } else {
             $perPage = in_array((int) $perPageParam, [10, 20, 50, 100], true) ? (int) $perPageParam : 10;
-            $users = $query->paginate($perPage);
+            $users = $query->paginate($perPage)->withQueryString();
         }
 
         $roles = Role::orderBy('name')->get();
 
-        return view('dashboard.modules.users.index', compact('users', 'roles'));
+        return view('dashboard.modules.users.index', compact('users', 'roles', 'activeType', 'counts'));
     }
 
     /**
-     * Show the form for creating a new user.
+     * Show the form for creating a new user based on category type (Customer, Technician, Admin).
      */
-    public function create(): View
+    public function create(Request $request): View
     {
         $this->authorize('users.create');
 
-        $roles = Role::orderBy('name')->get();
+        $activeType = $request->get('type', 'customers');
+        if (! in_array($activeType, ['customers', 'technicians', 'admins'], true)) {
+            $activeType = 'customers';
+        }
 
-        return view('dashboard.modules.users.create', compact('roles'));
+        $targetRoleSlug = match ($activeType) {
+            'customers' => 'customer',
+            'technicians' => 'technician',
+            'admins' => 'super-admin',
+            default => 'customer',
+        };
+
+        $roles = Role::orderBy('name')->get();
+        $defaultRole = $roles->firstWhere('slug', $targetRoleSlug) ?? $roles->first();
+
+        return view('dashboard.modules.users.create', compact('roles', 'activeType', 'defaultRole'));
     }
 
     /**
-     * Store a newly created user in storage.
+     * Store a newly created user in storage with appropriate role assignment.
      */
     public function store(StoreUserRequest $request, CreateUserAction $action): RedirectResponse
     {
-        $user = $action->execute($request->validated());
+        $validated = $request->validated();
+        $type = $request->get('type', 'customers');
+
+        $targetRoleSlug = match ($type) {
+            'technicians' => 'technician',
+            'admins' => 'super-admin',
+            default => 'customer',
+        };
+
+        // If roles not explicitly selected, assign the default role for the tab
+        if (empty($validated['roles'])) {
+            $role = Role::where('slug', $targetRoleSlug)->first();
+            if ($role) {
+                $validated['roles'] = [$role->id];
+            }
+        }
+
+        $validated['role'] = $targetRoleSlug;
+
+        $user = $action->execute($validated);
+
+        $typeLabel = match ($type) {
+            'customers' => 'Customer',
+            'technicians' => 'Technician / Employee',
+            'admins' => 'Administrator User',
+            default => 'User',
+        };
 
         return redirect()
-            ->route('dashboard.users.index')
-            ->with('success', "Employee account for '{$user->name}' created successfully.");
+            ->route('dashboard.users.index', ['type' => $type])
+            ->with('success', "{$typeLabel} account for '{$user->name}' created successfully.");
     }
 
     /**
      * Display the specified user profile.
      */
-    public function show(User $user): View
+    public function show(User $user, Request $request): View
     {
         $this->authorize('users.view');
 
-        $user->load(['roles.permissions', 'addresses']);
+        $user->load(['roles.permissions', 'addresses', 'serviceRequests.latestQuote', 'quotes']);
 
-        return view('dashboard.modules.users.show', compact('user'));
+        $activeType = $request->get('type', $this->resolveUserType($user));
+
+        return view('dashboard.modules.users.show', compact('user', 'activeType'));
     }
 
     /**
      * Show the form for editing the specified user.
      */
-    public function edit(User $user): View
+    public function edit(User $user, Request $request): View
     {
         $this->authorize('users.edit');
 
         $user->load(['roles', 'addresses']);
         $roles = Role::orderBy('name')->get();
+        $activeType = $request->get('type', $this->resolveUserType($user));
 
-        return view('dashboard.modules.users.edit', compact('user', 'roles'));
+        return view('dashboard.modules.users.edit', compact('user', 'roles', 'activeType'));
     }
 
     /**
@@ -101,30 +183,35 @@ class UserController extends Controller
      */
     public function update(UpdateUserRequest $request, User $user, UpdateUserAction $action): RedirectResponse
     {
-        $action->execute($user, $request->validated());
+        $validated = $request->validated();
+        $type = $request->get('type', $this->resolveUserType($user));
+
+        $action->execute($user, $validated);
 
         return redirect()
-            ->route('dashboard.users.index')
-            ->with('success', "Employee account for '{$user->name}' updated successfully.");
+            ->route('dashboard.users.index', ['type' => $type])
+            ->with('success', "Account profile for '{$user->name}' updated successfully.");
     }
 
     /**
      * Remove the specified user from storage.
      */
-    public function destroy(User $user, DeleteUserAction $action): RedirectResponse
+    public function destroy(User $user, DeleteUserAction $action, Request $request): RedirectResponse
     {
         $this->authorize('users.delete');
+
+        $type = $request->get('type', $this->resolveUserType($user));
 
         try {
             $userName = $user->name;
             $action->execute($user);
 
             return redirect()
-                ->route('dashboard.users.index')
+                ->route('dashboard.users.index', ['type' => $type])
                 ->with('success', "User '{$userName}' has been deleted successfully.");
         } catch (Exception $e) {
             return redirect()
-                ->route('dashboard.users.index')
+                ->route('dashboard.users.index', ['type' => $type])
                 ->with('error', $e->getMessage());
         }
     }
@@ -135,8 +222,9 @@ class UserController extends Controller
     public function bulkDelete(BulkDeleteUserRequest $request, BulkDeleteUsersAction $action): JsonResponse|RedirectResponse
     {
         $result = $action->execute($request->validated('ids'));
+        $type = $request->get('type', 'customers');
 
-        $message = "Deleted {$result['deleted']} selected employee account(s).";
+        $message = "Deleted {$result['deleted']} selected account(s).";
         if ($result['skipped'] > 0) {
             $message .= " ({$result['skipped']} account(s) skipped due to protection rules).";
         }
@@ -149,7 +237,7 @@ class UserController extends Controller
             ]);
         }
 
-        return redirect()->route('dashboard.users.index')->with('success', $message);
+        return redirect()->route('dashboard.users.index', ['type' => $type])->with('success', $message);
     }
 
     /**
@@ -169,19 +257,40 @@ class UserController extends Controller
     }
 
     /**
-     * Export users matching active filter criteria to CSV.
+     * Export users matching active filter criteria and tab to CSV.
      */
     public function export(Request $request): StreamedResponse
     {
         $this->authorize('users.export');
 
-        $users = User::with(['roles'])
+        $activeType = $request->get('type', 'all');
+
+        $users = User::with(['roles', 'addresses'])
             ->filter($request->only(['search', 'status', 'role_id', 'from_date', 'to_date']))
+            ->when($activeType !== 'all', function (Builder $q) use ($activeType) {
+                if ($activeType === 'customers') {
+                    $q->where(function (Builder $sub) {
+                        $sub->whereHas('roles', fn ($rq) => $rq->where('slug', 'customer'))
+                            ->orWhere('role', 'customer');
+                    });
+                } elseif ($activeType === 'technicians') {
+                    $q->where(function (Builder $sub) {
+                        $sub->whereHas('roles', fn ($rq) => $rq->where('slug', 'technician'))
+                            ->orWhere('role', 'technician');
+                    });
+                } elseif ($activeType === 'admins') {
+                    $q->where(function (Builder $sub) {
+                        $sub->whereHas('roles', fn ($rq) => $rq->whereIn('slug', ['super-admin', 'admin']))
+                            ->orWhereIn('role', ['super-admin', 'admin']);
+                    });
+                }
+            })
             ->get();
 
+        $filenameType = $activeType !== 'all' ? $activeType : 'users';
         $headers = [
             'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="users_export_'.date('Y_m_d_His').'.csv"',
+            'Content-Disposition' => "attachment; filename=\"{$filenameType}_export_".date('Y_m_d_His').'.csv"',
         ];
 
         return response()->stream(function () use ($users) {
@@ -194,7 +303,7 @@ class UserController extends Controller
                     $user->name,
                     $user->email,
                     $user->phone ?? 'N/A',
-                    $user->roles->pluck('name')->implode(', ') ?: 'None',
+                    $user->roles->pluck('name')->implode(', ') ?: ($user->role ? ucfirst($user->role) : 'None'),
                     ucfirst($user->status),
                     $user->created_at->format('Y-m-d H:i:s'),
                 ]);
@@ -202,5 +311,21 @@ class UserController extends Controller
 
             fclose($handle);
         }, 200, $headers);
+    }
+
+    /**
+     * Resolve the primary tab category key for a user.
+     */
+    protected function resolveUserType(User $user): string
+    {
+        if ($user->hasRole(['super-admin', 'admin']) || in_array($user->role, ['super-admin', 'admin'], true)) {
+            return 'admins';
+        }
+
+        if ($user->hasRole('technician') || $user->role === 'technician') {
+            return 'technicians';
+        }
+
+        return 'customers';
     }
 }

@@ -166,6 +166,82 @@ class PermissionSeeder extends Seeder
                 'description' => 'Toggle subcategory active/inactive status',
             ],
 
+            // Region Management
+            [
+                'group' => 'regions',
+                'name' => 'regions.view',
+                'label' => 'View Regions',
+                'description' => 'View list of service regions and details',
+            ],
+            [
+                'group' => 'regions',
+                'name' => 'regions.create',
+                'label' => 'Create Region',
+                'description' => 'Create new regional service territories',
+            ],
+            [
+                'group' => 'regions',
+                'name' => 'regions.edit',
+                'label' => 'Edit Region',
+                'description' => 'Update region name, currency, and details',
+            ],
+            [
+                'group' => 'regions',
+                'name' => 'regions.delete',
+                'label' => 'Delete Region',
+                'description' => 'Soft delete a single region record',
+            ],
+            [
+                'group' => 'regions',
+                'name' => 'regions.bulk-delete',
+                'label' => 'Bulk Delete Regions',
+                'description' => 'Delete multiple selected region records',
+            ],
+            [
+                'group' => 'regions',
+                'name' => 'regions.status',
+                'label' => 'Toggle Region Status',
+                'description' => 'Toggle region active/inactive status',
+            ],
+
+            // Regional Service Pricing
+            [
+                'group' => 'regional_prices',
+                'name' => 'regional_prices.view',
+                'label' => 'View Regional Prices',
+                'description' => 'View regional service pricing configurations',
+            ],
+            [
+                'group' => 'regional_prices',
+                'name' => 'regional_prices.create',
+                'label' => 'Create Regional Price',
+                'description' => 'Create localized pricing for services in specific regions',
+            ],
+            [
+                'group' => 'regional_prices',
+                'name' => 'regional_prices.edit',
+                'label' => 'Edit Regional Price',
+                'description' => 'Update regional service prices and currency rates',
+            ],
+            [
+                'group' => 'regional_prices',
+                'name' => 'regional_prices.delete',
+                'label' => 'Delete Regional Price',
+                'description' => 'Soft delete a regional service price entry',
+            ],
+            [
+                'group' => 'regional_prices',
+                'name' => 'regional_prices.bulk-delete',
+                'label' => 'Bulk Delete Regional Prices',
+                'description' => 'Delete multiple selected regional price entries',
+            ],
+            [
+                'group' => 'regional_prices',
+                'name' => 'regional_prices.status',
+                'label' => 'Toggle Price Status',
+                'description' => 'Toggle regional service price active/inactive state',
+            ],
+
             // Inquiry Management
             [
                 'group' => 'inquiries',
@@ -234,6 +310,32 @@ class PermissionSeeder extends Seeder
                 'name' => 'service_requests.export',
                 'label' => 'Export Service Requests',
                 'description' => 'Export customer service requests to CSV',
+            ],
+
+            // Quote & Estimate Management
+            [
+                'group' => 'service_requests',
+                'name' => 'quotes.view',
+                'label' => 'View Quotes',
+                'description' => 'View generated price quotes and estimates',
+            ],
+            [
+                'group' => 'service_requests',
+                'name' => 'quotes.create',
+                'label' => 'Create & Send Quotes',
+                'description' => 'Create, calculate, and issue price quotes for customer requests',
+            ],
+            [
+                'group' => 'service_requests',
+                'name' => 'quotes.status',
+                'label' => 'Update Quote Status',
+                'description' => 'Update quote status (approved, declined, ask for question)',
+            ],
+            [
+                'group' => 'service_requests',
+                'name' => 'quotes.delete',
+                'label' => 'Delete Quotes',
+                'description' => 'Delete price quotes from the system',
             ],
 
             // Legal & Compliance Management

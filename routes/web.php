@@ -7,6 +7,9 @@ use App\Http\Controllers\Web\Admin\Inquiry\InquiryController;
 use App\Http\Controllers\Web\Admin\Legal\PrivacyController;
 use App\Http\Controllers\Web\Admin\Legal\TermsController;
 use App\Http\Controllers\Web\Admin\Permission\PermissionController;
+use App\Http\Controllers\Web\Admin\Quote\QuoteController;
+use App\Http\Controllers\Web\Admin\Region\RegionController;
+use App\Http\Controllers\Web\Admin\RegionalServicePrice\RegionalServicePriceController;
 use App\Http\Controllers\Web\Admin\Role\RoleController;
 use App\Http\Controllers\Web\Admin\ServiceRequest\ServiceRequestController;
 use App\Http\Controllers\Web\Admin\Setting\SettingController;
@@ -66,6 +69,11 @@ Route::prefix('dashboard')->name('dashboard.')->middleware(['auth'])->group(func
     Route::patch('service-requests/{service_request}/status', [ServiceRequestController::class, 'updateStatus'])->name('service-requests.status');
     Route::resource('service-requests', ServiceRequestController::class)->only(['index', 'show', 'destroy']);
 
+    // Quotes & Estimates Module
+    Route::get('quotes/{quote}/print', [QuoteController::class, 'print'])->name('quotes.print');
+    Route::patch('quotes/{quote}/status', [QuoteController::class, 'updateStatus'])->name('quotes.status');
+    Route::resource('quotes', QuoteController::class)->only(['index', 'store', 'show', 'destroy']);
+
     // Category Management Module
     Route::get('categories/export', [CategoryController::class, 'export'])->name('categories.export');
     Route::post('categories/bulk-delete', [CategoryController::class, 'bulkDelete'])->name('categories.bulk-delete');
@@ -79,6 +87,21 @@ Route::prefix('dashboard')->name('dashboard.')->middleware(['auth'])->group(func
     Route::delete('subcategories/bulk-delete', [SubcategoryController::class, 'bulkDelete']);
     Route::patch('subcategories/{subcategory}/status', [SubcategoryController::class, 'toggleStatus'])->name('subcategories.toggle-status');
     Route::resource('subcategories', SubcategoryController::class);
+
+    // Service Regions Module
+    Route::get('regions/export', [RegionController::class, 'export'])->name('regions.export');
+    Route::post('regions/bulk-delete', [RegionController::class, 'bulkDelete'])->name('regions.bulk-delete');
+    Route::delete('regions/bulk-delete', [RegionController::class, 'bulkDelete']);
+    Route::patch('regions/{region}/status', [RegionController::class, 'toggleStatus'])->name('regions.toggle-status');
+    Route::resource('regions', RegionController::class);
+
+    // Regional Service Pricing Module
+    Route::get('regional-service-prices/export', [RegionalServicePriceController::class, 'export'])->name('regional-service-prices.export');
+    Route::get('regional-service-prices/subcategories/{category}', [RegionalServicePriceController::class, 'getSubcategories'])->name('regional-service-prices.subcategories');
+    Route::post('regional-service-prices/bulk-delete', [RegionalServicePriceController::class, 'bulkDelete'])->name('regional-service-prices.bulk-delete');
+    Route::delete('regional-service-prices/bulk-delete', [RegionalServicePriceController::class, 'bulkDelete']);
+    Route::patch('regional-service-prices/{regional_service_price}/status', [RegionalServicePriceController::class, 'toggleStatus'])->name('regional-service-prices.toggle-status');
+    Route::resource('regional-service-prices', RegionalServicePriceController::class);
 
     // User Management Module
     Route::get('users/export', [UserController::class, 'export'])->name('users.export');

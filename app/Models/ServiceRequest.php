@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ServiceRequest extends Model
@@ -83,6 +84,22 @@ class ServiceRequest extends Model
     public function videos(): HasMany
     {
         return $this->hasMany(ServiceRequestVideo::class, 'service_request_id');
+    }
+
+    /**
+     * All quotes generated for this request.
+     */
+    public function quotes(): HasMany
+    {
+        return $this->hasMany(Quote::class, 'service_request_id');
+    }
+
+    /**
+     * The latest quote generated for this request.
+     */
+    public function latestQuote(): HasOne
+    {
+        return $this->hasOne(Quote::class, 'service_request_id')->latestOfMany();
     }
 
     /**

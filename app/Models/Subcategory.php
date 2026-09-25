@@ -39,6 +39,14 @@ class Subcategory extends Model
     }
 
     /**
+     * Regional service pricing configurations for this subcategory.
+     */
+    public function regionalServicePrices(): HasMany
+    {
+        return $this->hasMany(RegionalServicePrice::class, 'subcategory_id');
+    }
+
+    /**
      * Subcategory image URL accessor with fallback.
      */
     protected function imageUrl(): Attribute
