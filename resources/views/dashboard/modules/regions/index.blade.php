@@ -99,18 +99,13 @@
 
                     {{-- Region Name & Description --}}
                     <td class="px-3.5 py-2">
-                        <div class="flex items-center gap-2.5">
-                            <div class="w-8 h-8 rounded-lg bg-amber-50 border border-[#C5A059]/30 flex items-center justify-center shrink-0 text-slate-700 font-bold text-xs">
-                                📍
-                            </div>
-                            <div>
-                                <a href="{{ route('dashboard.regions.show', $region) }}" class="font-bold text-slate-900 hover:text-[#C5A059] text-xs transition-colors">
-                                    {{ $region->name }}
-                                </a>
-                                @if ($region->description)
-                                    <p class="text-[11px] text-slate-500 line-clamp-1 max-w-xs">{{ $region->description }}</p>
-                                @endif
-                            </div>
+                        <div>
+                            <a href="{{ route('dashboard.regions.show', $region) }}" class="font-bold text-slate-900 hover:text-[#C5A059] text-xs transition-colors">
+                                {{ $region->name }}
+                            </a>
+                            @if ($region->description)
+                                <p class="text-[11px] text-slate-500 line-clamp-1 max-w-xs">{{ $region->description }}</p>
+                            @endif
                         </div>
                     </td>
 

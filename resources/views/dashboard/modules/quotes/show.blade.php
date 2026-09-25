@@ -9,11 +9,12 @@
                 <span>/</span>
                 <span class="text-slate-800 font-bold font-mono">{{ $quote->quote_number }}</span>
             </div>
-            <div class="flex items-center gap-3">
-                <h1 class="text-2xl font-bold tracking-tight text-slate-900 flex items-center gap-2.5">
-                    <span>Quote {{ $quote->quote_number }}</span>
+            <div class="flex flex-wrap items-center gap-2.5">
+                <h1 class="text-xl font-bold tracking-tight text-slate-900 flex items-center gap-2">
+                    <span>Quote</span>
+                    <span class="font-mono text-sm font-bold text-slate-800 bg-slate-100 px-2.5 py-0.5 rounded-lg border border-slate-200">{{ $quote->quote_number }}</span>
                 </h1>
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border {{ $quote->status->badgeClasses() }}">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border {{ $quote->status->badgeClasses() }}">
                     {{ $quote->status->label() }}
                 </span>
             </div>
@@ -65,9 +66,9 @@
             <x-card>
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-slate-100 gap-4">
                     <div>
-                        <div class="text-xs uppercase font-extrabold tracking-widest text-[#8F6B20]">Official Price Quotation</div>
-                        <div class="text-2xl font-black text-slate-900 font-mono mt-1">{{ $quote->quote_number }}</div>
-                        <div class="text-xs text-slate-400 mt-1">Issued On: <span class="font-semibold text-slate-600">{{ $quote->created_at->format('M d, Y · h:i A') }}</span></div>
+                        <div class="text-[10px] uppercase font-extrabold tracking-widest text-[#8F6B20]">Official Price Quotation</div>
+                        <div class="text-sm font-bold text-slate-900 font-mono mt-0.5">{{ $quote->quote_number }}</div>
+                        <div class="text-xs text-slate-400 mt-0.5">Issued On: <span class="font-semibold text-slate-600">{{ $quote->created_at->format('M d, Y · h:i A') }}</span></div>
                     </div>
                     <div class="sm:text-right">
                         <div class="text-xs text-slate-400">Valid Until</div>
