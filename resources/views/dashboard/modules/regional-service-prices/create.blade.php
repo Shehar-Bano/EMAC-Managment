@@ -123,8 +123,8 @@
                             <label class="block text-xs font-semibold text-slate-700 mb-1">
                                 Base Service Price (<span x-text="currency"></span>) *
                             </label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-xs font-mono font-bold text-slate-400" x-text="currency">
+                            <div class="flex rounded-lg border border-slate-300 bg-white overflow-hidden focus-within:border-[#C5A059] focus-within:ring-1 focus-within:ring-[#C5A059] transition-all">
+                                <span class="inline-flex items-center px-3 bg-slate-100 text-slate-600 font-mono text-xs font-bold border-r border-slate-200 select-none shrink-0" x-text="currency">
                                     USD
                                 </span>
                                 <input
@@ -136,7 +136,7 @@
                                     value="{{ old('price') }}"
                                     placeholder="0.00"
                                     required
-                                    class="w-full pl-14 pr-3.5 py-2 text-xs bg-white border border-slate-300 rounded-lg focus:border-[#C5A059] focus:ring-1 focus:ring-[#C5A059] outline-none font-mono font-bold transition-colors"
+                                    class="w-full px-3.5 py-2 text-xs bg-white border-0 outline-none font-mono font-bold text-slate-900 placeholder:text-slate-400"
                                 >
                             </div>
                             @error('price')

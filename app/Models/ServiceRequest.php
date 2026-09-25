@@ -138,6 +138,13 @@ class ServiceRequest extends Model
                     $q->where('priority', $priority);
                 }
             })
+            ->when($filters['quote_status'] ?? null, function (Builder $q, $quoteStatus) {
+                if ($quoteStatus === 'awaiting') {
+                    $q->doesntHave('quotes');
+                } elseif ($quoteStatus === 'sent') {
+                    $q->has('quotes');
+                }
+            })
             ->when($filters['date_from'] ?? null, function (Builder $q, $dateFrom) {
                 $q->whereDate('preferred_service_date', '>=', $dateFrom);
             })

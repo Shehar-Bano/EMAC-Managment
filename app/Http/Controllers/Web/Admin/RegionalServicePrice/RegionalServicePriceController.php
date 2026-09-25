@@ -33,7 +33,7 @@ class RegionalServicePriceController extends Controller
 
         $perPageParam = strtolower($request->get('per_page', '10'));
         $query = RegionalServicePrice::with(['region', 'category', 'subcategory'])
-            ->scopeValidRelations()
+            ->validRelations()
             ->filter($request->only(['search', 'region_id', 'category_id', 'subcategory_id', 'status', 'from_date', 'to_date']))
             ->latest('id');
 
@@ -203,7 +203,7 @@ class RegionalServicePriceController extends Controller
         $this->authorize('regional_prices.view');
 
         $prices = RegionalServicePrice::with(['region', 'category', 'subcategory'])
-            ->scopeValidRelations()
+            ->validRelations()
             ->filter($request->only(['search', 'region_id', 'category_id', 'subcategory_id', 'status', 'from_date', 'to_date']))
             ->latest('id')
             ->get();

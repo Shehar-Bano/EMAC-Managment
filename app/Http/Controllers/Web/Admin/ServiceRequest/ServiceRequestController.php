@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Web\Admin\ServiceRequest;
 
 use App\Enums\ServiceRequestPriority;
-use App\Enums\ServiceRequestStatus;
 use App\Http\Controllers\Controller;
 use App\Models\ServiceRequest;
 use Illuminate\Contracts\View\View;
@@ -23,7 +22,7 @@ class ServiceRequestController extends Controller
 
         $perPageParam = strtolower($request->get('per_page', '10'));
         $query = ServiceRequest::with(['user', 'address', 'photographs', 'videos', 'latestQuote'])
-            ->filter($request->only(['search', 'status', 'priority', 'date_from', 'date_to']))
+            ->filter($request->only(['search', 'quote_status', 'priority', 'date_from', 'date_to']))
             ->latest('id');
 
         if ($perPageParam === 'all') {
@@ -36,11 +35,10 @@ class ServiceRequestController extends Controller
 
         $stats = [
             'total' => ServiceRequest::count(),
-            'pending' => ServiceRequest::where('status', ServiceRequestStatus::PENDING)->count(),
-            'in_review' => ServiceRequest::where('status', ServiceRequestStatus::IN_REVIEW)->count(),
-            'in_progress' => ServiceRequest::where('status', ServiceRequestStatus::IN_PROGRESS)->count(),
-            'completed' => ServiceRequest::where('status', ServiceRequestStatus::COMPLETED)->count(),
+            'awaiting_quote' => ServiceRequest::doesntHave('quotes')->count(),
+            'quotes_sent' => ServiceRequest::has('quotes')->count(),
             'emergency' => ServiceRequest::where('priority', ServiceRequestPriority::EMERGENCY)->count(),
+            'high' => ServiceRequest::where('priority', ServiceRequestPriority::HIGH)->count(),
         ];
 
         return view('dashboard.modules.service-requests.index', compact('requests', 'stats'));

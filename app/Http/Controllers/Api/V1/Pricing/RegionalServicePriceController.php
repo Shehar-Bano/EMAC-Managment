@@ -27,7 +27,7 @@ class RegionalServicePriceController extends Controller
     {
         $perPage = (int) $request->get('per_page', 20);
         $prices = RegionalServicePrice::with(['region', 'category', 'subcategory'])
-            ->scopeValidRelations()
+            ->validRelations()
             ->filter($request->only(['search', 'region_id', 'category_id', 'subcategory_id', 'status', 'from_date', 'to_date']))
             ->latest('id')
             ->paginate($perPage);

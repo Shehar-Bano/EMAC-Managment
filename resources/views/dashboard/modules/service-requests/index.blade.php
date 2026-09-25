@@ -8,7 +8,7 @@
     <x-slot:header>
         <div>
             <h1 class="text-2xl font-bold tracking-tight text-slate-900">Customer Service Requests</h1>
-            <p class="text-xs text-slate-500 mt-1">Manage, inspect, and fulfill service requests submitted via the customer mobile and web application</p>
+            <p class="text-xs text-slate-500 mt-1">Review incoming service requests from customers and issue price quotations directly</p>
         </div>
 
         <div class="flex items-center gap-2.5">
@@ -19,34 +19,33 @@
         </div>
     </x-slot:header>
 
-    {{-- Quick Status Metrics --}}
-    <div class="grid grid-cols-2 sm:grid-cols-6 gap-2.5 mb-4">
-        <a href="{{ route('dashboard.service-requests.index') }}" class="p-2.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs hover:border-[#C5A059] transition-all">
-            <div class="text-[10px] font-bold uppercase text-slate-400">Total Requests</div>
-            <div class="text-lg font-extrabold text-slate-900 mt-0.5">{{ $stats['total'] }}</div>
+    {{-- Quick Quotation & Priority Metrics --}}
+    <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-4">
+        <a href="{{ route('dashboard.service-requests.index') }}" class="p-3 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:border-[#C5A059] transition-all">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Requests</div>
+            <div class="text-xl font-black text-slate-900 mt-1">{{ $stats['total'] }}</div>
         </a>
-        <a href="{{ route('dashboard.service-requests.index', ['status' => 'pending']) }}" class="p-2.5 rounded-xl bg-white border border-amber-200/80 shadow-2xs hover:border-amber-400 transition-all">
-            <div class="text-[10px] font-bold uppercase text-amber-600">Pending</div>
-            <div class="text-lg font-extrabold text-amber-600 mt-0.5">{{ $stats['pending'] }}</div>
+        <a href="{{ route('dashboard.service-requests.index', ['quote_status' => 'awaiting']) }}" class="p-3 rounded-2xl bg-white border border-amber-200/80 shadow-2xs hover:border-amber-400 transition-all">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-amber-600 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                Awaiting Quote
+            </div>
+            <div class="text-xl font-black text-amber-600 mt-1">{{ $stats['awaiting_quote'] }}</div>
         </a>
-        <a href="{{ route('dashboard.service-requests.index', ['status' => 'in_review']) }}" class="p-2.5 rounded-xl bg-white border border-blue-200/80 shadow-2xs hover:border-blue-400 transition-all">
-            <div class="text-[10px] font-bold uppercase text-blue-600">In Review</div>
-            <div class="text-lg font-extrabold text-blue-600 mt-0.5">{{ $stats['in_review'] }}</div>
+        <a href="{{ route('dashboard.service-requests.index', ['quote_status' => 'sent']) }}" class="p-3 rounded-2xl bg-white border border-emerald-200/80 shadow-2xs hover:border-emerald-400 transition-all">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-600">Quotes Dispatched</div>
+            <div class="text-xl font-black text-emerald-600 mt-1">{{ $stats['quotes_sent'] }}</div>
         </a>
-        <a href="{{ route('dashboard.service-requests.index', ['status' => 'in_progress']) }}" class="p-2.5 rounded-xl bg-white border border-purple-200/80 shadow-2xs hover:border-purple-400 transition-all">
-            <div class="text-[10px] font-bold uppercase text-purple-600">In Progress</div>
-            <div class="text-lg font-extrabold text-purple-600 mt-0.5">{{ $stats['in_progress'] }}</div>
-        </a>
-        <a href="{{ route('dashboard.service-requests.index', ['status' => 'completed']) }}" class="p-2.5 rounded-xl bg-white border border-emerald-200/80 shadow-2xs hover:border-emerald-400 transition-all">
-            <div class="text-[10px] font-bold uppercase text-emerald-600">Completed</div>
-            <div class="text-lg font-extrabold text-emerald-600 mt-0.5">{{ $stats['completed'] }}</div>
-        </a>
-        <a href="{{ route('dashboard.service-requests.index', ['priority' => 'emergency']) }}" class="p-2.5 rounded-xl bg-white border border-rose-200/80 shadow-2xs hover:border-rose-400 transition-all">
-            <div class="text-[10px] font-bold uppercase text-rose-600 flex items-center gap-1">
+        <a href="{{ route('dashboard.service-requests.index', ['priority' => 'emergency']) }}" class="p-3 rounded-2xl bg-white border border-rose-200/80 shadow-2xs hover:border-rose-400 transition-all">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-rose-600 flex items-center gap-1">
                 <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span>
                 Emergency
             </div>
-            <div class="text-lg font-extrabold text-rose-600 mt-0.5">{{ $stats['emergency'] }}</div>
+            <div class="text-xl font-black text-rose-600 mt-1">{{ $stats['emergency'] }}</div>
+        </a>
+        <a href="{{ route('dashboard.service-requests.index', ['priority' => 'high']) }}" class="p-3 rounded-2xl bg-white border border-amber-200/80 shadow-2xs hover:border-amber-400 transition-all">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-amber-600">High Priority</div>
+            <div class="text-xl font-black text-amber-600 mt-1">{{ $stats['high'] }}</div>
         </a>
     </div>
 
@@ -56,30 +55,35 @@
         :resetUrl="route('dashboard.service-requests.index')"
         nameLabel="Search Query"
         searchPlaceholder="Search customer, location, description..."
-        :hasStatus="true"
+        :hasStatus="false"
         :hasDates="true"
-        :statusOptions="[
-            'all' => 'All Statuses',
-            'pending' => 'Pending',
-            'in_review' => 'In Review',
-            'approved' => 'Approved',
-            'in_progress' => 'In Progress',
-            'completed' => 'Completed',
-            'cancelled' => 'Cancelled',
-        ]"
     >
         <x-slot:extraFilters>
+            {{-- Quote Status Filter --}}
+            <div class="w-36 sm:w-40">
+                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Quote Status</label>
+                <select
+                    name="quote_status"
+                    class="w-full px-2.5 py-1.5 text-xs bg-slate-50/60 border border-slate-300 rounded-lg focus:bg-white focus:border-[#C5A059] focus:ring-1 focus:ring-[#C5A059] transition-colors text-slate-700 font-medium"
+                >
+                    <option value="all">All Requests</option>
+                    <option value="awaiting" {{ request('quote_status') === 'awaiting' ? 'selected' : '' }}>⏳ Awaiting Quote</option>
+                    <option value="sent" {{ request('quote_status') === 'sent' ? 'selected' : '' }}>📄 Quote Dispatched</option>
+                </select>
+            </div>
+
+            {{-- Priority Filter --}}
             <div class="w-32 sm:w-36">
                 <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Priority</label>
                 <select
                     name="priority"
-                    class="w-full px-2.5 py-1.5 text-xs bg-slate-50/60 border border-slate-300 rounded-lg focus:bg-white focus:border-[#C5A059] focus:ring-1 focus:ring-[#C5A059] transition-colors text-slate-700"
+                    class="w-full px-2.5 py-1.5 text-xs bg-slate-50/60 border border-slate-300 rounded-lg focus:bg-white focus:border-[#C5A059] focus:ring-1 focus:ring-[#C5A059] transition-colors text-slate-700 font-medium"
                 >
                     <option value="all">All Priorities</option>
-                    <option value="emergency" {{ request('priority') == 'emergency' ? 'selected' : '' }}>🚨 Emergency</option>
-                    <option value="high" {{ request('priority') == 'high' ? 'selected' : '' }}>🔥 High</option>
-                    <option value="medium" {{ request('priority') == 'medium' ? 'selected' : '' }}>⚡ Medium</option>
-                    <option value="low" {{ request('priority') == 'low' ? 'selected' : '' }}>🟢 Low</option>
+                    <option value="emergency" {{ request('priority') === 'emergency' ? 'selected' : '' }}>🚨 Emergency</option>
+                    <option value="high" {{ request('priority') === 'high' ? 'selected' : '' }}>🔥 High</option>
+                    <option value="medium" {{ request('priority') === 'medium' ? 'selected' : '' }}>⚡ Medium</option>
+                    <option value="low" {{ request('priority') === 'low' ? 'selected' : '' }}>🟢 Low</option>
                 </select>
             </div>
         </x-slot:extraFilters>
@@ -126,7 +130,7 @@
                         <th class="py-3 px-3.5">Schedule</th>
                         <th class="py-3 px-3.5">Priority</th>
                         <th class="py-3 px-3.5">Media</th>
-                        <th class="py-3 px-3.5">Status</th>
+                        <th class="py-3 px-3.5">Quotation Status</th>
                         <th class="py-3 px-3.5 text-right">Actions</th>
                     </tr>
                 </thead>
@@ -134,9 +138,10 @@
                     @forelse ($requests as $requestItem)
                         @php
                             $priorityVal = $requestItem->priority instanceof \BackedEnum ? $requestItem->priority->value : $requestItem->priority;
-                            $statusVal = $requestItem->status instanceof \BackedEnum ? $requestItem->status->value : $requestItem->status;
+                            $reqFormatted = '#REQ-' . str_pad($requestItem->id, 5, '0', STR_PAD_LEFT);
+                            $customerName = $requestItem->user?->name ?? 'Customer';
                         @endphp
-                        <tr class="hover:bg-amber-50/20 transition-colors {{ $statusVal === 'pending' ? 'bg-amber-50/10' : '' }}">
+                        <tr class="hover:bg-amber-50/20 transition-colors">
                             <td class="py-3 px-3.5 text-center">
                                 <input
                                     type="checkbox"
@@ -150,16 +155,16 @@
                             <td class="py-3 px-3.5">
                                 <div class="flex items-center gap-2.5">
                                     <div class="w-8 h-8 rounded-full bg-slate-900 text-[#C5A059] flex items-center justify-center font-bold text-xs shrink-0 border border-amber-500/20 shadow-2xs">
-                                        {{ strtoupper(substr($requestItem->user?->name ?? 'C', 0, 1)) }}
+                                        {{ strtoupper(substr($customerName, 0, 1)) }}
                                     </div>
                                     <div>
                                         <a href="{{ route('dashboard.service-requests.show', $requestItem) }}" class="font-bold text-slate-900 hover:text-[#8F6B20] transition-colors">
-                                            {{ $requestItem->user?->name ?? 'Customer' }}
+                                            {{ $customerName }}
                                         </a>
                                         <div class="text-[11px] text-slate-400 flex items-center gap-1.5 mt-0.5">
-                                            <span>#REQ-{{ str_pad($requestItem->id, 5, '0', STR_PAD_LEFT) }}</span>
+                                            <span class="font-mono font-semibold text-slate-600">{{ $reqFormatted }}</span>
                                             <span>&bull;</span>
-                                            <span>{{ $requestItem->user?->phone ?? $requestItem->user?->email }}</span>
+                                            <span>{{ $requestItem->user?->phone ?? $requestItem->user?->email ?? 'N/A' }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -179,10 +184,10 @@
                             {{-- Schedule --}}
                             <td class="py-3 px-3.5">
                                 <div class="font-bold text-slate-900">
-                                    {{ $requestItem->preferred_service_date?->format('M d, Y') }}
+                                    {{ $requestItem->preferred_service_date?->format('M d, Y') ?? 'Immediate' }}
                                 </div>
                                 <div class="text-[11px] text-slate-500 mt-0.5">
-                                    {{ $requestItem->preferred_service_time }}
+                                    {{ $requestItem->preferred_service_time ?? 'Flexible' }}
                                 </div>
                             </td>
 
@@ -222,36 +227,51 @@
                                 </div>
                             </td>
 
-                            {{-- Status Badge --}}
+                            {{-- Quotation Status & Summary --}}
                             <td class="py-3 px-3.5">
-                                @if ($statusVal === 'pending')
-                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300">
-                                        Pending
-                                    </span>
-                                @elseif ($statusVal === 'in_review')
-                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-300">
-                                        In Review
-                                    </span>
-                                @elseif ($statusVal === 'approved')
-                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-300">
-                                        Approved
-                                    </span>
-                                @elseif ($statusVal === 'in_progress')
-                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800 border border-purple-300">
-                                        In Progress
-                                    </span>
-                                @elseif ($statusVal === 'completed')
-                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
-                                        Completed
-                                    </span>
+                                @if ($requestItem->latestQuote)
+                                    <div>
+                                        <div class="flex items-center gap-1.5">
+                                            <a href="{{ route('dashboard.quotes.show', $requestItem->latestQuote) }}" class="font-mono font-bold text-xs text-slate-900 hover:text-[#8F6B20]">
+                                                {{ $requestItem->latestQuote->quote_number }}
+                                            </a>
+                                            <span class="text-xs font-black text-[#8F6B20] font-mono">
+                                                ${{ number_format($requestItem->latestQuote->total_price, 2) }}
+                                            </span>
+                                        </div>
+                                        <div class="mt-0.5">
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold border {{ $requestItem->latestQuote->status->badgeClasses() }}">
+                                                {{ $requestItem->latestQuote->status->label() }}
+                                            </span>
+                                        </div>
+                                    </div>
                                 @else
-                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-300">
-                                        Cancelled
-                                    </span>
+                                    <div class="space-y-1">
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-300 shadow-2xs">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                                            Awaiting Quote
+                                        </span>
+                                        @can('quotes.create')
+                                            <div>
+                                                <button
+                                                    type="button"
+                                                    data-request-id="{{ $requestItem->id }}"
+                                                    data-request-number="{{ $reqFormatted }}"
+                                                    data-customer-name="{{ $customerName }}"
+                                                    data-description="{{ $requestItem->description }}"
+                                                    onclick="openQuoteModalFromButton(this)"
+                                                    class="text-[11px] text-[#8F6B20] hover:text-[#C5A059] font-bold hover:underline cursor-pointer flex items-center gap-1"
+                                                >
+                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                                    <span>Send Quote</span>
+                                                </button>
+                                            </div>
+                                        @endcan
+                                    </div>
                                 @endif
                             </td>
 
-                            {{-- Actions Dropdown (Same as Categories standard) --}}
+                            {{-- Actions Dropdown --}}
                             <td class="px-3.5 py-2 text-right">
                                 <x-action-dropdown>
                                     @can('service_requests.view')
@@ -265,20 +285,20 @@
                                         <button
                                             type="button"
                                             data-request-id="{{ $requestItem->id }}"
-                                            data-request-number="#REQ-{{ str_pad($requestItem->id, 5, '0', STR_PAD_LEFT) }}"
-                                            data-customer-name="{{ $requestItem->user?->name ?? 'Customer' }}"
+                                            data-request-number="{{ $reqFormatted }}"
+                                            data-customer-name="{{ $customerName }}"
                                             data-description="{{ $requestItem->description }}"
                                             onclick="openQuoteModalFromButton(this)"
-                                            class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-amber-700 hover:bg-[#C5A059]/10 transition-colors cursor-pointer text-left font-medium"
+                                            class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-[#8F6B20] hover:bg-[#C5A059]/10 transition-colors cursor-pointer text-left font-bold"
                                         >
                                             <svg class="w-3.5 h-3.5 text-[#C5A059]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                            <span>Create / Send Quote</span>
+                                            <span>{{ $requestItem->latestQuote ? 'Send Another Quote' : 'Create & Send Quote' }}</span>
                                         </button>
                                     @endcan
 
                                     @if ($requestItem->latestQuote)
                                         @can('quotes.view')
-                                            <a href="{{ route('dashboard.quotes.show', $requestItem->latestQuote) }}" class="flex items-center gap-2 px-3 py-1.5 text-xs text-indigo-700 hover:bg-indigo-50 transition-colors">
+                                            <a href="{{ route('dashboard.quotes.show', $requestItem->latestQuote) }}" class="flex items-center gap-2 px-3 py-1.5 text-xs text-indigo-700 hover:bg-indigo-50 transition-colors font-medium">
                                                 <svg class="w-3.5 h-3.5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
                                                 <span>View Quote ({{ $requestItem->latestQuote->quote_number }})</span>
                                             </a>
