@@ -1,3 +1,5 @@
+
+
 <x-dashboard.layout :title="'Service Request #REQ-' . str_pad($serviceRequest->id, 5, '0', STR_PAD_LEFT) . ' — EMAC Development ERP'">
 
     <x-slot:breadcrumbs>
@@ -12,6 +14,7 @@
         $reqFormatted = '#REQ-' . str_pad($serviceRequest->id, 5, '0', STR_PAD_LEFT);
         $customerName = $serviceRequest->user?->name ?? 'Customer';
         $quotesCount = $serviceRequest->quotes->count();
+        $fullAddress = $serviceRequest->address ? trim($serviceRequest->address->address . ', ' . $serviceRequest->address->city . ', ' . ($serviceRequest->address->state ? $serviceRequest->address->state . ', ' : '') . $serviceRequest->address->country) : null;
         $statusEnum = $serviceRequest->status instanceof \App\Enums\ServiceRequestStatus
             ? $serviceRequest->status
             : (\App\Enums\ServiceRequestStatus::tryFromLoose($serviceRequest->status) ?? \App\Enums\ServiceRequestStatus::PENDING);
@@ -28,6 +31,17 @@
                 <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border {{ $statusEnum->badgeClasses() }} shadow-2xs">
                     {{ $statusEnum->label() }}
                 </span>
+
+                @if ($serviceRequest->category)
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-800 border border-slate-200 shadow-2xs">
+                        <span class="w-1.5 h-1.5 rounded-full bg-[#C5A059]"></span>
+                        {{ $serviceRequest->category->name }}
+                        @if ($serviceRequest->subcategory)
+                            <span class="text-slate-400 font-normal">/</span>
+                            <span class="text-slate-600 font-medium">{{ $serviceRequest->subcategory->name }}</span>
+                        @endif
+                    </span>
+                @endif
 
                 @if ($priorityVal === 'emergency')
                     <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-rose-100 text-rose-800 border border-rose-300 shadow-2xs">
@@ -589,6 +603,18 @@
                             <span class="text-slate-400">Request ID:</span>
                             <span class="font-mono font-bold text-slate-800">{{ $reqFormatted }}</span>
                         </div>
+                        @if ($serviceRequest->category)
+                            <div class="flex items-center justify-between">
+                                <span class="text-slate-400">Category:</span>
+                                <span class="font-semibold text-slate-800">{{ $serviceRequest->category->name }}</span>
+                            </div>
+                        @endif
+                        @if ($serviceRequest->subcategory)
+                            <div class="flex items-center justify-between">
+                                <span class="text-slate-400">Subcategory:</span>
+                                <span class="font-medium text-slate-700">{{ $serviceRequest->subcategory->name }}</span>
+                            </div>
+                        @endif
                         <div class="flex items-center justify-between">
                             <span class="text-slate-400">Created:</span>
                             <span class="font-medium text-slate-700">{{ $serviceRequest->created_at->format('M d, Y · h:i A') }}</span>
