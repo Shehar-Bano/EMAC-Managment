@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             RegionSeeder::class,
             RegionalServicePriceSeeder::class,
             LegalDocumentSeeder::class,
+            SettingSeeder::class,
         ]);
     }
 }

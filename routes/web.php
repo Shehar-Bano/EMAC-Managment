@@ -118,6 +118,8 @@ Route::prefix('dashboard')->name('dashboard.')->middleware(['auth'])->group(func
     // System Settings Module
     Route::get('settings', [SettingController::class, 'index'])->name('settings.index');
     Route::put('settings', [SettingController::class, 'update'])->name('settings.update');
+    Route::put('settings/credentials', [SettingController::class, 'updateCredentials'])->name('settings.credentials');
+    Route::delete('settings/logo/{type}', [SettingController::class, 'removeLogo'])->name('settings.remove-logo');
 
     // Legal & Compliance Module (Terms & Privacy)
     Route::get('terms', [TermsController::class, 'index'])->name('terms.index');

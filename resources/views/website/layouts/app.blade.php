@@ -55,7 +55,7 @@
             <div class="flex items-center justify-between h-18">
                 {{-- Brand Logo --}}
                 <a href="{{ route('home') }}" class="flex items-center gap-3">
-                    <x-logo :theme="'dark'" size="md" />
+                    <x-logo context="website" :theme="'dark'" size="md" />
                 </a>
 
                 {{-- Desktop Navigation Links --}}
@@ -140,7 +140,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
                 {{-- Brand Column --}}
                 <div class="lg:col-span-2 space-y-4">
-                    <x-logo :theme="'dark'" size="md" />
+                    <x-logo context="website" :theme="'light'" size="md" />
                     <p class="text-xs text-slate-400 max-w-sm leading-relaxed">
                         <strong>EMAC Development, LLC.</strong> delivers licensed handyman repairs, routine property maintenance, and certified plumbing solutions across Grand Cayman, Florida, and Jamaica.
                     </p>

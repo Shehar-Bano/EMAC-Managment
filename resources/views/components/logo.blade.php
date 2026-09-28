@@ -1,16 +1,34 @@
 @props([
-    'variant' => 'full', // 'full', 'icon', 'stacked'
-    'theme' => 'dark',    // 'dark' (for light bg, text is dark) or 'light' (for dark bg, text is white)
-    'size' => 'md',       // 'sm', 'md', 'lg', 'xl'
+    'variant' => 'full',      // 'full', 'icon', 'stacked'
+    'theme' => 'dark',         // 'dark' (for light bg, text is dark) or 'light' (for dark bg, text is white)
+    'size' => 'md',            // 'sm', 'md', 'lg', 'xl'
+    'context' => 'dashboard',  // 'dashboard' or 'website'
+    'customLogo' => null,      // explicit override logo path
 ])
 
 @php
+    $activeCustomLogo = $customLogo;
+    if (! $activeCustomLogo) {
+        if ($context === 'website') {
+            $activeCustomLogo = setting('website_logo');
+        } else {
+            $activeCustomLogo = setting('dashboard_logo');
+        }
+    }
+
     $iconSizes = [
         'sm' => 'w-8 h-8',
         'md' => 'w-10 h-10',
         'lg' => 'w-14 h-14',
         'xl' => 'w-20 h-20',
     ][$size] ?? 'w-10 h-10';
+
+    $imgSizes = [
+        'sm' => 'max-h-8 max-w-[180px]',
+        'md' => 'max-h-10 max-w-[220px]',
+        'lg' => 'max-h-14 max-w-[280px]',
+        'xl' => 'max-h-20 max-w-[340px]',
+    ][$size] ?? 'max-h-10 max-w-[220px]';
 
     $textSizes = [
         'sm' => 'text-xs',
@@ -22,9 +40,19 @@
     $isLightBg = $theme === 'dark';
     $emacColor = $isLightBg ? 'text-[#8F6B20]' : 'text-white';
     $devColor = $isLightBg ? 'text-[#C5A059]' : 'text-[#D4AF37]';
+    $appName = setting('app_name', 'EMAC Development');
 @endphp
 
-@if ($variant === 'stacked')
+@if ($activeCustomLogo)
+    {{-- Uploaded Dynamic Custom Logo --}}
+    <div {{ $attributes->merge(['class' => 'inline-flex items-center select-none']) }}>
+        <img
+            src="{{ asset('storage/' . $activeCustomLogo) }}"
+            alt="{{ $appName }}"
+            class="{{ $imgSizes }} w-auto object-contain"
+        >
+    </div>
+@elseif ($variant === 'stacked')
     <div {{ $attributes->merge(['class' => 'inline-flex flex-col items-center text-center select-none']) }}>
         {{-- Geometric Gold Emblem --}}
         <div class="{{ $iconSizes }} relative flex items-center justify-center my-0.5">
