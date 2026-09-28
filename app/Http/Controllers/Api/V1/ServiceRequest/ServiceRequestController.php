@@ -21,7 +21,8 @@ class ServiceRequestController extends Controller
         $user = $request->user();
 
         $requests = $user->serviceRequests()
-            ->with(['address', 'photographs', 'videos'])
+            ->with(['category', 'subcategory', 'address', 'photographs', 'videos'])
+            ->filter($request->only(['category_id', 'subcategory_id', 'status', 'priority', 'date_from', 'date_to', 'search']))
             ->latest('id')
             ->paginate($perPage);
 
@@ -52,7 +53,7 @@ class ServiceRequestController extends Controller
     {
         $serviceRequest = $request->user()
             ->serviceRequests()
-            ->with(['address', 'photographs', 'videos'])
+            ->with(['category', 'subcategory', 'address', 'photographs', 'videos'])
             ->findOrFail($id);
 
         return ApiResponse::success(

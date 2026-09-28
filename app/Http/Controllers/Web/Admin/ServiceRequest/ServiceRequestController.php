@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web\Admin\ServiceRequest;
 
 use App\Enums\ServiceRequestPriority;
+use App\Enums\ServiceRequestStatus;
 use App\Http\Controllers\Controller;
 use App\Models\ServiceRequest;
 use Illuminate\Contracts\View\View;
@@ -21,8 +22,8 @@ class ServiceRequestController extends Controller
         $this->authorize('service_requests.view');
 
         $perPageParam = strtolower($request->get('per_page', '10'));
-        $query = ServiceRequest::with(['user', 'address', 'photographs', 'videos', 'latestQuote'])
-            ->filter($request->only(['search', 'quote_status', 'priority', 'date_from', 'date_to']))
+        $query = ServiceRequest::with(['user', 'category', 'subcategory', 'address', 'photographs', 'videos', 'latestQuote'])
+            ->filter($request->only(['search', 'quote_status', 'priority', 'status', 'date_from', 'date_to', 'category_id', 'subcategory_id']))
             ->latest('id');
 
         if ($perPageParam === 'all') {
@@ -35,8 +36,9 @@ class ServiceRequestController extends Controller
 
         $stats = [
             'total' => ServiceRequest::count(),
-            'awaiting_quote' => ServiceRequest::doesntHave('quotes')->count(),
-            'quotes_sent' => ServiceRequest::has('quotes')->count(),
+            'pending' => ServiceRequest::where('status', ServiceRequestStatus::PENDING)->count(),
+            'quotesent' => ServiceRequest::where('status', ServiceRequestStatus::QUOTE_SENT)->count(),
+            'reject' => ServiceRequest::where('status', ServiceRequestStatus::REJECT)->count(),
             'emergency' => ServiceRequest::where('priority', ServiceRequestPriority::EMERGENCY)->count(),
             'high' => ServiceRequest::where('priority', ServiceRequestPriority::HIGH)->count(),
         ];
@@ -51,7 +53,7 @@ class ServiceRequestController extends Controller
     {
         $this->authorize('service_requests.view');
 
-        $serviceRequest->load(['user.addresses', 'address', 'photographs', 'videos', 'quotes.sender']);
+        $serviceRequest->load(['user.addresses', 'category', 'subcategory', 'address', 'photographs', 'videos', 'quotes.sender']);
 
         return view('dashboard.modules.service-requests.show', compact('serviceRequest'));
     }
@@ -64,12 +66,15 @@ class ServiceRequestController extends Controller
         $this->authorize('service_requests.status');
 
         $validated = $request->validate([
-            'status' => ['required', 'string', 'in:pending,in_review,approved,in_progress,completed,cancelled'],
+            'status' => ['required', 'string', 'in:pending,reject,quotesent'],
         ]);
 
         $serviceRequest->update(['status' => $validated['status']]);
 
-        return back()->with('success', "Service request #{$serviceRequest->id} status updated to '".ucfirst(str_replace('_', ' ', $validated['status']))."'.");
+        $statusEnum = ServiceRequestStatus::tryFrom($validated['status']);
+        $statusLabel = $statusEnum ? $statusEnum->label() : ucfirst($validated['status']);
+
+        return back()->with('success', "Service request #{$serviceRequest->id} status updated to '{$statusLabel}'.");
     }
 
     /**

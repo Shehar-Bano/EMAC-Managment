@@ -12,6 +12,7 @@ use App\Http\Requests\Auth\RefreshTokenRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Requests\Auth\SocialLoginRequest;
 use App\Http\Resources\Auth\UserAuthResource;
+use App\Models\Region;
 use App\Models\Role;
 use App\Models\User;
 use App\Services\Auth\OtpService;
@@ -45,24 +46,31 @@ class AuthController extends Controller
             // Save address into user_addresses table
             if ($request->has('addresses') && is_array($request->addresses) && count($request->addresses) > 0) {
                 foreach ($request->addresses as $index => $addr) {
-                    if (! empty($addr['address']) || ! empty($addr['city']) || ! empty($addr['country']) || ! empty($addr['state'])) {
+                    if (! empty($addr['address']) || ! empty($addr['city']) || ! empty($addr['country']) || ! empty($addr['state']) || ! empty($addr['region_id'])) {
                         $isPrimary = isset($addr['is_primary']) ? (bool) $addr['is_primary'] : ($index === 0);
+                        $regionId = ! empty($addr['region_id']) ? (int) $addr['region_id'] : null;
+                        $region = $regionId ? Region::find($regionId) : null;
 
                         $user->addresses()->create([
+                            'region_id' => $regionId,
                             'country' => $addr['country'] ?? null,
-                            'state' => $addr['state'] ?? null,
+                            'state' => $addr['state'] ?? $region?->name,
                             'city' => $addr['city'] ?? null,
                             'address' => $addr['address'] ?? null,
                             'is_primary' => $isPrimary,
                         ]);
                     }
                 }
-            } elseif ($request->filled('address')) {
+            } elseif ($request->filled('address') || $request->filled('region_id')) {
+                $regionId = $request->filled('region_id') ? (int) $request->region_id : null;
+                $region = $regionId ? Region::find($regionId) : null;
+
                 $user->addresses()->create([
+                    'region_id' => $regionId,
                     'country' => $request->country ?? null,
-                    'state' => $request->state ?? null,
+                    'state' => $request->state ?? $region?->name,
                     'city' => $request->city ?? null,
-                    'address' => $request->address,
+                    'address' => $request->address ?? '',
                     'is_primary' => true,
                 ]);
             }

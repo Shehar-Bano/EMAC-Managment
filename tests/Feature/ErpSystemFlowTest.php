@@ -103,7 +103,7 @@ class ErpSystemFlowTest extends TestCase
                 'password' => 'password123',
                 'roles' => [$role->id],
             ])
-            ->assertRedirect(route('dashboard.users.index'))
+            ->assertRedirect(route('dashboard.users.index', ['type' => 'customers']))
             ->assertSessionHas('success');
 
         $user = User::where('email', $email)->firstOrFail();
@@ -117,7 +117,7 @@ class ErpSystemFlowTest extends TestCase
                 'status' => 'active',
                 'roles' => [$role->id],
             ])
-            ->assertRedirect(route('dashboard.users.index'))
+            ->assertRedirect(route('dashboard.users.index', ['type' => 'customers']))
             ->assertSessionHas('success');
 
         // 3. Toggle Status
@@ -189,7 +189,7 @@ class ErpSystemFlowTest extends TestCase
                 'ids' => [$u1->id, $u2->id],
             ]);
 
-        $response->assertRedirect(route('dashboard.users.index'))
+        $response->assertRedirect(route('dashboard.users.index', ['type' => 'customers']))
             ->assertSessionHas('success');
 
         $this->assertSoftDeleted('users', ['id' => $u1->id]);

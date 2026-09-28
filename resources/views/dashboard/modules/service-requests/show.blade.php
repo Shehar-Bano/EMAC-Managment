@@ -12,7 +12,9 @@
         $reqFormatted = '#REQ-' . str_pad($serviceRequest->id, 5, '0', STR_PAD_LEFT);
         $customerName = $serviceRequest->user?->name ?? 'Customer';
         $quotesCount = $serviceRequest->quotes->count();
-        $fullAddress = $serviceRequest->address ? trim($serviceRequest->address->address . ', ' . $serviceRequest->address->city . ', ' . ($serviceRequest->address->state ? $serviceRequest->address->state . ', ' : '') . $serviceRequest->address->country) : null;
+        $statusEnum = $serviceRequest->status instanceof \App\Enums\ServiceRequestStatus
+            ? $serviceRequest->status
+            : (\App\Enums\ServiceRequestStatus::tryFromLoose($serviceRequest->status) ?? \App\Enums\ServiceRequestStatus::PENDING);
     @endphp
 
     <x-slot:header>
@@ -22,6 +24,10 @@
                     <span>Request</span>
                     <span class="font-mono text-[#8F6B20] bg-[#FAF8F4] px-3 py-0.5 rounded-xl border border-[#C5A059]/30 text-xl sm:text-2xl shadow-2xs">{{ $reqFormatted }}</span>
                 </h1>
+
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border {{ $statusEnum->badgeClasses() }} shadow-2xs">
+                    {{ $statusEnum->label() }}
+                </span>
 
                 @if ($priorityVal === 'emergency')
                     <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-rose-100 text-rose-800 border border-rose-300 shadow-2xs">
@@ -487,6 +493,46 @@
 
             {{-- Right Sidebar Column (4 cols): Direct Quote Dispatch & Record Actions --}}
             <div class="lg:col-span-4 space-y-6">
+
+                {{-- Status Management Card --}}
+                <div class="p-6 rounded-3xl bg-white border border-slate-200/90 shadow-xs space-y-4">
+                    <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
+                            <svg class="w-4 h-4 text-[#C5A059]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span>Request Status</span>
+                        </h3>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border {{ $statusEnum->badgeClasses() }}">
+                            {{ $statusEnum->label() }}
+                        </span>
+                    </div>
+
+                    @can('service_requests.status')
+                        <form method="POST" action="{{ route('dashboard.service-requests.status', $serviceRequest) }}" class="space-y-3">
+                            @csrf
+                            @method('PATCH')
+                            <div>
+                                <label for="service-request-status-select" class="block text-[11px] font-bold text-slate-600 mb-1.5">Change Status:</label>
+                                <div class="flex items-center gap-2">
+                                    <select
+                                        name="status"
+                                        id="service-request-status-select"
+                                        class="w-full px-3 py-2 text-xs bg-white border border-slate-300 rounded-xl focus:border-[#C5A059] focus:ring-1 focus:ring-[#C5A059] outline-none font-semibold text-slate-800 shadow-2xs"
+                                    >
+                                        <option value="pending" {{ $statusEnum->value === 'pending' ? 'selected' : '' }}>⏳ Pending</option>
+                                        <option value="quotesent" {{ $statusEnum->value === 'quotesent' ? 'selected' : '' }}>📄 Quote Sent</option>
+                                        <option value="reject" {{ $statusEnum->value === 'reject' ? 'selected' : '' }}>❌ Rejected</option>
+                                    </select>
+                                    <button
+                                        type="submit"
+                                        class="px-3.5 py-2 text-xs font-bold text-slate-900 bg-gradient-to-r from-[#D4AF37] to-[#C5A059] hover:brightness-105 rounded-xl shadow-2xs transition-all cursor-pointer shrink-0"
+                                    >
+                                        Update
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    @endcan
+                </div>
 
                 {{-- Direct Quote Dispatch Card (Luxury Gold Light Theme with High Contrast) --}}
                 <div class="p-6 sm:p-7 rounded-3xl bg-gradient-to-br from-[#FAF8F4] via-white to-[#F5EFE6] border-2 border-[#C5A059]/40 shadow-xs space-y-4">

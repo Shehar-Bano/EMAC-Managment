@@ -31,6 +31,8 @@ class ServiceRequest extends Model
     protected $fillable = [
         'user_id',
         'user_address_id',
+        'category_id',
+        'subcategory_id',
         'description',
         'property_information',
         'preferred_service_date',
@@ -68,6 +70,22 @@ class ServiceRequest extends Model
     public function address(): BelongsTo
     {
         return $this->belongsTo(UserAddress::class, 'user_address_id');
+    }
+
+    /**
+     * Associated main service category.
+     */
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class, 'category_id');
+    }
+
+    /**
+     * Associated specific subcategory / task.
+     */
+    public function subcategory(): BelongsTo
+    {
+        return $this->belongsTo(Subcategory::class, 'subcategory_id');
     }
 
     /**
@@ -127,6 +145,16 @@ class ServiceRequest extends Model
                                 ->orWhere('phone', 'like', "%{$search}%");
                         });
                 });
+            })
+            ->when($filters['category_id'] ?? null, function (Builder $q, $catId) {
+                if ($catId !== 'all') {
+                    $q->where('category_id', $catId);
+                }
+            })
+            ->when($filters['subcategory_id'] ?? null, function (Builder $q, $subId) {
+                if ($subId !== 'all') {
+                    $q->where('subcategory_id', $subId);
+                }
             })
             ->when($filters['status'] ?? null, function (Builder $q, $status) {
                 if ($status !== 'all') {

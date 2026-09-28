@@ -48,6 +48,14 @@ use OpenApi\Attributes as OA;
     name: 'Quotes',
     description: 'Price quotation review and customer response (approve, decline, ask question) APIs'
 )]
+#[OA\Tag(
+    name: 'Services & Catalog',
+    description: 'Category hierarchy, subcategories, service catalog, and regional pricing APIs'
+)]
+#[OA\Tag(
+    name: 'Regions',
+    description: 'Operating regions, service coverage territories, and local currency APIs'
+)]
 class OpenApiDoc
 {
     #[OA\Post(
@@ -62,6 +70,7 @@ class OpenApiDoc
                     new OA\Property(property: 'email', type: 'string', format: 'email', example: 'john@example.com'),
                     new OA\Property(property: 'phone', type: 'string', example: '+1234567890'),
                     new OA\Property(property: 'address', type: 'string', example: '123 Example Street', description: 'Primary address line (stored in user_addresses table)'),
+                    new OA\Property(property: 'region_id', type: 'integer', example: 1, nullable: true, description: 'ID of operating territory region (from /api/v1/regions)'),
                     new OA\Property(property: 'country', type: 'string', example: 'Cayman Islands', nullable: true),
                     new OA\Property(property: 'state', type: 'string', example: 'Grand Cayman', nullable: true),
                     new OA\Property(property: 'city', type: 'string', example: 'George Town', nullable: true),
@@ -70,6 +79,7 @@ class OpenApiDoc
                         type: 'array',
                         items: new OA\Items(
                             properties: [
+                                new OA\Property(property: 'region_id', type: 'integer', example: 1, nullable: true),
                                 new OA\Property(property: 'country', type: 'string', example: 'Cayman Islands'),
                                 new OA\Property(property: 'state', type: 'string', example: 'Grand Cayman'),
                                 new OA\Property(property: 'city', type: 'string', example: 'George Town'),
@@ -392,6 +402,10 @@ class OpenApiDoc
                                     items: new OA\Items(
                                         properties: [
                                             new OA\Property(property: 'id', type: 'integer', example: 1),
+                                            new OA\Property(property: 'region_id', type: 'integer', example: 1, nullable: true),
+                                            new OA\Property(property: 'region_name', type: 'string', example: 'Grand Cayman'),
+                                            new OA\Property(property: 'region_code', type: 'string', example: 'GC'),
+                                            new OA\Property(property: 'currency', type: 'string', example: 'KYD'),
                                             new OA\Property(property: 'country', type: 'string', example: 'Cayman Islands'),
                                             new OA\Property(property: 'state', type: 'string', example: 'Grand Cayman'),
                                             new OA\Property(property: 'city', type: 'string', example: 'George Town'),
@@ -427,11 +441,13 @@ class OpenApiDoc
                     new OA\Property(property: 'name', type: 'string', example: 'John Doe'),
                     new OA\Property(property: 'phone', type: 'string', example: '+1234567890'),
                     new OA\Property(property: 'address', type: 'string', example: 'Updated 456 Avenue'),
+                    new OA\Property(property: 'region_id', type: 'integer', example: 1, nullable: true),
                     new OA\Property(
                         property: 'addresses',
                         type: 'array',
                         items: new OA\Items(
                             properties: [
+                                new OA\Property(property: 'region_id', type: 'integer', example: 1, nullable: true),
                                 new OA\Property(property: 'country', type: 'string', example: 'Cayman Islands'),
                                 new OA\Property(property: 'state', type: 'string', example: 'Grand Cayman'),
                                 new OA\Property(property: 'city', type: 'string', example: 'George Town'),
@@ -453,15 +469,17 @@ class OpenApiDoc
     #[OA\Post(
         path: '/api/v1/service-requests',
         summary: 'Submit a new customer service request',
-        description: 'Allows authenticated customers to submit a service request with description, property details, location address ID, schedule preferences, priority, optional notes, photographs (jpg/png/webp max 10MB), and videos (mp4/mov/avi max 50MB).',
+        description: 'Allows authenticated customers to submit a service request with category ID, optional subcategory ID, description, property details, location address ID, schedule preferences, priority, optional notes, photographs (jpg/png/webp max 10MB), and videos (mp4/mov/avi max 50MB).',
         security: [['bearerAuth' => []]],
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\MediaType(
                 mediaType: 'multipart/form-data',
                 schema: new OA\Schema(
-                    required: ['description', 'property_information', 'user_address_id', 'preferred_service_date', 'preferred_service_time'],
+                    required: ['category_id', 'description', 'property_information', 'user_address_id', 'preferred_service_date', 'preferred_service_time'],
                     properties: [
+                        new OA\Property(property: 'category_id', type: 'integer', example: 1, description: 'ID of the selected service category (from /api/v1/categories/catalog)'),
+                        new OA\Property(property: 'subcategory_id', type: 'integer', example: 2, nullable: true, description: 'ID of specific task/subcategory (from /api/v1/categories/catalog)'),
                         new OA\Property(property: 'description', type: 'string', example: 'Central AC is making a loud rattling noise and not blowing cold air.', description: 'Detailed written description of the issue'),
                         new OA\Property(property: 'property_information', type: 'string', example: '2-storey residential villa, Unit 4B, rooftop AC compressor access via exterior ladder.', description: 'Property details and access instructions'),
                         new OA\Property(property: 'user_address_id', type: 'integer', example: 1, description: 'ID of existing user address record from user_addresses table'),
@@ -499,6 +517,29 @@ class OpenApiDoc
                             property: 'data',
                             properties: [
                                 new OA\Property(property: 'id', type: 'integer', example: 1),
+                                new OA\Property(property: 'category_id', type: 'integer', example: 1),
+                                new OA\Property(property: 'subcategory_id', type: 'integer', example: 2, nullable: true),
+                                new OA\Property(
+                                    property: 'category',
+                                    properties: [
+                                        new OA\Property(property: 'id', type: 'integer', example: 1),
+                                        new OA\Property(property: 'name', type: 'string', example: 'Handyman Services'),
+                                        new OA\Property(property: 'slug', type: 'string', example: 'handyman-services'),
+                                        new OA\Property(property: 'icon', type: 'string', example: '🔧'),
+                                    ],
+                                    type: 'object'
+                                ),
+                                new OA\Property(
+                                    property: 'subcategory',
+                                    properties: [
+                                        new OA\Property(property: 'id', type: 'integer', example: 2),
+                                        new OA\Property(property: 'name', type: 'string', example: 'General repairs'),
+                                        new OA\Property(property: 'slug', type: 'string', example: 'general-repairs'),
+                                        new OA\Property(property: 'icon', type: 'string', example: '🔧'),
+                                    ],
+                                    type: 'object',
+                                    nullable: true
+                                ),
                                 new OA\Property(property: 'description', type: 'string', example: 'Central AC is making a loud rattling noise.'),
                                 new OA\Property(property: 'property_information', type: 'string', example: '2-storey residential villa, Unit 4B.'),
                                 new OA\Property(property: 'preferred_service_date', type: 'string', example: '2026-10-05'),
@@ -555,10 +596,12 @@ class OpenApiDoc
     #[OA\Get(
         path: '/api/v1/service-requests',
         summary: 'List customer service requests',
-        description: 'Get a paginated list of service requests submitted by the authenticated customer (or all requests if admin/staff). Supports filtering by status, priority, and pagination.',
+        description: 'Get a paginated list of service requests submitted by the authenticated customer (or all requests if admin/staff). Supports filtering by category_id, subcategory_id, status, priority, and pagination.',
         security: [['bearerAuth' => []]],
         parameters: [
-            new OA\Parameter(name: 'status', in: 'query', required: false, schema: new OA\Schema(type: 'string', enum: ['pending', 'in_review', 'approved', 'in_progress', 'completed', 'cancelled'])),
+            new OA\Parameter(name: 'category_id', in: 'query', required: false, schema: new OA\Schema(type: 'integer', example: 1)),
+            new OA\Parameter(name: 'subcategory_id', in: 'query', required: false, schema: new OA\Schema(type: 'integer', example: 2)),
+            new OA\Parameter(name: 'status', in: 'query', required: false, schema: new OA\Schema(type: 'string', enum: ['pending', 'reject', 'quotesent'])),
             new OA\Parameter(name: 'priority', in: 'query', required: false, schema: new OA\Schema(type: 'string', enum: ['low', 'medium', 'high', 'emergency'])),
             new OA\Parameter(name: 'per_page', in: 'query', required: false, schema: new OA\Schema(type: 'integer', example: 15)),
             new OA\Parameter(name: 'page', in: 'query', required: false, schema: new OA\Schema(type: 'integer', example: 1)),
@@ -579,6 +622,8 @@ class OpenApiDoc
                             items: new OA\Items(
                                 properties: [
                                     new OA\Property(property: 'id', type: 'integer', example: 1),
+                                    new OA\Property(property: 'category_id', type: 'integer', example: 1),
+                                    new OA\Property(property: 'subcategory_id', type: 'integer', example: 2, nullable: true),
                                     new OA\Property(property: 'description', type: 'string', example: 'Central AC issue'),
                                     new OA\Property(property: 'priority', type: 'string', example: 'high'),
                                     new OA\Property(property: 'status', type: 'string', example: 'pending'),
@@ -724,4 +769,177 @@ class OpenApiDoc
         ]
     )]
     public function respondQuoteDoc() {}
+
+    #[OA\Get(
+        path: '/api/v1/categories/catalog',
+        summary: 'Get complete service catalog (categories with subcategories & prices)',
+        description: 'Retrieves all active categories hierarchically along with subcategories and regional service prices. Pass region_id or region (ID, slug, code e.g. "grand-cayman", "GCM", 1) to filter pricing for a specific territory. Pass only_with_prices=1 to only return categories with pricing in that region.',
+        parameters: [
+            new OA\Parameter(name: 'region_id', in: 'query', required: false, description: 'Filter pricing to a specific region ID (e.g. 1 for Grand Cayman, 2 for Florida)', schema: new OA\Schema(type: 'integer', example: 1)),
+            new OA\Parameter(name: 'region', in: 'query', required: false, description: 'Filter by region ID, slug, code, or name (e.g. "grand-cayman", "GCM", "florida", 1)', schema: new OA\Schema(type: 'string', example: 'grand-cayman')),
+            new OA\Parameter(name: 'only_with_prices', in: 'query', required: false, description: 'Pass 1 to only return items that have configured prices in the selected region', schema: new OA\Schema(type: 'boolean', example: false)),
+            new OA\Parameter(name: 'search', in: 'query', required: false, description: 'Search query for category/subcategory name or description', schema: new OA\Schema(type: 'string', example: 'plumbing')),
+        ],
+        tags: ['Services & Catalog'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Catalog retrieved successfully',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'success', type: 'boolean', example: true),
+                        new OA\Property(property: 'message', type: 'string', example: 'Categories with subcategories and pricing retrieved successfully.'),
+                        new OA\Property(
+                            property: 'data',
+                            type: 'array',
+                            items: new OA\Items(
+                                properties: [
+                                    new OA\Property(property: 'id', type: 'integer', example: 1),
+                                    new OA\Property(property: 'name', type: 'string', example: 'Plumbing Services'),
+                                    new OA\Property(property: 'slug', type: 'string', example: 'plumbing-services'),
+                                    new OA\Property(property: 'description', type: 'string', example: 'Certified plumbing repairs and installations'),
+                                    new OA\Property(property: 'icon', type: 'string', example: '🚰'),
+                                    new OA\Property(property: 'image_url', type: 'string', example: 'http://example.com/storage/categories/plumbing.jpg', nullable: true),
+                                    new OA\Property(property: 'status', type: 'string', example: 'active'),
+                                    new OA\Property(property: 'sort_order', type: 'integer', example: 1),
+                                    new OA\Property(
+                                        property: 'subcategories',
+                                        type: 'array',
+                                        items: new OA\Items(
+                                            properties: [
+                                                new OA\Property(property: 'id', type: 'integer', example: 10),
+                                                new OA\Property(property: 'category_id', type: 'integer', example: 1),
+                                                new OA\Property(property: 'name', type: 'string', example: 'Faucet Replacement'),
+                                                new OA\Property(property: 'slug', type: 'string', example: 'faucet-replacement'),
+                                                new OA\Property(property: 'description', type: 'string', example: 'Kitchen and bath faucet replacement'),
+                                                new OA\Property(property: 'icon', type: 'string', example: '🚰'),
+                                                new OA\Property(property: 'price', type: 'number', format: 'float', example: 143.75),
+                                                new OA\Property(property: 'formatted_price', type: 'string', example: 'KYD 143.75'),
+                                                new OA\Property(property: 'currency', type: 'string', example: 'KYD'),
+                                                new OA\Property(property: 'region_id', type: 'integer', example: 1),
+                                                new OA\Property(property: 'region_name', type: 'string', example: 'Grand Cayman'),
+                                                new OA\Property(property: 'region_code', type: 'string', example: 'GC'),
+                                                new OA\Property(property: 'regional_prices', type: 'array', items: new OA\Items(type: 'object')),
+                                            ]
+                                        )
+                                    ),
+                                ]
+                            )
+                        ),
+                        new OA\Property(
+                            property: 'meta',
+                            type: 'object',
+                            properties: [
+                                new OA\Property(property: 'total_categories', type: 'integer', example: 2),
+                                new OA\Property(property: 'region_id', type: 'integer', example: 1, nullable: true),
+                                new OA\Property(property: 'region_name', type: 'string', example: 'Grand Cayman', nullable: true),
+                                new OA\Property(property: 'region_code', type: 'string', example: 'GC', nullable: true),
+                                new OA\Property(property: 'currency', type: 'string', example: 'KYD', nullable: true),
+                            ]
+                        ),
+                    ]
+                )
+            ),
+        ]
+    )]
+    public function getCategoryCatalogDoc() {}
+
+    #[OA\Get(
+        path: '/api/v1/categories',
+        summary: 'List categories (with optional subcategories and pricing)',
+        description: 'Returns categories list. Pass with_subcategories=1 or with_prices=1 to load subcategories and pricing. Pass region_id or region to filter pricing.',
+        parameters: [
+            new OA\Parameter(name: 'with_subcategories', in: 'query', required: false, schema: new OA\Schema(type: 'boolean', example: true)),
+            new OA\Parameter(name: 'with_prices', in: 'query', required: false, schema: new OA\Schema(type: 'boolean', example: true)),
+            new OA\Parameter(name: 'region_id', in: 'query', required: false, description: 'Region ID (e.g. 1)', schema: new OA\Schema(type: 'integer', example: 1)),
+            new OA\Parameter(name: 'region', in: 'query', required: false, description: 'Region ID, slug, or code (e.g. "grand-cayman", "GCM", 1)', schema: new OA\Schema(type: 'string', example: 'grand-cayman')),
+            new OA\Parameter(name: 'only_with_prices', in: 'query', required: false, schema: new OA\Schema(type: 'boolean', example: false)),
+            new OA\Parameter(name: 'search', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'page', in: 'query', required: false, schema: new OA\Schema(type: 'integer', example: 1)),
+            new OA\Parameter(name: 'per_page', in: 'query', required: false, schema: new OA\Schema(type: 'integer', example: 15)),
+        ],
+        tags: ['Services & Catalog'],
+        responses: [
+            new OA\Response(response: 200, description: 'Categories list'),
+        ]
+    )]
+    public function getCategoriesDoc() {}
+
+    #[OA\Get(
+        path: '/api/v1/subcategories',
+        summary: 'List subcategories with pricing',
+        description: 'Returns subcategories with category details and regional pricing. Filter by category_id, region_id, or region.',
+        parameters: [
+            new OA\Parameter(name: 'category_id', in: 'query', required: false, schema: new OA\Schema(type: 'integer', example: 10)),
+            new OA\Parameter(name: 'region_id', in: 'query', required: false, schema: new OA\Schema(type: 'integer', example: 1)),
+            new OA\Parameter(name: 'region', in: 'query', required: false, schema: new OA\Schema(type: 'string', example: 'grand-cayman')),
+            new OA\Parameter(name: 'only_with_prices', in: 'query', required: false, schema: new OA\Schema(type: 'boolean', example: false)),
+            new OA\Parameter(name: 'search', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'page', in: 'query', required: false, schema: new OA\Schema(type: 'integer', example: 1)),
+            new OA\Parameter(name: 'per_page', in: 'query', required: false, schema: new OA\Schema(type: 'integer', example: 15)),
+        ],
+        tags: ['Services & Catalog'],
+        responses: [
+            new OA\Response(response: 200, description: 'Subcategories list with pricing'),
+        ]
+    )]
+    public function getSubcategoriesDoc() {}
+
+    #[OA\Get(
+        path: '/api/v1/regions',
+        summary: 'List active operating regions & territories',
+        description: 'Retrieves all operational service regions (e.g. Grand Cayman, Florida, Jamaica) with their currency, short codes, and active status. Pass all=1 or per_page=all to get the full list for dropdown selectors.',
+        parameters: [
+            new OA\Parameter(name: 'all', in: 'query', required: false, description: 'Pass 1 or true to return all regions without pagination', schema: new OA\Schema(type: 'boolean', example: true)),
+            new OA\Parameter(name: 'active_only', in: 'query', required: false, description: 'Filter only active regions', schema: new OA\Schema(type: 'boolean', example: true)),
+            new OA\Parameter(name: 'search', in: 'query', required: false, schema: new OA\Schema(type: 'string', example: 'Cayman')),
+            new OA\Parameter(name: 'page', in: 'query', required: false, schema: new OA\Schema(type: 'integer', example: 1)),
+            new OA\Parameter(name: 'per_page', in: 'query', required: false, schema: new OA\Schema(type: 'integer', example: 15)),
+        ],
+        tags: ['Regions'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Regions list retrieved successfully',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(
+                            property: 'data',
+                            type: 'array',
+                            items: new OA\Items(
+                                properties: [
+                                    new OA\Property(property: 'id', type: 'integer', example: 1),
+                                    new OA\Property(property: 'name', type: 'string', example: 'Grand Cayman'),
+                                    new OA\Property(property: 'slug', type: 'string', example: 'grand-cayman'),
+                                    new OA\Property(property: 'code', type: 'string', example: 'GC'),
+                                    new OA\Property(property: 'currency', type: 'string', example: 'KYD'),
+                                    new OA\Property(property: 'description', type: 'string', example: 'Grand Cayman Island territory coverage', nullable: true),
+                                    new OA\Property(property: 'status', type: 'string', example: 'active'),
+                                    new OA\Property(property: 'service_prices_count', type: 'integer', example: 12),
+                                    new OA\Property(property: 'created_at', type: 'string', example: '2026-09-25T10:00:00Z'),
+                                    new OA\Property(property: 'updated_at', type: 'string', example: '2026-09-25T10:00:00Z'),
+                                ]
+                            )
+                        ),
+                    ]
+                )
+            ),
+        ]
+    )]
+    public function getRegionsDoc() {}
+
+    #[OA\Get(
+        path: '/api/v1/regions/{id}',
+        summary: 'Get single region details with service prices',
+        description: 'Retrieves details for a specific region by its ID along with regional pricing matrix.',
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, description: 'Region ID', schema: new OA\Schema(type: 'integer', example: 1)),
+        ],
+        tags: ['Regions'],
+        responses: [
+            new OA\Response(response: 200, description: 'Region details retrieved successfully'),
+            new OA\Response(response: 404, description: 'Region not found'),
+        ]
+    )]
+    public function getRegionDoc() {}
 }

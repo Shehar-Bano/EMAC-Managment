@@ -198,6 +198,12 @@
                                         "type": "string",
                                         "example": "123 Example Street"
                                     },
+                                    "region_id": {
+                                        "description": "ID of operating territory region (from /api/v1/regions)",
+                                        "type": "integer",
+                                        "example": 1,
+                                        "nullable": true
+                                    },
                                     "country": {
                                         "type": "string",
                                         "example": "Cayman Islands",
@@ -218,6 +224,11 @@
                                         "type": "array",
                                         "items": {
                                             "properties": {
+                                                "region_id": {
+                                                    "type": "integer",
+                                                    "example": 1,
+                                                    "nullable": true
+                                                },
                                                 "country": {
                                                     "type": "string",
                                                     "example": "Cayman Islands"
@@ -916,6 +927,23 @@
                                                                 "type": "integer",
                                                                 "example": 1
                                                             },
+                                                            "region_id": {
+                                                                "type": "integer",
+                                                                "example": 1,
+                                                                "nullable": true
+                                                            },
+                                                            "region_name": {
+                                                                "type": "string",
+                                                                "example": "Grand Cayman"
+                                                            },
+                                                            "region_code": {
+                                                                "type": "string",
+                                                                "example": "GC"
+                                                            },
+                                                            "currency": {
+                                                                "type": "string",
+                                                                "example": "KYD"
+                                                            },
                                                             "country": {
                                                                 "type": "string",
                                                                 "example": "Cayman Islands"
@@ -1006,10 +1034,20 @@
                                         "type": "string",
                                         "example": "Updated 456 Avenue"
                                     },
+                                    "region_id": {
+                                        "type": "integer",
+                                        "example": 1,
+                                        "nullable": true
+                                    },
                                     "addresses": {
                                         "type": "array",
                                         "items": {
                                             "properties": {
+                                                "region_id": {
+                                                    "type": "integer",
+                                                    "example": 1,
+                                                    "nullable": true
+                                                },
                                                 "country": {
                                                     "type": "string",
                                                     "example": "Cayman Islands"
@@ -1058,9 +1096,27 @@
                     "Service Requests"
                 ],
                 "summary": "List customer service requests",
-                "description": "Get a paginated list of service requests submitted by the authenticated customer (or all requests if admin/staff). Supports filtering by status, priority, and pagination.",
+                "description": "Get a paginated list of service requests submitted by the authenticated customer (or all requests if admin/staff). Supports filtering by category_id, subcategory_id, status, priority, and pagination.",
                 "operationId": "4f37ed85bbce70a25b1dc19a323829cb",
                 "parameters": [
+                    {
+                        "name": "category_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "subcategory_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 2
+                        }
+                    },
                     {
                         "name": "status",
                         "in": "query",
@@ -1069,11 +1125,8 @@
                             "type": "string",
                             "enum": [
                                 "pending",
-                                "in_review",
-                                "approved",
-                                "in_progress",
-                                "completed",
-                                "cancelled"
+                                "reject",
+                                "quotesent"
                             ]
                         }
                     },
@@ -1137,6 +1190,15 @@
                                                         "type": "integer",
                                                         "example": 1
                                                     },
+                                                    "category_id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "subcategory_id": {
+                                                        "type": "integer",
+                                                        "example": 2,
+                                                        "nullable": true
+                                                    },
                                                     "description": {
                                                         "type": "string",
                                                         "example": "Central AC issue"
@@ -1199,7 +1261,7 @@
                     "Service Requests"
                 ],
                 "summary": "Submit a new customer service request",
-                "description": "Allows authenticated customers to submit a service request with description, property details, location address ID, schedule preferences, priority, optional notes, photographs (jpg/png/webp max 10MB), and videos (mp4/mov/avi max 50MB).",
+                "description": "Allows authenticated customers to submit a service request with category ID, optional subcategory ID, description, property details, location address ID, schedule preferences, priority, optional notes, photographs (jpg/png/webp max 10MB), and videos (mp4/mov/avi max 50MB).",
                 "operationId": "a1d7feeea93bbb6c65d8e14b4149b99c",
                 "requestBody": {
                     "required": true,
@@ -1207,6 +1269,7 @@
                         "multipart/form-data": {
                             "schema": {
                                 "required": [
+                                    "category_id",
                                     "description",
                                     "property_information",
                                     "user_address_id",
@@ -1214,6 +1277,17 @@
                                     "preferred_service_time"
                                 ],
                                 "properties": {
+                                    "category_id": {
+                                        "description": "ID of the selected service category (from /api/v1/categories/catalog)",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "subcategory_id": {
+                                        "description": "ID of specific task/subcategory (from /api/v1/categories/catalog)",
+                                        "type": "integer",
+                                        "example": 2,
+                                        "nullable": true
+                                    },
                                     "description": {
                                         "description": "Detailed written description of the issue",
                                         "type": "string",
@@ -1302,6 +1376,58 @@
                                                 "id": {
                                                     "type": "integer",
                                                     "example": 1
+                                                },
+                                                "category_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "subcategory_id": {
+                                                    "type": "integer",
+                                                    "example": 2,
+                                                    "nullable": true
+                                                },
+                                                "category": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "name": {
+                                                            "type": "string",
+                                                            "example": "Handyman Services"
+                                                        },
+                                                        "slug": {
+                                                            "type": "string",
+                                                            "example": "handyman-services"
+                                                        },
+                                                        "icon": {
+                                                            "type": "string",
+                                                            "example": "🔧"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "subcategory": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 2
+                                                        },
+                                                        "name": {
+                                                            "type": "string",
+                                                            "example": "General repairs"
+                                                        },
+                                                        "slug": {
+                                                            "type": "string",
+                                                            "example": "general-repairs"
+                                                        },
+                                                        "icon": {
+                                                            "type": "string",
+                                                            "example": "🔧"
+                                                        }
+                                                    },
+                                                    "type": "object",
+                                                    "nullable": true
                                                 },
                                                 "description": {
                                                     "type": "string",
@@ -1708,6 +1834,534 @@
                     }
                 ]
             }
+        },
+        "/api/v1/categories/catalog": {
+            "get": {
+                "tags": [
+                    "Services & Catalog"
+                ],
+                "summary": "Get complete service catalog (categories with subcategories & prices)",
+                "description": "Retrieves all active categories hierarchically along with subcategories and regional service prices. Pass region_id or region (ID, slug, code e.g. \"grand-cayman\", \"GCM\", 1) to filter pricing for a specific territory. Pass only_with_prices=1 to only return categories with pricing in that region.",
+                "operationId": "d07c2e4b1170243e09b794bfdd46d8c8",
+                "parameters": [
+                    {
+                        "name": "region_id",
+                        "in": "query",
+                        "description": "Filter pricing to a specific region ID (e.g. 1 for Grand Cayman, 2 for Florida)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "region",
+                        "in": "query",
+                        "description": "Filter by region ID, slug, code, or name (e.g. \"grand-cayman\", \"GCM\", \"florida\", 1)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "grand-cayman"
+                        }
+                    },
+                    {
+                        "name": "only_with_prices",
+                        "in": "query",
+                        "description": "Pass 1 to only return items that have configured prices in the selected region",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "example": false
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Search query for category/subcategory name or description",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "plumbing"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Catalog retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Categories with subcategories and pricing retrieved successfully."
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "Plumbing Services"
+                                                    },
+                                                    "slug": {
+                                                        "type": "string",
+                                                        "example": "plumbing-services"
+                                                    },
+                                                    "description": {
+                                                        "type": "string",
+                                                        "example": "Certified plumbing repairs and installations"
+                                                    },
+                                                    "icon": {
+                                                        "type": "string",
+                                                        "example": "🚰"
+                                                    },
+                                                    "image_url": {
+                                                        "type": "string",
+                                                        "example": "http://example.com/storage/categories/plumbing.jpg",
+                                                        "nullable": true
+                                                    },
+                                                    "status": {
+                                                        "type": "string",
+                                                        "example": "active"
+                                                    },
+                                                    "sort_order": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "subcategories": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "integer",
+                                                                    "example": 10
+                                                                },
+                                                                "category_id": {
+                                                                    "type": "integer",
+                                                                    "example": 1
+                                                                },
+                                                                "name": {
+                                                                    "type": "string",
+                                                                    "example": "Faucet Replacement"
+                                                                },
+                                                                "slug": {
+                                                                    "type": "string",
+                                                                    "example": "faucet-replacement"
+                                                                },
+                                                                "description": {
+                                                                    "type": "string",
+                                                                    "example": "Kitchen and bath faucet replacement"
+                                                                },
+                                                                "icon": {
+                                                                    "type": "string",
+                                                                    "example": "🚰"
+                                                                },
+                                                                "price": {
+                                                                    "type": "number",
+                                                                    "format": "float",
+                                                                    "example": 143.75
+                                                                },
+                                                                "formatted_price": {
+                                                                    "type": "string",
+                                                                    "example": "KYD 143.75"
+                                                                },
+                                                                "currency": {
+                                                                    "type": "string",
+                                                                    "example": "KYD"
+                                                                },
+                                                                "region_id": {
+                                                                    "type": "integer",
+                                                                    "example": 1
+                                                                },
+                                                                "region_name": {
+                                                                    "type": "string",
+                                                                    "example": "Grand Cayman"
+                                                                },
+                                                                "region_code": {
+                                                                    "type": "string",
+                                                                    "example": "GC"
+                                                                },
+                                                                "regional_prices": {
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "type": "object"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "meta": {
+                                            "properties": {
+                                                "total_categories": {
+                                                    "type": "integer",
+                                                    "example": 2
+                                                },
+                                                "region_id": {
+                                                    "type": "integer",
+                                                    "example": 1,
+                                                    "nullable": true
+                                                },
+                                                "region_name": {
+                                                    "type": "string",
+                                                    "example": "Grand Cayman",
+                                                    "nullable": true
+                                                },
+                                                "region_code": {
+                                                    "type": "string",
+                                                    "example": "GC",
+                                                    "nullable": true
+                                                },
+                                                "currency": {
+                                                    "type": "string",
+                                                    "example": "KYD",
+                                                    "nullable": true
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/categories": {
+            "get": {
+                "tags": [
+                    "Services & Catalog"
+                ],
+                "summary": "List categories (with optional subcategories and pricing)",
+                "description": "Returns categories list. Pass with_subcategories=1 or with_prices=1 to load subcategories and pricing. Pass region_id or region to filter pricing.",
+                "operationId": "a04418d33db28e6d5cd8d54b4d3b827f",
+                "parameters": [
+                    {
+                        "name": "with_subcategories",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "example": true
+                        }
+                    },
+                    {
+                        "name": "with_prices",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "example": true
+                        }
+                    },
+                    {
+                        "name": "region_id",
+                        "in": "query",
+                        "description": "Region ID (e.g. 1)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "region",
+                        "in": "query",
+                        "description": "Region ID, slug, or code (e.g. \"grand-cayman\", \"GCM\", 1)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "grand-cayman"
+                        }
+                    },
+                    {
+                        "name": "only_with_prices",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "example": false
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 15
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Categories list"
+                    }
+                }
+            }
+        },
+        "/api/v1/subcategories": {
+            "get": {
+                "tags": [
+                    "Services & Catalog"
+                ],
+                "summary": "List subcategories with pricing",
+                "description": "Returns subcategories with category details and regional pricing. Filter by category_id, region_id, or region.",
+                "operationId": "6262b11deb8196631d9383822139d193",
+                "parameters": [
+                    {
+                        "name": "category_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 10
+                        }
+                    },
+                    {
+                        "name": "region_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "region",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "grand-cayman"
+                        }
+                    },
+                    {
+                        "name": "only_with_prices",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "example": false
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 15
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Subcategories list with pricing"
+                    }
+                }
+            }
+        },
+        "/api/v1/regions": {
+            "get": {
+                "tags": [
+                    "Regions"
+                ],
+                "summary": "List active operating regions & territories",
+                "description": "Retrieves all operational service regions (e.g. Grand Cayman, Florida, Jamaica) with their currency, short codes, and active status. Pass all=1 or per_page=all to get the full list for dropdown selectors.",
+                "operationId": "19f57bae7a4b980b6793c3f02d606c7b",
+                "parameters": [
+                    {
+                        "name": "all",
+                        "in": "query",
+                        "description": "Pass 1 or true to return all regions without pagination",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "example": true
+                        }
+                    },
+                    {
+                        "name": "active_only",
+                        "in": "query",
+                        "description": "Filter only active regions",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "example": true
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Cayman"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 15
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Regions list retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "Grand Cayman"
+                                                    },
+                                                    "slug": {
+                                                        "type": "string",
+                                                        "example": "grand-cayman"
+                                                    },
+                                                    "code": {
+                                                        "type": "string",
+                                                        "example": "GC"
+                                                    },
+                                                    "currency": {
+                                                        "type": "string",
+                                                        "example": "KYD"
+                                                    },
+                                                    "description": {
+                                                        "type": "string",
+                                                        "example": "Grand Cayman Island territory coverage",
+                                                        "nullable": true
+                                                    },
+                                                    "status": {
+                                                        "type": "string",
+                                                        "example": "active"
+                                                    },
+                                                    "service_prices_count": {
+                                                        "type": "integer",
+                                                        "example": 12
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string",
+                                                        "example": "2026-09-25T10:00:00Z"
+                                                    },
+                                                    "updated_at": {
+                                                        "type": "string",
+                                                        "example": "2026-09-25T10:00:00Z"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/regions/{id}": {
+            "get": {
+                "tags": [
+                    "Regions"
+                ],
+                "summary": "Get single region details with service prices",
+                "description": "Retrieves details for a specific region by its ID along with regional pricing matrix.",
+                "operationId": "15df58e5fe8784525e4a621cfc846625",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Region ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Region details retrieved successfully"
+                    },
+                    "404": {
+                        "description": "Region not found"
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -1748,6 +2402,14 @@
         {
             "name": "Quotes",
             "description": "Price quotation review and customer response (approve, decline, ask question) APIs"
+        },
+        {
+            "name": "Services & Catalog",
+            "description": "Category hierarchy, subcategories, service catalog, and regional pricing APIs"
+        },
+        {
+            "name": "Regions",
+            "description": "Operating regions, service coverage territories, and local currency APIs"
         }
     ]
 }

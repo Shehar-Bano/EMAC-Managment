@@ -17,8 +17,12 @@ class RegionalServicePriceResource extends JsonResource
         return [
             'id' => $this->id,
             'region_id' => $this->region_id,
+            'region_name' => $this->relationLoaded('region') ? $this->region?->name : null,
+            'region_code' => $this->relationLoaded('region') ? $this->region?->code : null,
             'category_id' => $this->category_id,
+            'category_name' => $this->relationLoaded('category') ? $this->category?->name : null,
             'subcategory_id' => $this->subcategory_id,
+            'subcategory_name' => $this->relationLoaded('subcategory') ? $this->subcategory?->name : null,
             'price' => (float) $this->price,
             'formatted_price' => $this->currency.' '.number_format((float) $this->price, 2),
             'currency' => $this->currency,

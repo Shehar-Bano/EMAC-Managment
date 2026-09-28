@@ -6,6 +6,7 @@ use App\Enums\ProfileStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\UpdateProfileRequest;
 use App\Http\Resources\Auth\CustomerProfileResource;
+use App\Models\Region;
 use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -19,7 +20,7 @@ class ProfileController extends Controller
      */
     public function show(Request $request): JsonResponse
     {
-        $user = $request->user()->load('addresses');
+        $user = $request->user()->load(['addresses.region']);
 
         return ApiResponse::success(
             data: (new CustomerProfileResource($user))->resolve(),
@@ -60,12 +61,17 @@ class ProfileController extends Controller
                 $user->addresses()->delete();
 
                 foreach ($validated['addresses'] as $index => $addr) {
-                    if (! empty($addr['address']) || ! empty($addr['city']) || ! empty($addr['country']) || ! empty($addr['state'])) {
+                    $hasContent = ! empty($addr['address']) || ! empty($addr['city']) || ! empty($addr['country']) || ! empty($addr['state']) || ! empty($addr['region_id']);
+                    if ($hasContent) {
                         $isPrimary = isset($addr['is_primary']) ? (bool) $addr['is_primary'] : ($index === 0);
+                        $regionId = ! empty($addr['region_id']) ? (int) $addr['region_id'] : null;
+                        $region = $regionId ? Region::find($regionId) : null;
+                        $stateName = $addr['state'] ?? $region?->name;
 
                         $user->addresses()->create([
+                            'region_id' => $regionId,
                             'country' => $addr['country'] ?? null,
-                            'state' => $addr['state'] ?? null,
+                            'state' => $stateName,
                             'city' => $addr['city'] ?? null,
                             'address' => $addr['address'] ?? null,
                             'is_primary' => $isPrimary,
@@ -76,11 +82,21 @@ class ProfileController extends Controller
                         }
                     }
                 }
-            } elseif (! empty($validated['address']) && $user->addresses()->count() === 0) {
-                $user->addresses()->create([
-                    'address' => $validated['address'],
-                    'is_primary' => true,
-                ]);
+            } elseif (! empty($validated['address']) || ! empty($validated['region_id'])) {
+                $regionId = ! empty($validated['region_id']) ? (int) $validated['region_id'] : null;
+                $region = $regionId ? Region::find($regionId) : null;
+                $stateName = $validated['state'] ?? $region?->name;
+
+                if ($user->addresses()->count() === 0) {
+                    $user->addresses()->create([
+                        'region_id' => $regionId,
+                        'country' => $validated['country'] ?? null,
+                        'state' => $stateName,
+                        'city' => $validated['city'] ?? null,
+                        'address' => $validated['address'] ?? '',
+                        'is_primary' => true,
+                    ]);
+                }
             }
 
             // Check profile completion status
@@ -94,7 +110,7 @@ class ProfileController extends Controller
             $user->save();
         });
 
-        $user->load('addresses');
+        $user->load(['addresses.region']);
 
         return ApiResponse::success(
             data: (new CustomerProfileResource($user))->resolve(),

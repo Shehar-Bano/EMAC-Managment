@@ -22,6 +22,8 @@ class CreateServiceRequestAction
             $serviceRequest = ServiceRequest::create([
                 'user_id' => $user->id,
                 'user_address_id' => $data['user_address_id'],
+                'category_id' => $data['category_id'] ?? null,
+                'subcategory_id' => $data['subcategory_id'] ?? null,
                 'description' => $data['description'],
                 'property_information' => $data['property_information'],
                 'preferred_service_date' => $data['preferred_service_date'],
@@ -69,7 +71,7 @@ class CreateServiceRequestAction
                 }
             }
 
-            return $serviceRequest->load(['address', 'photographs', 'videos', 'user']);
+            return $serviceRequest->load(['category', 'subcategory', 'address', 'photographs', 'videos', 'user']);
         });
     }
 }

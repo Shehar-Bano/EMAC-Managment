@@ -41,6 +41,8 @@ class StoreServiceRequestApiRequest extends BaseAuthRequest
     public function rules(): array
     {
         return [
+            'category_id' => ['required', 'integer', 'exists:categories,id'],
+            'subcategory_id' => ['nullable', 'integer', 'exists:subcategories,id'],
             'description' => ['required', 'string', 'max:5000'],
             'property_information' => ['required', 'string', 'max:2000'],
             'user_address_id' => ['required', 'integer', 'exists:user_addresses,id'],
@@ -63,6 +65,9 @@ class StoreServiceRequestApiRequest extends BaseAuthRequest
     public function messages(): array
     {
         return [
+            'category_id.required' => 'The service category is required.',
+            'category_id.exists' => 'The selected service category is invalid.',
+            'subcategory_id.exists' => 'The selected service subcategory is invalid.',
             'user_address_id.exists' => 'The selected location address does not exist.',
             'preferred_service_date.after_or_equal' => 'The preferred service date must be today or a future date.',
             'photographs.*.max' => 'Each photograph must not exceed 10MB.',

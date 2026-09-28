@@ -74,8 +74,13 @@ Route::prefix('v1')->group(function () {
     Route::get('legal/privacy', [LegalDocumentController::class, 'getPrivacy']);
 
     // ---------------------------------------------------------
-    // Admin / ERP Management Endpoints
+    // Services, Categories & Regional Pricing Endpoints
     // ---------------------------------------------------------
+    // Category Catalog & Tree Endpoints (Categories with Subcategories & Pricing)
+    Route::get('categories/catalog', [CategoryController::class, 'catalog']);
+    Route::get('categories-with-prices', [CategoryController::class, 'catalog']);
+    Route::get('catalog', [CategoryController::class, 'catalog']);
+
     // Category Endpoints
     Route::delete('categories/bulk-delete', [CategoryController::class, 'bulkDelete']);
     Route::patch('categories/{category}/status', [CategoryController::class, 'toggleStatus']);

@@ -25,27 +25,33 @@
             <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Requests</div>
             <div class="text-xl font-black text-slate-900 mt-1">{{ $stats['total'] }}</div>
         </a>
-        <a href="{{ route('dashboard.service-requests.index', ['quote_status' => 'awaiting']) }}" class="p-3 rounded-2xl bg-white border border-amber-200/80 shadow-2xs hover:border-amber-400 transition-all">
+        <a href="{{ route('dashboard.service-requests.index', ['status' => 'pending']) }}" class="p-3 rounded-2xl bg-white border border-amber-200/80 shadow-2xs hover:border-amber-400 transition-all">
             <div class="text-[10px] font-bold uppercase tracking-wider text-amber-600 flex items-center gap-1">
                 <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                Awaiting Quote
+                Pending
             </div>
-            <div class="text-xl font-black text-amber-600 mt-1">{{ $stats['awaiting_quote'] }}</div>
+            <div class="text-xl font-black text-amber-600 mt-1">{{ $stats['pending'] }}</div>
         </a>
-        <a href="{{ route('dashboard.service-requests.index', ['quote_status' => 'sent']) }}" class="p-3 rounded-2xl bg-white border border-emerald-200/80 shadow-2xs hover:border-emerald-400 transition-all">
-            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-600">Quotes Dispatched</div>
-            <div class="text-xl font-black text-emerald-600 mt-1">{{ $stats['quotes_sent'] }}</div>
+        <a href="{{ route('dashboard.service-requests.index', ['status' => 'quotesent']) }}" class="p-3 rounded-2xl bg-white border border-emerald-200/80 shadow-2xs hover:border-emerald-400 transition-all">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-600 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                Quote Sent
+            </div>
+            <div class="text-xl font-black text-emerald-600 mt-1">{{ $stats['quotesent'] }}</div>
         </a>
-        <a href="{{ route('dashboard.service-requests.index', ['priority' => 'emergency']) }}" class="p-3 rounded-2xl bg-white border border-rose-200/80 shadow-2xs hover:border-rose-400 transition-all">
+        <a href="{{ route('dashboard.service-requests.index', ['status' => 'reject']) }}" class="p-3 rounded-2xl bg-white border border-rose-200/80 shadow-2xs hover:border-rose-400 transition-all">
             <div class="text-[10px] font-bold uppercase tracking-wider text-rose-600 flex items-center gap-1">
-                <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span>
-                Emergency
+                <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                Rejected
             </div>
-            <div class="text-xl font-black text-rose-600 mt-1">{{ $stats['emergency'] }}</div>
+            <div class="text-xl font-black text-rose-600 mt-1">{{ $stats['reject'] }}</div>
         </a>
-        <a href="{{ route('dashboard.service-requests.index', ['priority' => 'high']) }}" class="p-3 rounded-2xl bg-white border border-amber-200/80 shadow-2xs hover:border-amber-400 transition-all">
-            <div class="text-[10px] font-bold uppercase tracking-wider text-amber-600">High Priority</div>
-            <div class="text-xl font-black text-amber-600 mt-1">{{ $stats['high'] }}</div>
+        <a href="{{ route('dashboard.service-requests.index', ['priority' => 'emergency']) }}" class="p-3 rounded-2xl bg-white border border-purple-200/80 shadow-2xs hover:border-purple-400 transition-all">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-purple-600 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span>
+                Emergency / High
+            </div>
+            <div class="text-xl font-black text-purple-700 mt-1">{{ $stats['emergency'] + $stats['high'] }}</div>
         </a>
     </div>
 
@@ -59,16 +65,17 @@
         :hasDates="true"
     >
         <x-slot:extraFilters>
-            {{-- Quote Status Filter --}}
+            {{-- Status Filter --}}
             <div class="w-36 sm:w-40">
-                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Quote Status</label>
+                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Request Status</label>
                 <select
-                    name="quote_status"
+                    name="status"
                     class="w-full px-2.5 py-1.5 text-xs bg-slate-50/60 border border-slate-300 rounded-lg focus:bg-white focus:border-[#C5A059] focus:ring-1 focus:ring-[#C5A059] transition-colors text-slate-700 font-medium"
                 >
-                    <option value="all">All Requests</option>
-                    <option value="awaiting" {{ request('quote_status') === 'awaiting' ? 'selected' : '' }}>⏳ Awaiting Quote</option>
-                    <option value="sent" {{ request('quote_status') === 'sent' ? 'selected' : '' }}>📄 Quote Dispatched</option>
+                    <option value="all">All Statuses</option>
+                    <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>⏳ Pending</option>
+                    <option value="quotesent" {{ request('status') === 'quotesent' || request('status') === 'quote_sent' ? 'selected' : '' }}>📄 Quote Sent</option>
+                    <option value="reject" {{ request('status') === 'reject' || request('status') === 'rejected' ? 'selected' : '' }}>❌ Rejected</option>
                 </select>
             </div>
 
@@ -129,6 +136,7 @@
                         <th class="py-3 px-3.5">Property & Location</th>
                         <th class="py-3 px-3.5">Schedule</th>
                         <th class="py-3 px-3.5">Priority</th>
+                        <th class="py-3 px-3.5">Request Status</th>
                         <th class="py-3 px-3.5">Media</th>
                         <th class="py-3 px-3.5">Quotation Status</th>
                         <th class="py-3 px-3.5 text-right">Actions</th>
@@ -140,6 +148,9 @@
                             $priorityVal = $requestItem->priority instanceof \BackedEnum ? $requestItem->priority->value : $requestItem->priority;
                             $reqFormatted = '#REQ-' . str_pad($requestItem->id, 5, '0', STR_PAD_LEFT);
                             $customerName = $requestItem->user?->name ?? 'Customer';
+                            $reqStatus = $requestItem->status instanceof \App\Enums\ServiceRequestStatus
+                                ? $requestItem->status
+                                : (\App\Enums\ServiceRequestStatus::tryFromLoose($requestItem->status) ?? \App\Enums\ServiceRequestStatus::PENDING);
                         @endphp
                         <tr class="hover:bg-amber-50/20 transition-colors">
                             <td class="py-3 px-3.5 text-center">
@@ -211,6 +222,13 @@
                                         Low
                                     </span>
                                 @endif
+                            </td>
+
+                            {{-- Request Status --}}
+                            <td class="py-3 px-3.5">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border {{ $reqStatus->badgeClasses() }}">
+                                    {{ $reqStatus->label() }}
+                                </span>
                             </td>
 
                             {{-- Media Attachments --}}

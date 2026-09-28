@@ -2,6 +2,7 @@
 
 namespace App\Actions\User;
 
+use App\Models\Region;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
@@ -43,10 +44,14 @@ class CreateUserAction
 
             if (! empty($data['addresses']) && is_array($data['addresses'])) {
                 foreach ($data['addresses'] as $index => $addr) {
-                    if (! empty($addr['address']) || ! empty($addr['city']) || ! empty($addr['country'])) {
+                    if (! empty($addr['address']) || ! empty($addr['city']) || ! empty($addr['country']) || ! empty($addr['state']) || ! empty($addr['region_id'])) {
+                        $regionId = ! empty($addr['region_id']) ? (int) $addr['region_id'] : null;
+                        $region = $regionId ? Region::find($regionId) : null;
+
                         $user->addresses()->create([
+                            'region_id' => $regionId,
                             'country' => $addr['country'] ?? null,
-                            'state' => $addr['state'] ?? null,
+                            'state' => $addr['state'] ?? $region?->name,
                             'city' => $addr['city'] ?? null,
                             'address' => $addr['address'] ?? null,
                             'is_primary' => $index === 0,

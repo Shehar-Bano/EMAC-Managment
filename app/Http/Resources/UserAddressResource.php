@@ -16,11 +16,16 @@ class UserAddressResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'region_id' => $this->region_id,
+            'region_name' => $this->region?->name ?? $this->state,
+            'region_code' => $this->region?->code,
+            'currency' => $this->region?->currency,
+            'region' => $this->whenLoaded('region', fn () => new RegionResource($this->region)),
             'country' => $this->country,
-            'state' => $this->state,
+            'state' => $this->state ?? $this->region?->name,
             'city' => $this->city,
             'address' => $this->address,
-            'is_primary' => $this->is_primary,
+            'is_primary' => (bool) $this->is_primary,
             'created_at' => $this->created_at?->toIso8601String(),
         ];
     }

@@ -45,6 +45,7 @@ class UpdateUserRequest extends FormRequest
             'roles' => ['nullable', 'array'],
             'roles.*' => ['integer', 'exists:roles,id'],
             'addresses' => ['nullable', 'array'],
+            'addresses.*.region_id' => ['nullable', 'integer', 'exists:regions,id'],
             'addresses.*.country' => ['nullable', 'string', 'max:100'],
             'addresses.*.state' => ['nullable', 'string', 'max:100'],
             'addresses.*.city' => ['nullable', 'string', 'max:100'],

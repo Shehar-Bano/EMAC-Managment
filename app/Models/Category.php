@@ -46,6 +46,23 @@ class Category extends Model
     }
 
     /**
+     * Active regional service pricing configurations.
+     */
+    public function activeRegionalServicePrices(): HasMany
+    {
+        return $this->hasMany(RegionalServicePrice::class, 'category_id')
+            ->where('status', 'active');
+    }
+
+    /**
+     * Customer service requests categorized under this category.
+     */
+    public function serviceRequests(): HasMany
+    {
+        return $this->hasMany(ServiceRequest::class, 'category_id');
+    }
+
+    /**
      * Category image URL accessor with elegant fallback.
      */
     protected function imageUrl(): Attribute

@@ -50,6 +50,14 @@ class Region extends Model
     }
 
     /**
+     * User addresses registered in this region.
+     */
+    public function userAddresses(): HasMany
+    {
+        return $this->hasMany(UserAddress::class, 'region_id');
+    }
+
+    /**
      * Scope for active regions.
      */
     public function scopeActive(Builder $query): Builder

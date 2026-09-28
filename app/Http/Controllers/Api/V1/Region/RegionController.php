@@ -25,12 +25,17 @@ class RegionController extends Controller
      */
     public function index(Request $request): AnonymousResourceCollection
     {
-        $perPage = (int) $request->get('per_page', 15);
-        $regions = Region::withCount(['servicePrices'])
+        $query = Region::withCount(['servicePrices'])
             ->filter($request->only(['search', 'status', 'from_date', 'to_date']))
-            ->orderBy('name')
-            ->latest('id')
-            ->paginate($perPage);
+            ->when($request->boolean('active_only'), fn ($q) => $q->where('status', 'active'))
+            ->orderBy('name');
+
+        if ($request->boolean('all') || $request->get('per_page') === 'all') {
+            $regions = $query->get();
+        } else {
+            $perPage = max(1, min(100, (int) $request->get('per_page', 15)));
+            $regions = $query->paginate($perPage)->withQueryString();
+        }
 
         return RegionResource::collection($regions);
     }

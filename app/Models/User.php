@@ -84,7 +84,9 @@ class User extends Authenticatable
      */
     public function addresses(): HasMany
     {
-        return $this->hasMany(UserAddress::class, 'user_id');
+        return $this->hasMany(UserAddress::class, 'user_id')
+            ->orderByDesc('is_primary')
+            ->orderBy('id');
     }
 
     /**

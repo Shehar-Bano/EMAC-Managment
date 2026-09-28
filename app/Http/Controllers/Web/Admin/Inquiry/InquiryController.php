@@ -20,7 +20,7 @@ class InquiryController extends Controller
         $this->authorize('inquiries.view');
 
         $perPageParam = strtolower($request->get('per_page', '10'));
-        $query = ContactInquiry::with(['category'])
+        $query = ContactInquiry::with(['category', 'subcategory', 'region'])
             ->filter($request->only(['search', 'status', 'market']))
             ->latest('id');
 
@@ -50,7 +50,7 @@ class InquiryController extends Controller
     {
         $this->authorize('inquiries.view');
 
-        $inquiry->load(['category']);
+        $inquiry->load(['category', 'subcategory', 'region']);
 
         return view('dashboard.modules.inquiries.show', compact('inquiry'));
     }

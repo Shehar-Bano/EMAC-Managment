@@ -35,15 +35,15 @@
     <div class="max-w-4xl">
         <form method="POST" action="{{ route('dashboard.users.store') }}" enctype="multipart/form-data" class="space-y-6" x-data="{
             photoPreview: null,
-            addresses: {{ json_encode(old('addresses', [['country' => '', 'state' => '', 'city' => '', 'address' => '']])) }},
+            addresses: {{ json_encode(old('addresses', [['region_id' => '', 'country' => '', 'state' => '', 'city' => '', 'address' => '']])) }},
             addAddress() {
-                this.addresses.push({ country: '', state: '', city: '', address: '' });
+                this.addresses.push({ region_id: '', country: '', state: '', city: '', address: '' });
             },
             removeAddress(index) {
                 if (this.addresses.length > 1) {
                     this.addresses.splice(index, 1);
                 } else {
-                    this.addresses = [{ country: '', state: '', city: '', address: '' }];
+                    this.addresses = [{ region_id: '', country: '', state: '', city: '', address: '' }];
                 }
             }
         }">
@@ -170,32 +170,35 @@
 
                             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-3">
                                 <div>
+                                    <label class="block text-[11px] font-semibold text-slate-700 uppercase mb-1">State / Region</label>
+                                    <select
+                                        :name="`addresses[${index}][region_id]`"
+                                        x-model="addr.region_id"
+                                        class="block w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs text-slate-900 bg-white focus:border-[#C5A059] focus:ring-[#C5A059]"
+                                    >
+                                        <option value="">Select Territory / Region...</option>
+                                        @foreach ($regions as $region)
+                                            <option value="{{ $region->id }}">{{ $region->name }} ({{ $region->code ?: $region->currency }})</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div>
                                     <label class="block text-[11px] font-semibold text-slate-700 uppercase mb-1">Country</label>
                                     <input
                                         type="text"
                                         :name="`addresses[${index}][country]`"
                                         x-model="addr.country"
-                                        placeholder="e.g. United States"
+                                        placeholder="e.g. Cayman Islands / US"
                                         class="block w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs text-slate-900 bg-white focus:border-[#C5A059] focus:ring-[#C5A059]"
                                     >
                                 </div>
                                 <div>
-                                    <label class="block text-[11px] font-semibold text-slate-700 uppercase mb-1">State / Province</label>
-                                    <input
-                                        type="text"
-                                        :name="`addresses[${index}][state]`"
-                                        x-model="addr.state"
-                                        placeholder="e.g. California"
-                                        class="block w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs text-slate-900 bg-white focus:border-[#C5A059] focus:ring-[#C5A059]"
-                                    >
-                                </div>
-                                <div>
-                                    <label class="block text-[11px] font-semibold text-slate-700 uppercase mb-1">City</label>
+                                    <label class="block text-[11px] font-semibold text-slate-700 uppercase mb-1">City / District</label>
                                     <input
                                         type="text"
                                         :name="`addresses[${index}][city]`"
                                         x-model="addr.city"
-                                        placeholder="e.g. Los Angeles"
+                                        placeholder="e.g. George Town / Miami"
                                         class="block w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs text-slate-900 bg-white focus:border-[#C5A059] focus:ring-[#C5A059]"
                                     >
                                 </div>

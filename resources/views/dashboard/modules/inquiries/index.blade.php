@@ -148,23 +148,46 @@
                     {{-- Market & Division --}}
                     <td class="px-3.5 py-2">
                         <div class="inline-flex items-center gap-1 text-[11px] font-bold text-slate-800">
-                            @if ($inquiry->market === 'Cayman Islands') 🇰🇾 @elseif($inquiry->market === 'Florida') 🇺🇸 @elseif($inquiry->market === 'Jamaica') 🇯🇲 @else 🌐 @endif
-                            <span>{{ $inquiry->market }}</span>
+                            <span>{{ $inquiry->region ? $inquiry->region->name : $inquiry->market }}</span>
                         </div>
                         @if ($inquiry->category)
-                            <div class="text-[10px] text-[#8F6B20] font-medium mt-0.5">
-                                {{ $inquiry->category->icon }} {{ $inquiry->category->name }}
+                            <div class="text-[10px] text-[#8F6B20] font-medium mt-0.5 flex items-center gap-1">
+                                @if ($inquiry->category->icon)
+                                    <span>{{ $inquiry->category->icon }}</span>
+                                @endif
+                                <span>{{ $inquiry->category->name }}</span>
+                                @if ($inquiry->subcategory)
+                                    <span class="text-slate-400">/</span>
+                                    <span>{{ $inquiry->subcategory->name }}</span>
+                                @endif
                             </div>
                         @else
                             <div class="text-[10px] text-slate-400">General Consultation</div>
                         @endif
                     </td>
 
-                    {{-- Message Preview --}}
+                    {{-- Message Preview & Attachments --}}
                     <td class="px-3.5 py-2">
                         <p class="text-[11px] text-slate-600 line-clamp-2 max-w-sm">
                             {{ $inquiry->message }}
                         </p>
+                        <div class="flex flex-wrap items-center gap-1.5 mt-1">
+                            @if (!empty($inquiry->photographs) && count($inquiry->photographs) > 0)
+                                <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-[#8F6B20] border border-[#C5A059]/30">
+                                    📸 {{ count($inquiry->photographs) }} Photo(s)
+                                </span>
+                            @endif
+                            @if ($inquiry->video)
+                                <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-purple-50 text-purple-700 border border-purple-200">
+                                    🎥 Video Clip
+                                </span>
+                            @endif
+                            @if ($inquiry->estimated_price)
+                                <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                                    {{ $inquiry->currency ?? 'USD' }} {{ number_format((float) $inquiry->estimated_price, 2) }}
+                                </span>
+                            @endif
+                        </div>
                     </td>
 
                     {{-- Status Badge & Quick Status Selector --}}

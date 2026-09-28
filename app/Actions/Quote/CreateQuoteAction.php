@@ -54,9 +54,9 @@ class CreateQuoteAction
                 'admin_notes' => $data['admin_notes'] ?? null,
             ]);
 
-            // Update service request status to approved/quoted when quote is issued
-            if ($serviceRequest->status === ServiceRequestStatus::PENDING || $serviceRequest->status === ServiceRequestStatus::IN_REVIEW) {
-                $serviceRequest->update(['status' => ServiceRequestStatus::APPROVED]);
+            // Update service request status to quotesent when quote is issued
+            if ($serviceRequest->status === ServiceRequestStatus::PENDING) {
+                $serviceRequest->update(['status' => ServiceRequestStatus::QUOTE_SENT]);
             }
 
             return $quote->load(['serviceRequest', 'user', 'sender']);

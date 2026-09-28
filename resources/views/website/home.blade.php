@@ -7,7 +7,7 @@
                 {{-- Left Text Column --}}
                 <div class="lg:col-span-7 space-y-6">
                     <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 border border-[#C5A059]/40 text-[#8F6B20] text-xs font-semibold">
-                        <span>Grand Cayman • Florida • Jamaica</span>
+                        <span>{{ ($regions ?? collect())->pluck('name')->join(' • ') ?: 'Grand Cayman • Florida • Jamaica' }}</span>
                     </div>
 
                     <h1 class="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
@@ -106,8 +106,14 @@
                     <div class="bg-slate-50 rounded-2xl border border-slate-200 p-6 sm:p-8 flex flex-col justify-between hover:border-[#C5A059]/60 transition-colors">
                         <div>
                             <div class="flex items-center gap-3.5 mb-4">
-                                <div class="w-11 h-11 rounded-xl bg-white border border-slate-200 text-[#C5A059] flex items-center justify-center text-xl shadow-2xs shrink-0">
-                                    {{ $category->icon ?? '🛠️' }}
+                                <div class="w-11 h-11 rounded-xl bg-white border border-slate-200 text-[#C5A059] flex items-center justify-center text-xl shadow-2xs shrink-0 overflow-hidden">
+                                    @if ($category->image_url)
+                                        <img src="{{ $category->image_url }}" alt="{{ $category->name }}" class="w-full h-full object-cover">
+                                    @elseif ($category->icon)
+                                        <span>{{ $category->icon }}</span>
+                                    @else
+                                        <span>🛠️</span>
+                                    @endif
                                 </div>
                                 <div>
                                     <h3 class="text-xl font-bold text-slate-900">{{ $category->name }}</h3>
@@ -123,8 +129,13 @@
                                 <div class="text-xs font-bold text-slate-700 mb-2.5">Included Services:</div>
                                 <div class="flex flex-wrap gap-1.5">
                                     @foreach ($category->activeSubcategories as $sub)
-                                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs bg-white border border-slate-200 text-slate-700">
-                                            {{ $sub->name }}
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs bg-white border border-slate-200 text-slate-700">
+                                            @if ($sub->image_url)
+                                                <img src="{{ $sub->image_url }}" alt="{{ $sub->name }}" class="w-3.5 h-3.5 object-cover rounded-xs">
+                                            @elseif ($sub->icon)
+                                                <span class="text-xs">{{ $sub->icon }}</span>
+                                            @endif
+                                            <span>{{ $sub->name }}</span>
                                         </span>
                                     @endforeach
                                 </div>

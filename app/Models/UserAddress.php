@@ -25,6 +25,7 @@ class UserAddress extends Model
      */
     protected $fillable = [
         'user_id',
+        'region_id',
         'country',
         'state',
         'city',
@@ -40,6 +41,7 @@ class UserAddress extends Model
     protected function casts(): array
     {
         return [
+            'region_id' => 'integer',
             'is_primary' => 'boolean',
         ];
     }
@@ -50,6 +52,14 @@ class UserAddress extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Region / Territory this address is located in.
+     */
+    public function region(): BelongsTo
+    {
+        return $this->belongsTo(Region::class, 'region_id');
     }
 
     /**

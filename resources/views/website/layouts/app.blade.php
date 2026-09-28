@@ -28,11 +28,18 @@
             <div class="flex items-center gap-4 text-[11px]">
                 <span class="font-semibold text-[#C5A059] uppercase tracking-wider">Service Markets:</span>
                 <span class="flex items-center gap-3 text-slate-300">
-                    <span>Grand Cayman</span>
-                    <span class="text-slate-600">•</span>
-                    <span>Florida</span>
-                    <span class="text-slate-600">•</span>
-                    <span>Jamaica</span>
+                    @forelse ($websiteRegions ?? [] as $wReg)
+                        <span>{{ $wReg->name }}</span>
+                        @if (! $loop->last)
+                            <span class="text-slate-600">•</span>
+                        @endif
+                    @empty
+                        <span>Grand Cayman</span>
+                        <span class="text-slate-600">•</span>
+                        <span>Florida</span>
+                        <span class="text-slate-600">•</span>
+                        <span>Jamaica</span>
+                    @endforelse
                 </span>
             </div>
             <div class="flex items-center gap-5 text-[11px]">
@@ -142,7 +149,7 @@
                 <div class="lg:col-span-2 space-y-4">
                     <x-logo context="website" :theme="'light'" size="md" />
                     <p class="text-xs text-slate-400 max-w-sm leading-relaxed">
-                        <strong>EMAC Development, LLC.</strong> delivers licensed handyman repairs, routine property maintenance, and certified plumbing solutions across Grand Cayman, Florida, and Jamaica.
+                        <strong>EMAC Development, LLC.</strong> delivers licensed handyman repairs, routine property maintenance, and certified plumbing solutions across {{ ($websiteRegions ?? collect())->pluck('name')->join(', ', ' and ') ?: 'Grand Cayman, Florida, and Jamaica' }}.
                     </p>
                     <div class="flex items-center gap-3 pt-2 text-[11px] text-slate-300">
                         <span class="inline-flex items-center gap-1">

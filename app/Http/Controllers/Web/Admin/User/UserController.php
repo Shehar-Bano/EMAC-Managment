@@ -11,6 +11,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\User\BulkDeleteUserRequest;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
+use App\Models\Region;
 use App\Models\Role;
 use App\Models\User;
 use Exception;
@@ -107,9 +108,10 @@ class UserController extends Controller
         };
 
         $roles = Role::orderBy('name')->get();
+        $regions = Region::where('status', 'active')->orderBy('name')->get();
         $defaultRole = $roles->firstWhere('slug', $targetRoleSlug) ?? $roles->first();
 
-        return view('dashboard.modules.users.create', compact('roles', 'activeType', 'defaultRole'));
+        return view('dashboard.modules.users.create', compact('roles', 'regions', 'activeType', 'defaultRole'));
     }
 
     /**
@@ -157,7 +159,7 @@ class UserController extends Controller
     {
         $this->authorize('users.view');
 
-        $user->load(['roles.permissions', 'addresses', 'serviceRequests.latestQuote', 'quotes']);
+        $user->load(['roles.permissions', 'addresses.region', 'serviceRequests.latestQuote', 'quotes']);
 
         $activeType = $request->get('type', $this->resolveUserType($user));
 
@@ -171,11 +173,12 @@ class UserController extends Controller
     {
         $this->authorize('users.edit');
 
-        $user->load(['roles', 'addresses']);
+        $user->load(['roles', 'addresses.region']);
         $roles = Role::orderBy('name')->get();
+        $regions = Region::where('status', 'active')->orderBy('name')->get();
         $activeType = $request->get('type', $this->resolveUserType($user));
 
-        return view('dashboard.modules.users.edit', compact('user', 'roles', 'activeType'));
+        return view('dashboard.modules.users.edit', compact('user', 'roles', 'regions', 'activeType'));
     }
 
     /**

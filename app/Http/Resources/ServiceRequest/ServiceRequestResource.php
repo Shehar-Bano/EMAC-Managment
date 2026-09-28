@@ -21,6 +21,20 @@ class ServiceRequestResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'category_id' => $this->category_id,
+            'subcategory_id' => $this->subcategory_id,
+            'category' => $this->category ? [
+                'id' => $this->category->id,
+                'name' => $this->category->name,
+                'slug' => $this->category->slug,
+                'icon' => $this->category->icon,
+            ] : null,
+            'subcategory' => $this->subcategory ? [
+                'id' => $this->subcategory->id,
+                'name' => $this->subcategory->name,
+                'slug' => $this->subcategory->slug,
+                'icon' => $this->subcategory->icon,
+            ] : null,
             'description' => $this->description,
             'property_information' => $this->property_information,
             'preferred_service_date' => $this->preferred_service_date?->format('Y-m-d'),
