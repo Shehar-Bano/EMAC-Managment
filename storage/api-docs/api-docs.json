@@ -968,6 +968,24 @@
                                                         "type": "object"
                                                     }
                                                 },
+                                                "image": {
+                                                    "type": "string",
+                                                    "example": "http://localhost:8000/storage/avatars/avatar123.jpg",
+                                                    "nullable": true
+                                                },
+                                                "image_url": {
+                                                    "type": "string",
+                                                    "example": "http://localhost:8000/storage/avatars/avatar123.jpg"
+                                                },
+                                                "avatar": {
+                                                    "type": "string",
+                                                    "example": "http://localhost:8000/storage/avatars/avatar123.jpg",
+                                                    "nullable": true
+                                                },
+                                                "avatar_url": {
+                                                    "type": "string",
+                                                    "example": "http://localhost:8000/storage/avatars/avatar123.jpg"
+                                                },
                                                 "role": {
                                                     "type": "string",
                                                     "example": "customer"
@@ -1014,12 +1032,12 @@
                 "tags": [
                     "User Profile"
                 ],
-                "summary": "Update or complete profile with multiple addresses",
+                "summary": "Update or complete profile (supports JSON or multipart form-data with image upload)",
                 "operationId": "818d29e6abeb4859728e4305eeb01c52",
                 "requestBody": {
                     "required": true,
                     "content": {
-                        "application/json": {
+                        "multipart/form-data": {
                             "schema": {
                                 "properties": {
                                     "name": {
@@ -1039,38 +1057,15 @@
                                         "example": 1,
                                         "nullable": true
                                     },
-                                    "addresses": {
-                                        "type": "array",
-                                        "items": {
-                                            "properties": {
-                                                "region_id": {
-                                                    "type": "integer",
-                                                    "example": 1,
-                                                    "nullable": true
-                                                },
-                                                "country": {
-                                                    "type": "string",
-                                                    "example": "Cayman Islands"
-                                                },
-                                                "state": {
-                                                    "type": "string",
-                                                    "example": "Grand Cayman"
-                                                },
-                                                "city": {
-                                                    "type": "string",
-                                                    "example": "George Town"
-                                                },
-                                                "address": {
-                                                    "type": "string",
-                                                    "example": "456 Seven Mile Beach Rd"
-                                                },
-                                                "is_primary": {
-                                                    "type": "boolean",
-                                                    "example": true
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
+                                    "image": {
+                                        "description": "Profile picture / image (JPEG, PNG, JPG, WEBP, max 5MB)",
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "avatar": {
+                                        "description": "Profile picture alias (JPEG, PNG, JPG, WEBP, max 5MB)",
+                                        "type": "string",
+                                        "format": "binary"
                                     }
                                 },
                                 "type": "object"

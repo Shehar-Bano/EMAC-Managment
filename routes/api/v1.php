@@ -50,10 +50,10 @@ Route::prefix('v1')->group(function () {
         });
     });
 
-    // Profile Management Endpoints (GET/PUT/PATCH /api/v1/profile)
+    // Profile Management Endpoints (GET/POST/PUT/PATCH /api/v1/profile)
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('profile', [ProfileController::class, 'show']);
-        Route::match(['put', 'patch'], 'profile', [ProfileController::class, 'update']);
+        Route::match(['post', 'put', 'patch'], 'profile', [ProfileController::class, 'update']);
 
         // Customer Service Request Endpoints
         Route::get('service-requests', [ServiceRequestController::class, 'index']);
