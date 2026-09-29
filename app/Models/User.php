@@ -169,16 +169,34 @@ class User extends Authenticatable
         return Attribute::make(
             get: function () {
                 if (! empty($this->avatar)) {
-                    if (str_starts_with($this->avatar, 'http://') || str_starts_with($this->avatar, 'https://')) {
+                    if (str_starts_with($this->avatar, 'http://') || str_starts_with($this->avatar, 'https://') || str_starts_with($this->avatar, 'data:image/')) {
                         return $this->avatar;
                     }
 
-                    return asset('storage/'.$this->avatar);
+                    return asset('storage/'.ltrim($this->avatar, '/'));
                 }
 
-                $name = urlencode($this->name ?? 'User');
+                $name = trim($this->name ?? 'User');
+                $words = preg_split('/\s+/', $name) ?: [];
+                $initials = '';
+                if (! empty($words[0])) {
+                    $initials .= mb_substr($words[0], 0, 1);
+                }
+                if (isset($words[1]) && ! empty($words[1])) {
+                    $initials .= mb_substr($words[1], 0, 1);
+                } elseif (mb_strlen($name) >= 2) {
+                    $initials = mb_substr($name, 0, 2);
+                }
+                $initials = strtoupper($initials ?: 'U');
 
-                return "https://ui-avatars.com/api/?name={$name}&color=C5A059&background=111827&bold=true";
+                $svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">'
+                    .'<rect width="100" height="100" rx="24" fill="#111827"/>'
+                    .'<text x="50" y="55" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="36" font-weight="700" fill="#C5A059" text-anchor="middle" dominant-baseline="central">'
+                    .htmlspecialchars($initials)
+                    .'</text>'
+                    .'</svg>';
+
+                return 'data:image/svg+xml;utf8,'.rawurlencode($svg);
             }
         );
     }

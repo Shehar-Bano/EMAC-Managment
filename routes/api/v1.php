@@ -46,7 +46,7 @@ Route::prefix('v1')->group(function () {
             Route::post('refresh', [AuthController::class, 'refresh']);
             Route::post('logout', [AuthController::class, 'logout']);
             Route::get('profile', [ProfileController::class, 'show']);
-            Route::match(['put', 'patch'], 'profile', [ProfileController::class, 'update']);
+            Route::match(['post', 'put', 'patch'], 'profile', [ProfileController::class, 'update']);
         });
     });
 
@@ -81,14 +81,16 @@ Route::prefix('v1')->group(function () {
     Route::get('categories-with-prices', [CategoryController::class, 'catalog']);
     Route::get('catalog', [CategoryController::class, 'catalog']);
 
-    // Category Endpoints
+    // Category Endpoints (Supports POST for multipart image uploads & PUT/PATCH)
     Route::delete('categories/bulk-delete', [CategoryController::class, 'bulkDelete']);
     Route::patch('categories/{category}/status', [CategoryController::class, 'toggleStatus']);
+    Route::post('categories/{category}', [CategoryController::class, 'update']);
     Route::apiResource('categories', CategoryController::class);
 
-    // Subcategory Endpoints
+    // Subcategory Endpoints (Supports POST for multipart image uploads & PUT/PATCH)
     Route::delete('subcategories/bulk-delete', [SubcategoryController::class, 'bulkDelete']);
     Route::patch('subcategories/{subcategory}/status', [SubcategoryController::class, 'toggleStatus']);
+    Route::post('subcategories/{subcategory}', [SubcategoryController::class, 'update']);
     Route::apiResource('subcategories', SubcategoryController::class);
 
     // Region Endpoints

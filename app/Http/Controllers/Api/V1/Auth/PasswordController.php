@@ -8,6 +8,7 @@ use App\Http\Requests\Auth\ChangePasswordOtpRequest;
 use App\Http\Requests\Auth\ChangePasswordRequest;
 use App\Http\Requests\Auth\ForgotPasswordRequest;
 use App\Http\Requests\Auth\ResetPasswordRequest;
+use App\Http\Resources\Auth\CustomerProfileResource;
 use App\Models\User;
 use App\Services\Auth\OtpService;
 use App\Services\Auth\PasswordResetService;
@@ -141,9 +142,18 @@ class PasswordController extends Controller
             'password' => Hash::make($request->new_password),
         ]);
 
+        // Revoke all previous tokens and generate a fresh renewed token for the active session
+        $user->tokens()->delete();
+        $newToken = $user->createToken('customer-access-token')->plainTextToken;
+        $user->load(['addresses.region']);
+
         return ApiResponse::success(
-            data: null,
-            message: 'Password changed successfully.',
+            data: [
+                'access_token' => $newToken,
+                'token_type' => 'Bearer',
+                'user' => (new CustomerProfileResource($user))->resolve(),
+            ],
+            message: 'Password changed successfully. Your session has been renewed.',
             statusCode: 200
         );
     }

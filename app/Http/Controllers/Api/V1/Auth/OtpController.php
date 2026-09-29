@@ -7,6 +7,7 @@ use App\Enums\OtpPurpose;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\SendOtpRequest;
 use App\Http\Requests\Auth\VerifyOtpRequest;
+use App\Http\Resources\Auth\CustomerProfileResource;
 use App\Models\User;
 use App\Services\Auth\OtpService;
 use App\Services\Auth\PasswordResetService;
@@ -73,18 +74,30 @@ class OtpController extends Controller
                     'account_status' => AccountStatus::VERIFIED,
                     'email_verified_at' => now(),
                 ]);
+
+                $token = $user->createToken('customer-access-token')->plainTextToken;
+                $user->load(['addresses.region']);
+
+                return ApiResponse::success(
+                    data: [
+                        'user_id' => $user->id,
+                        'user' => (new CustomerProfileResource($user))->resolve(),
+                        'access_token' => $token,
+                        'token_type' => 'Bearer',
+                        'account_status' => AccountStatus::VERIFIED->value,
+                        'profile_status' => $user->profile_status?->value ?? 'incomplete',
+                        'otp_purpose' => OtpPurpose::REGISTRATION->value,
+                        'login_required' => false,
+                    ],
+                    message: 'Account verified successfully. You are now logged in.',
+                    statusCode: 200
+                );
             }
 
-            return ApiResponse::success(
-                data: [
-                    'user_id' => $user?->id,
-                    'account_status' => AccountStatus::VERIFIED->value,
-                    'profile_status' => $user?->profile_status?->value ?? 'incomplete',
-                    'otp_purpose' => OtpPurpose::REGISTRATION->value,
-                    'login_required' => true,
-                ],
-                message: 'Account verified successfully. You can now log in.',
-                statusCode: 200
+            return ApiResponse::error(
+                message: 'User account not found.',
+                errorCode: 'ERR_USER_NOT_FOUND',
+                statusCode: 404
             );
         }
 

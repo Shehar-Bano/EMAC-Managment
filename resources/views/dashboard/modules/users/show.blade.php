@@ -20,7 +20,16 @@
 
     <x-slot:header>
         <div class="flex items-center gap-4">
-            <img src="{{ $user->avatar_url }}" alt="{{ $user->name }}" class="w-14 h-14 rounded-2xl object-cover ring-2 ring-[#C5A059]/40 shadow-md shrink-0">
+            @if ($user->avatar)
+                <img src="{{ $user->avatar_url }}" alt="{{ $user->name }}" class="w-14 h-14 rounded-2xl object-cover ring-2 ring-[#C5A059]/40 shadow-md shrink-0" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="hidden w-14 h-14 rounded-2xl bg-slate-900 text-[#C5A059] items-center justify-center font-bold text-xl ring-2 ring-[#C5A059]/40 shadow-md shrink-0">
+                    {{ strtoupper(substr($user->name, 0, 1)) }}
+                </div>
+            @else
+                <div class="w-14 h-14 rounded-2xl bg-slate-900 text-[#C5A059] flex items-center justify-center font-bold text-xl ring-2 ring-[#C5A059]/40 shadow-md shrink-0">
+                    {{ strtoupper(substr($user->name, 0, 1)) }}
+                </div>
+            @endif
             <div>
                 <h1 class="text-2xl font-bold tracking-tight text-slate-900 flex items-center gap-3">
                     {{ $user->name }}

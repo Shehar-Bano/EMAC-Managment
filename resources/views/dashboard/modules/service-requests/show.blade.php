@@ -110,9 +110,17 @@
             {{-- 1. Customer Details --}}
             <div class="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-2.5">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-slate-900 text-[#C5A059] flex items-center justify-center font-bold text-sm shrink-0 border border-amber-500/20 shadow-2xs">
-                        {{ strtoupper(substr($customerName, 0, 1)) }}
-                    </div>
+                    @if ($serviceRequest->user?->avatar)
+                        <img
+                            src="{{ $serviceRequest->user->avatar_url }}"
+                            alt="{{ $customerName }}"
+                            class="w-10 h-10 rounded-xl object-cover shrink-0 border border-[#C5A059]/30 shadow-2xs"
+                        >
+                    @else
+                        <div class="w-10 h-10 rounded-xl bg-slate-900 text-[#C5A059] flex items-center justify-center font-bold text-sm shrink-0 border border-amber-500/20 shadow-2xs">
+                            {{ strtoupper(substr($customerName, 0, 1)) }}
+                        </div>
+                    @endif
                     <div class="min-w-0">
                         <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Customer</div>
                         <div class="text-xs font-bold text-slate-900 truncate">{{ $customerName }}</div>

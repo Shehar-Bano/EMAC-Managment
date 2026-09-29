@@ -90,7 +90,16 @@
                                 <tr class="hover:bg-slate-50 transition-colors">
                                     <td class="px-3.5 py-2">
                                         <div class="flex items-center gap-2.5">
-                                            <img src="{{ $user->avatar_url }}" alt="{{ $user->name }}" class="w-6 h-6 rounded-md object-cover border border-slate-200">
+                                            @if ($user->avatar)
+                                                <img src="{{ $user->avatar_url }}" alt="{{ $user->name }}" class="w-6 h-6 rounded-md object-cover border border-[#C5A059]/30" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                                <div class="hidden w-6 h-6 rounded-md bg-slate-900 text-[#C5A059] items-center justify-center font-bold text-[10px] shrink-0 border border-slate-200">
+                                                    {{ strtoupper(substr($user->name, 0, 1)) }}
+                                                </div>
+                                            @else
+                                                <div class="w-6 h-6 rounded-md bg-slate-900 text-[#C5A059] flex items-center justify-center font-bold text-[10px] shrink-0 border border-slate-200">
+                                                    {{ strtoupper(substr($user->name, 0, 1)) }}
+                                                </div>
+                                            @endif
                                             <div>
                                                 <div class="font-bold text-slate-900 text-xs">{{ $user->name }}</div>
                                                 <div class="text-slate-400 text-[10px]">{{ $user->email }}</div>

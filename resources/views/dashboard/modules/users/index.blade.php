@@ -231,7 +231,16 @@
                     {{-- Name & Email --}}
                     <td class="px-3.5 py-2">
                         <div class="flex items-center gap-2.5">
-                            <img src="{{ $user->avatar_url }}" alt="{{ $user->name }}" class="w-8 h-8 rounded-xl object-cover ring-1 ring-[#C5A059]/30 shadow-2xs shrink-0">
+                            @if ($user->avatar)
+                                <img src="{{ $user->avatar_url }}" alt="{{ $user->name }}" class="w-8 h-8 rounded-xl object-cover ring-1 ring-[#C5A059]/30 shadow-2xs shrink-0" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div class="hidden w-8 h-8 rounded-xl bg-slate-900 text-[#C5A059] items-center justify-center font-bold text-xs shrink-0 ring-1 ring-[#C5A059]/30 shadow-2xs">
+                                    {{ strtoupper(substr($user->name, 0, 1)) }}
+                                </div>
+                            @else
+                                <div class="w-8 h-8 rounded-xl bg-slate-900 text-[#C5A059] flex items-center justify-center font-bold text-xs shrink-0 ring-1 ring-[#C5A059]/30 shadow-2xs">
+                                    {{ strtoupper(substr($user->name, 0, 1)) }}
+                                </div>
+                            @endif
                             <div>
                                 <a href="{{ route('dashboard.users.show', ['user' => $user, 'type' => $activeType]) }}" class="font-bold text-xs text-slate-900 hover:text-[#C5A059] transition-colors">
                                     {{ $user->name }}

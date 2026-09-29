@@ -71,11 +71,15 @@ class Subcategory extends Model
     {
         return Attribute::make(
             get: function () {
-                if ($this->image && Storage::disk('public')->exists($this->image)) {
-                    return asset('storage/'.$this->image);
+                if (empty($this->image)) {
+                    return null;
                 }
 
-                return null;
+                if (str_starts_with($this->image, 'http://') || str_starts_with($this->image, 'https://')) {
+                    return $this->image;
+                }
+
+                return asset('storage/'.ltrim($this->image, '/'));
             }
         );
     }

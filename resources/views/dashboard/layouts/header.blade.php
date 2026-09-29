@@ -45,7 +45,16 @@
                 @click="open = !open"
                 class="flex items-center gap-2.5 p-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
             >
-                <img src="{{ auth()->user()?->avatar_url }}" alt="{{ auth()->user()?->name }}" class="w-8 h-8 rounded-full object-cover border border-slate-200">
+                @if (auth()->user()?->avatar)
+                    <img src="{{ auth()->user()->avatar_url }}" alt="{{ auth()->user()?->name }}" class="w-8 h-8 rounded-full object-cover border border-[#C5A059]/30" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="hidden w-8 h-8 rounded-full bg-slate-900 text-[#C5A059] items-center justify-center font-bold text-xs border border-amber-500/20 shadow-2xs">
+                        {{ strtoupper(substr(auth()->user()?->name ?? 'A', 0, 1)) }}
+                    </div>
+                @else
+                    <div class="w-8 h-8 rounded-full bg-slate-900 text-[#C5A059] flex items-center justify-center font-bold text-xs border border-amber-500/20 shadow-2xs">
+                        {{ strtoupper(substr(auth()->user()?->name ?? 'A', 0, 1)) }}
+                    </div>
+                @endif
                 <div class="hidden md:block text-left">
                     <div class="text-xs font-bold text-slate-800 leading-tight">{{ auth()->user()?->name }}</div>
                     <div class="text-[10px] text-slate-500">{{ auth()->user()?->roles->pluck('name')->first() ?? 'Employee' }}</div>

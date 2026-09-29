@@ -242,7 +242,7 @@ class OpenApiDoc
 
     #[OA\Post(
         path: '/api/v1/auth/otp/verify',
-        summary: 'Verify OTP',
+        summary: 'Verify OTP (Registration issues access_token and logs user in directly)',
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
@@ -256,7 +256,32 @@ class OpenApiDoc
         ),
         tags: ['OTP'],
         responses: [
-            new OA\Response(response: 200, description: 'OTP verified successfully'),
+            new OA\Response(
+                response: 200,
+                description: 'OTP verified successfully. If purpose is registration, returns access_token and user object.',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'success', type: 'boolean', example: true),
+                        new OA\Property(property: 'status_code', type: 'integer', example: 200),
+                        new OA\Property(property: 'message', type: 'string', example: 'Account verified successfully. You are now logged in.'),
+                        new OA\Property(
+                            property: 'data',
+                            properties: [
+                                new OA\Property(property: 'user_id', type: 'integer', example: 101, nullable: true),
+                                new OA\Property(property: 'access_token', type: 'string', example: '1|239a0fa02...', nullable: true),
+                                new OA\Property(property: 'token_type', type: 'string', example: 'Bearer', nullable: true),
+                                new OA\Property(property: 'account_status', type: 'string', example: 'verified', nullable: true),
+                                new OA\Property(property: 'profile_status', type: 'string', example: 'incomplete', nullable: true),
+                                new OA\Property(property: 'otp_purpose', type: 'string', example: 'registration', nullable: true),
+                                new OA\Property(property: 'login_required', type: 'boolean', example: false, nullable: true),
+                                new OA\Property(property: 'reset_token', type: 'string', example: 'a9f4c3...', nullable: true),
+                                new OA\Property(property: 'password_change_token', type: 'string', example: 'b8e2...', nullable: true),
+                            ],
+                            type: 'object'
+                        ),
+                    ]
+                )
+            ),
             new OA\Response(response: 422, description: 'Invalid or expired OTP'),
             new OA\Response(response: 429, description: 'Too many OTP attempts (max 5)'),
         ]
@@ -325,7 +350,7 @@ class OpenApiDoc
 
     #[OA\Post(
         path: '/api/v1/auth/password/change',
-        summary: 'Change password using short-lived change token',
+        summary: 'Change password using short-lived change token (renews user access_token)',
         security: [['bearerAuth' => []]],
         requestBody: new OA\RequestBody(
             required: true,
@@ -340,7 +365,25 @@ class OpenApiDoc
         ),
         tags: ['Password Management'],
         responses: [
-            new OA\Response(response: 200, description: 'Password changed successfully'),
+            new OA\Response(
+                response: 200,
+                description: 'Password changed successfully with renewed access_token',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'success', type: 'boolean', example: true),
+                        new OA\Property(property: 'status_code', type: 'integer', example: 200),
+                        new OA\Property(property: 'message', type: 'string', example: 'Password changed successfully. Your session has been renewed.'),
+                        new OA\Property(
+                            property: 'data',
+                            properties: [
+                                new OA\Property(property: 'access_token', type: 'string', example: '1|239a0fa02...'),
+                                new OA\Property(property: 'token_type', type: 'string', example: 'Bearer'),
+                            ],
+                            type: 'object'
+                        ),
+                    ]
+                )
+            ),
         ]
     )]
     public function changePasswordDoc() {}
@@ -414,10 +457,7 @@ class OpenApiDoc
                                         ]
                                     )
                                 ),
-                                new OA\Property(property: 'image', type: 'string', example: 'http://localhost:8000/storage/avatars/avatar123.jpg', nullable: true),
-                                new OA\Property(property: 'image_url', type: 'string', example: 'http://localhost:8000/storage/avatars/avatar123.jpg'),
-                                new OA\Property(property: 'avatar', type: 'string', example: 'http://localhost:8000/storage/avatars/avatar123.jpg', nullable: true),
-                                new OA\Property(property: 'avatar_url', type: 'string', example: 'http://localhost:8000/storage/avatars/avatar123.jpg'),
+                                new OA\Property(property: 'avatar_url', type: 'string', example: 'https://midnightblue-deer-551084.hostingersite.com/public/storage/avatars/user.jpg'),
                                 new OA\Property(property: 'role', type: 'string', example: 'customer'),
                                 new OA\Property(property: 'source', type: 'string', example: 'email'),
                                 new OA\Property(property: 'account_status', type: 'string', example: 'verified'),

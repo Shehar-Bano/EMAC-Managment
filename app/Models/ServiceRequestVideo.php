@@ -56,7 +56,17 @@ class ServiceRequestVideo extends Model
     protected function fileUrl(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->file_path ? Storage::disk('public')->url($this->file_path) : null,
+            get: function () {
+                if (empty($this->file_path)) {
+                    return null;
+                }
+
+                if (str_starts_with($this->file_path, 'http://') || str_starts_with($this->file_path, 'https://')) {
+                    return $this->file_path;
+                }
+
+                return asset('storage/'.ltrim($this->file_path, '/'));
+            }
         );
     }
 }

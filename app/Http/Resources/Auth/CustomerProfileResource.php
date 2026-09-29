@@ -43,15 +43,7 @@ class CustomerProfileResource extends JsonResource
             'profile_status' => $profileStatus instanceof \BackedEnum ? $profileStatus->value : ($profileStatus ?? 'incomplete'),
             'email_verified_at' => $emailVerifiedAt instanceof \DateTimeInterface ? $emailVerifiedAt->format(\DateTimeInterface::ATOM) : null,
             'phone_verified_at' => $phoneVerifiedAt instanceof \DateTimeInterface ? $phoneVerifiedAt->format(\DateTimeInterface::ATOM) : null,
-            'image' => $avatar ? asset('storage/'.$avatar) : null,
-            'image_url' => $this->avatar_url,
-            'avatar' => $avatar ? asset('storage/'.$avatar) : null,
             'avatar_url' => $this->avatar_url,
-            'profile' => [
-                'profile_image' => $avatar ? asset('storage/'.$avatar) : null,
-                'image' => $avatar ? asset('storage/'.$avatar) : null,
-                'avatar' => $avatar ? asset('storage/'.$avatar) : null,
-            ],
             'created_at' => $createdAt instanceof \DateTimeInterface ? $createdAt->format(\DateTimeInterface::ATOM) : null,
             'updated_at' => $updatedAt instanceof \DateTimeInterface ? $updatedAt->format(\DateTimeInterface::ATOM) : null,
         ];

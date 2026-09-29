@@ -32,6 +32,28 @@ Route::post('/contact', [WebsiteController::class, 'submitContact'])->name('cont
 Route::get('/privacy-policy', [WebsiteController::class, 'privacy'])->name('privacy');
 Route::get('/terms-and-conditions', [WebsiteController::class, 'terms'])->name('terms');
 
+// Direct storage file serving fallback (ensures images work even if host symlink is missing)
+Route::get('storage/{path}', function (string $path) {
+    $filePath = storage_path('app/public/'.$path);
+    if (! file_exists($filePath)) {        abort(404);
+    }
+
+    return response()->file($filePath);
+})->where('path', '.*')->name('storage.fallback');
+
+// Quick storage link repair route
+Route::get('/fix-storage', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('storage:link');
+        \Illuminate\Support\Facades\Artisan::call('view:clear');
+        \Illuminate\Support\Facades\Artisan::call('config:clear');
+
+        return '<h2 style="color:green; font-family:sans-serif;">Storage link created & caches cleared successfully!</h2>';
+    } catch (\Throwable $e) {
+        return '<h2 style="color:red; font-family:sans-serif;">Error: '.$e->getMessage().'</h2>';
+    }
+});
+
 /*
 |--------------------------------------------------------------------------
 | 2. Authentication Routes (resources/views/auth/)
