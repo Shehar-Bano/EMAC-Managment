@@ -58,29 +58,29 @@
             @csrf
 
             <x-card title="Category Media & Visual Branding" subtitle="Upload distinct Icon and Cover Image for the category">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div class="space-y-5 mb-6">
                     {{-- 1. Category Icon Upload Component --}}
                     <div class="p-4 rounded-2xl bg-[#FAF8F4] border border-[#C5A059]/30 shadow-2xs">
                         <div class="flex items-center justify-between gap-2 mb-3">
                             <label class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
                                 <svg class="w-4 h-4 text-[#8F6B20]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path></svg>
-                                Category Icon
+                                <span>Category Icon</span>
                             </label>
                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#C5A059]/20 text-[#8F6B20] border border-[#C5A059]/30">
-                                1:1 Icon (128&times;128px)
+                                1:1 Vector / Icon (128&times;128px)
                             </span>
                         </div>
 
-                        <div class="flex items-center gap-4">
+                        <div class="flex flex-col sm:flex-row sm:items-center gap-4">
                             {{-- Icon Preview Box --}}
                             <div class="relative shrink-0">
                                 <template x-if="iconPreview">
-                                    <div class="relative">
+                                    <div class="relative w-16 h-16">
                                         <img :src="iconPreview" alt="Icon Preview" class="w-16 h-16 rounded-xl object-cover ring-2 ring-[#C5A059] shadow-sm">
                                         <button
                                             type="button"
                                             @click="clearIcon()"
-                                            class="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-rose-600 text-white flex items-center justify-center hover:bg-rose-700 shadow-sm transition-transform hover:scale-110 text-xs"
+                                            class="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-rose-600 text-white flex items-center justify-center hover:bg-rose-700 shadow-sm transition-transform hover:scale-110 text-xs cursor-pointer"
                                             title="Remove icon"
                                         >
                                             &times;
@@ -95,12 +95,12 @@
                             </div>
 
                             <div class="flex-1 min-w-0">
-                                <div class="relative border-2 border-dashed border-slate-300 hover:border-[#C5A059] rounded-xl p-3 bg-white/80 hover:bg-white flex items-center justify-between gap-2">
+                                <div class="relative border-2 border-dashed border-slate-300 hover:border-[#C5A059] rounded-xl p-3 bg-white/80 hover:bg-white flex items-center justify-between gap-3">
                                     <div class="min-w-0 flex-1">
-                                        <p class="text-[11px] font-semibold text-slate-800 truncate" x-text="iconFileName ? iconFileName : 'Upload icon file'"></p>
-                                        <p class="text-[10px] text-slate-500">SVG, PNG, JPG (Max 5MB)</p>
+                                        <p class="text-xs font-semibold text-slate-800 truncate" x-text="iconFileName ? iconFileName : 'Upload icon file'"></p>
+                                        <p class="text-[11px] text-slate-500">SVG, PNG, JPG (Max 5MB)</p>
                                     </div>
-                                    <label for="category-icon-input" class="shrink-0 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-semibold text-[11px] cursor-pointer inline-flex items-center gap-1.5">
+                                    <label for="category-icon-input" class="shrink-0 px-3.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs cursor-pointer inline-flex items-center gap-1.5 shadow-2xs">
                                         <span x-text="iconPreview ? 'Change' : 'Browse'">Browse</span>
                                     </label>
                                     <input
@@ -124,23 +124,23 @@
                         <div class="flex items-center justify-between gap-2 mb-3">
                             <label class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
                                 <svg class="w-4 h-4 text-[#8F6B20]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                Category Cover Image
+                                <span>Category Cover Image</span>
                             </label>
                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#C5A059]/20 text-[#8F6B20] border border-[#C5A059]/30">
-                                Banner / Card Image
+                                Banner / Card Image (16:9 or Landscape)
                             </span>
                         </div>
 
-                        <div class="flex items-center gap-4">
+                        <div class="flex flex-col sm:flex-row sm:items-center gap-4">
                             {{-- Image Preview Box --}}
                             <div class="relative shrink-0">
                                 <template x-if="imagePreview">
-                                    <div class="relative">
-                                        <img :src="imagePreview" alt="Cover Preview" class="w-16 h-16 rounded-xl object-cover ring-2 ring-[#C5A059] shadow-sm">
+                                    <div class="relative w-24 h-16">
+                                        <img :src="imagePreview" alt="Cover Preview" class="w-24 h-16 rounded-xl object-cover ring-2 ring-[#C5A059] shadow-sm">
                                         <button
                                             type="button"
                                             @click="clearImage()"
-                                            class="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-rose-600 text-white flex items-center justify-center hover:bg-rose-700 shadow-sm transition-transform hover:scale-110 text-xs"
+                                            class="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-rose-600 text-white flex items-center justify-center hover:bg-rose-700 shadow-sm transition-transform hover:scale-110 text-xs cursor-pointer"
                                             title="Remove image"
                                         >
                                             &times;
@@ -148,19 +148,19 @@
                                     </div>
                                 </template>
                                 <template x-if="!imagePreview">
-                                    <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-[#E5C158]/15 to-[#C5A059]/25 border-2 border-dashed border-[#C5A059]/50 flex flex-col items-center justify-center text-slate-400">
+                                    <div class="w-24 h-16 rounded-xl bg-gradient-to-br from-[#E5C158]/15 to-[#C5A059]/25 border-2 border-dashed border-[#C5A059]/50 flex flex-col items-center justify-center text-slate-400">
                                         <svg class="w-6 h-6 text-[#8F6B20]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                                     </div>
                                 </template>
                             </div>
 
                             <div class="flex-1 min-w-0">
-                                <div class="relative border-2 border-dashed border-slate-300 hover:border-[#C5A059] rounded-xl p-3 bg-white/80 hover:bg-white flex items-center justify-between gap-2">
+                                <div class="relative border-2 border-dashed border-slate-300 hover:border-[#C5A059] rounded-xl p-3 bg-white/80 hover:bg-white flex items-center justify-between gap-3">
                                     <div class="min-w-0 flex-1">
-                                        <p class="text-[11px] font-semibold text-slate-800 truncate" x-text="imageFileName ? imageFileName : 'Upload image file'"></p>
-                                        <p class="text-[10px] text-slate-500">WEBP, PNG, JPG (Max 5MB)</p>
+                                        <p class="text-xs font-semibold text-slate-800 truncate" x-text="imageFileName ? imageFileName : 'Upload image file'"></p>
+                                        <p class="text-[11px] text-slate-500">WEBP, PNG, JPG (Max 5MB)</p>
                                     </div>
-                                    <label for="category-image-input" class="shrink-0 px-3 py-1.5 rounded-lg bg-gradient-to-r from-[#C5A059] to-[#D4AF37] hover:from-[#B8903B] hover:to-[#C5A059] text-slate-950 font-bold text-[11px] cursor-pointer inline-flex items-center gap-1.5">
+                                    <label for="category-image-input" class="shrink-0 px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-[#C5A059] to-[#D4AF37] hover:from-[#B8903B] hover:to-[#C5A059] text-slate-950 font-bold text-xs cursor-pointer inline-flex items-center gap-1.5 shadow-2xs">
                                         <span x-text="imagePreview ? 'Change' : 'Browse'">Browse</span>
                                     </label>
                                     <input
