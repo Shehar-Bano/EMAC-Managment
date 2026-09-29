@@ -46,7 +46,7 @@ class AuthController extends Controller
             // Save address into user_addresses table
             if ($request->has('addresses') && is_array($request->addresses) && count($request->addresses) > 0) {
                 foreach ($request->addresses as $index => $addr) {
-                    if (! empty($addr['address']) || ! empty($addr['city']) || ! empty($addr['country']) || ! empty($addr['state']) || ! empty($addr['region_id'])) {
+                    if (! empty($addr['address']) || ! empty($addr['city']) || ! empty($addr['country']) || ! empty($addr['state']) || ! empty($addr['zipcode']) || ! empty($addr['region_id'])) {
                         $isPrimary = isset($addr['is_primary']) ? (bool) $addr['is_primary'] : ($index === 0);
                         $regionId = ! empty($addr['region_id']) ? (int) $addr['region_id'] : null;
                         $region = $regionId ? Region::find($regionId) : null;
@@ -56,12 +56,13 @@ class AuthController extends Controller
                             'country' => $addr['country'] ?? null,
                             'state' => $addr['state'] ?? $region?->name,
                             'city' => $addr['city'] ?? null,
+                            'zipcode' => $addr['zipcode'] ?? null,
                             'address' => $addr['address'] ?? null,
                             'is_primary' => $isPrimary,
                         ]);
                     }
                 }
-            } elseif ($request->filled('address') || $request->filled('region_id')) {
+            } elseif ($request->filled('address') || $request->filled('region_id') || $request->filled('zipcode')) {
                 $regionId = $request->filled('region_id') ? (int) $request->region_id : null;
                 $region = $regionId ? Region::find($regionId) : null;
 
@@ -70,6 +71,7 @@ class AuthController extends Controller
                     'country' => $request->country ?? null,
                     'state' => $request->state ?? $region?->name,
                     'city' => $request->city ?? null,
+                    'zipcode' => $request->zipcode ?? null,
                     'address' => $request->address ?? '',
                     'is_primary' => true,
                 ]);
@@ -108,7 +110,7 @@ class AuthController extends Controller
      */
     public function login(LoginRequest $request): JsonResponse
     {
-        $user = User::where('email', strtolower($request->email))->first();
+        $user = User::withTrashed()->where('email', strtolower($request->email))->first();
 
         if (! $user || ! Hash::check($request->password, $user->password)) {
             return ApiResponse::error(
@@ -118,19 +120,26 @@ class AuthController extends Controller
             );
         }
 
-        // Check account status
-        if ($user->account_status === AccountStatus::PENDING) {
+        // Check if user is soft deleted, inactive, or suspended/blocked/deleted
+        $isInactive = $user->trashed()
+            || $user->status !== 'active'
+            || $user->account_status === AccountStatus::SUSPENDED
+            || $user->account_status === AccountStatus::BLOCKED
+            || $user->account_status === AccountStatus::DELETED;
+
+        if ($isInactive) {
             return ApiResponse::error(
-                message: 'Your account has not been verified. Please verify your account using the OTP.',
-                errorCode: 'ERR_ACCOUNT_NOT_VERIFIED',
+                message: 'Your account is inactive.',
+                errorCode: 'ERR_ACCOUNT_INACTIVE',
                 statusCode: 403
             );
         }
 
-        if ($user->account_status === AccountStatus::SUSPENDED || $user->account_status === AccountStatus::BLOCKED) {
+        // Check account verification status
+        if ($user->account_status === AccountStatus::PENDING) {
             return ApiResponse::error(
-                message: 'Your account is currently restricted.',
-                errorCode: 'ERR_ACCOUNT_RESTRICTED',
+                message: 'Your account has not been verified. Please verify your account using the OTP.',
+                errorCode: 'ERR_ACCOUNT_NOT_VERIFIED',
                 statusCode: 403
             );
         }
@@ -206,6 +215,20 @@ class AuthController extends Controller
                 message: 'Unauthenticated.',
                 errorCode: 'ERR_INVALID_CREDENTIALS',
                 statusCode: 401
+            );
+        }
+
+        $isInactive = $user->trashed()
+            || $user->status !== 'active'
+            || $user->account_status === AccountStatus::SUSPENDED
+            || $user->account_status === AccountStatus::BLOCKED
+            || $user->account_status === AccountStatus::DELETED;
+
+        if ($isInactive) {
+            return ApiResponse::error(
+                message: 'Your account is inactive.',
+                errorCode: 'ERR_ACCOUNT_INACTIVE',
+                statusCode: 403
             );
         }
 

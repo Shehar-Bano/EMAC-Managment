@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Web\Auth;
 
+use App\Enums\AccountStatus;
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -30,7 +33,7 @@ class AuthController extends Controller
      */
     public function login(Request $request): RedirectResponse
     {
-        $credentials = $request->validate([
+        $request->validate([
             'email' => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
         ]);
@@ -48,9 +51,9 @@ class AuthController extends Controller
             ]);
         }
 
-        $remember = $request->boolean('remember');
+        $user = User::withTrashed()->where('email', strtolower($request->input('email')))->first();
 
-        if (! Auth::attempt($credentials, $remember)) {
+        if (! $user || ! Hash::check($request->input('password'), $user->password)) {
             RateLimiter::hit($throttleKey);
 
             throw ValidationException::withMessages([
@@ -58,20 +61,25 @@ class AuthController extends Controller
             ]);
         }
 
-        RateLimiter::clear($throttleKey);
+        // Only active users who are not deleted/suspended can log in
+        $isInactive = $user->trashed()
+            || $user->status !== 'active'
+            || $user->account_status === AccountStatus::SUSPENDED
+            || $user->account_status === AccountStatus::BLOCKED
+            || $user->account_status === AccountStatus::DELETED;
 
-        $user = Auth::user();
+        if ($isInactive) {
+            RateLimiter::hit($throttleKey);
 
-        // Check if user account is deactivated
-        if ($user->status !== 'active') {
-            Auth::logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-
-            return redirect()->route('login')->withErrors([
-                'email' => 'Your ERP employee account has been deactivated. Please contact the administrator.',
+            throw ValidationException::withMessages([
+                'email' => 'Your account is inactive.',
             ]);
         }
+
+        RateLimiter::clear($throttleKey);
+
+        $remember = $request->boolean('remember');
+        Auth::login($user, $remember);
 
         // Update last login timestamp
         $user->forceFill(['last_login_at' => now()])->save();

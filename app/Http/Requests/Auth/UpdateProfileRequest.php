@@ -21,6 +21,7 @@ class UpdateProfileRequest extends BaseAuthRequest
             'country' => ['nullable', 'string', 'max:100'],
             'state' => ['nullable', 'string', 'max:100'],
             'city' => ['nullable', 'string', 'max:100'],
+            'zipcode' => ['nullable', 'string', 'max:50'],
             'avatar' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
             'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
             'profile_image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
@@ -29,6 +30,7 @@ class UpdateProfileRequest extends BaseAuthRequest
             'addresses.*.country' => ['nullable', 'string', 'max:100'],
             'addresses.*.state' => ['nullable', 'string', 'max:100'],
             'addresses.*.city' => ['nullable', 'string', 'max:100'],
+            'addresses.*.zipcode' => ['nullable', 'string', 'max:50'],
             'addresses.*.address' => ['nullable', 'string', 'max:500'],
             'addresses.*.is_primary' => ['nullable', 'boolean'],
         ];

@@ -74,6 +74,7 @@ class OpenApiDoc
                     new OA\Property(property: 'country', type: 'string', example: 'Cayman Islands', nullable: true),
                     new OA\Property(property: 'state', type: 'string', example: 'Grand Cayman', nullable: true),
                     new OA\Property(property: 'city', type: 'string', example: 'George Town', nullable: true),
+                    new OA\Property(property: 'zipcode', type: 'string', example: 'KY1-1102', nullable: true),
                     new OA\Property(
                         property: 'addresses',
                         type: 'array',
@@ -83,6 +84,7 @@ class OpenApiDoc
                                 new OA\Property(property: 'country', type: 'string', example: 'Cayman Islands'),
                                 new OA\Property(property: 'state', type: 'string', example: 'Grand Cayman'),
                                 new OA\Property(property: 'city', type: 'string', example: 'George Town'),
+                                new OA\Property(property: 'zipcode', type: 'string', example: 'KY1-1102', nullable: true),
                                 new OA\Property(property: 'address', type: 'string', example: '123 Example Street, Apt 4B'),
                                 new OA\Property(property: 'is_primary', type: 'boolean', example: true),
                             ]
@@ -452,6 +454,7 @@ class OpenApiDoc
                                             new OA\Property(property: 'country', type: 'string', example: 'Cayman Islands'),
                                             new OA\Property(property: 'state', type: 'string', example: 'Grand Cayman'),
                                             new OA\Property(property: 'city', type: 'string', example: 'George Town'),
+                                            new OA\Property(property: 'zipcode', type: 'string', example: 'KY1-1102'),
                                             new OA\Property(property: 'address', type: 'string', example: '123 Example Street, Apt 4B'),
                                             new OA\Property(property: 'is_primary', type: 'boolean', example: true),
                                         ]
@@ -488,6 +491,10 @@ class OpenApiDoc
                         new OA\Property(property: 'phone', type: 'string', example: '+1234567890'),
                         new OA\Property(property: 'address', type: 'string', example: 'Updated 456 Avenue'),
                         new OA\Property(property: 'region_id', type: 'integer', example: 1, nullable: true),
+                        new OA\Property(property: 'country', type: 'string', example: 'Cayman Islands', nullable: true),
+                        new OA\Property(property: 'state', type: 'string', example: 'Grand Cayman', nullable: true),
+                        new OA\Property(property: 'city', type: 'string', example: 'George Town', nullable: true),
+                        new OA\Property(property: 'zipcode', type: 'string', example: 'KY1-1102', nullable: true),
                         new OA\Property(property: 'image', type: 'string', format: 'binary', description: 'Profile picture / image (JPEG, PNG, JPG, WEBP, max 5MB)'),
                         new OA\Property(property: 'avatar', type: 'string', format: 'binary', description: 'Profile picture alias (JPEG, PNG, JPG, WEBP, max 5MB)'),
                     ]

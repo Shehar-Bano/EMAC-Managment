@@ -117,13 +117,24 @@
 
                     {{-- Subcategory Name & Description --}}
                     <td class="px-3.5 py-2">
-                        <div>
-                            <a href="{{ route('dashboard.subcategories.show', $subcategory) }}" class="font-bold text-xs text-slate-900 hover:text-[#C5A059] transition-colors">
-                                {{ $subcategory->name }}
-                            </a>
-                            @if ($subcategory->description)
-                                <div class="text-[10px] text-slate-500 line-clamp-1 max-w-sm mt-0.5">{{ $subcategory->description }}</div>
-                            @endif
+                        <div class="flex items-center gap-2.5">
+                            <div class="shrink-0 w-8 h-8 rounded-lg bg-slate-100 border border-slate-200/80 overflow-hidden flex items-center justify-center">
+                                @if ($subcategory->icon_url && (str_contains($subcategory->icon_url, '/') || str_contains($subcategory->icon_url, '.')))
+                                    <img src="{{ $subcategory->icon_url }}" alt="{{ $subcategory->name }}" class="w-full h-full object-cover">
+                                @elseif ($subcategory->image_url)
+                                    <img src="{{ $subcategory->image_url }}" alt="{{ $subcategory->name }}" class="w-full h-full object-cover">
+                                @else
+                                    <svg class="w-4 h-4 text-[#8F6B20]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                                @endif
+                            </div>
+                            <div>
+                                <a href="{{ route('dashboard.subcategories.show', $subcategory) }}" class="font-bold text-xs text-slate-900 hover:text-[#C5A059] transition-colors">
+                                    {{ $subcategory->name }}
+                                </a>
+                                @if ($subcategory->description)
+                                    <div class="text-[10px] text-slate-500 line-clamp-1 max-w-sm mt-0.5">{{ $subcategory->description }}</div>
+                                @endif
+                            </div>
                         </div>
                     </td>
 

@@ -29,6 +29,7 @@ class UserAddress extends Model
         'country',
         'state',
         'city',
+        'zipcode',
         'address',
         'is_primary',
     ];

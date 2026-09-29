@@ -103,15 +103,20 @@
                             </div>
                             <p class="text-slate-700 font-medium">{{ $addr->address ?: 'No street specified' }}</p>
                             <p class="text-slate-500 text-[11px] mt-0.5">
-                                {{ collect([$addr->city, $addr->region?->name ?: $addr->state, $addr->country])->filter()->join(', ') ?: 'Location details pending' }}
+                                {{ collect([$addr->city, $addr->region?->name ?: $addr->state, $addr->zipcode, $addr->country])->filter()->join(', ') ?: 'Location details pending' }}
                             </p>
-                            @if($addr->region)
-                                <div class="mt-1.5">
+                            <div class="mt-1.5 flex flex-wrap items-center gap-1.5">
+                                @if($addr->zipcode)
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+                                        📮 Zipcode: {{ $addr->zipcode }}
+                                    </span>
+                                @endif
+                                @if($addr->region)
                                     <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-[#C5A059]/15 text-[#8F6B20] border border-[#C5A059]/30">
                                         📍 Region: {{ $addr->region->name }} ({{ $addr->region->code ?: $addr->region->currency }})
                                     </span>
-                                </div>
-                            @endif
+                                @endif
+                            </div>
                         </div>
                     @empty
                         <p class="text-slate-400 text-xs py-2 text-center">No addresses registered for this user.</p>

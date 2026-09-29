@@ -62,7 +62,7 @@ class ProfileController extends Controller
                 $user->addresses()->delete();
 
                 foreach ($validated['addresses'] as $index => $addr) {
-                    $hasContent = ! empty($addr['address']) || ! empty($addr['city']) || ! empty($addr['country']) || ! empty($addr['state']) || ! empty($addr['region_id']);
+                    $hasContent = ! empty($addr['address']) || ! empty($addr['city']) || ! empty($addr['country']) || ! empty($addr['state']) || ! empty($addr['zipcode']) || ! empty($addr['region_id']);
                     if ($hasContent) {
                         $isPrimary = isset($addr['is_primary']) ? (bool) $addr['is_primary'] : ($index === 0);
                         $regionId = ! empty($addr['region_id']) ? (int) $addr['region_id'] : null;
@@ -74,6 +74,7 @@ class ProfileController extends Controller
                             'country' => $addr['country'] ?? null,
                             'state' => $stateName,
                             'city' => $addr['city'] ?? null,
+                            'zipcode' => $addr['zipcode'] ?? null,
                             'address' => $addr['address'] ?? null,
                             'is_primary' => $isPrimary,
                         ]);
@@ -83,7 +84,7 @@ class ProfileController extends Controller
                         }
                     }
                 }
-            } elseif (! empty($validated['address']) || ! empty($validated['region_id'])) {
+            } elseif (! empty($validated['address']) || ! empty($validated['region_id']) || ! empty($validated['zipcode'])) {
                 $regionId = ! empty($validated['region_id']) ? (int) $validated['region_id'] : null;
                 $region = $regionId ? Region::find($regionId) : null;
                 $stateName = $validated['state'] ?? $region?->name;
@@ -94,6 +95,7 @@ class ProfileController extends Controller
                         'country' => $validated['country'] ?? null,
                         'state' => $stateName,
                         'city' => $validated['city'] ?? null,
+                        'zipcode' => $validated['zipcode'] ?? null,
                         'address' => $validated['address'] ?? '',
                         'is_primary' => true,
                     ]);

@@ -163,7 +163,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 | 3. Authenticated ERP Dashboard Routes (resources/views/dashboard/)
 |--------------------------------------------------------------------------
 */
-Route::prefix('dashboard')->name('dashboard.')->middleware(['auth'])->group(function () {
+Route::prefix('dashboard')->name('dashboard.')->middleware(['auth', 'active.user'])->group(function () {
     // Dashboard Overview
     Route::get('/', [DashboardController::class, 'index'])->name('index');
 

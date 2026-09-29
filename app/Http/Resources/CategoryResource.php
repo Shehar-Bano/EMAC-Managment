@@ -20,6 +20,8 @@ class CategoryResource extends JsonResource
             'slug' => $this->slug,
             'description' => $this->description,
             'icon' => $this->icon,
+            'icon_url' => $this->icon_url,
+            'icon_path' => $this->icon,
             'image' => $this->image_url,
             'image_url' => $this->image_url,
             'image_path' => $this->image,

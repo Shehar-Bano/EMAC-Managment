@@ -35,15 +35,15 @@
     <div class="max-w-4xl">
         <form method="POST" action="{{ route('dashboard.users.store') }}" enctype="multipart/form-data" class="space-y-6" x-data="{
             photoPreview: null,
-            addresses: {{ json_encode(old('addresses', [['region_id' => '', 'country' => '', 'state' => '', 'city' => '', 'address' => '']])) }},
+            addresses: {{ json_encode(old('addresses', [['region_id' => '', 'country' => '', 'state' => '', 'city' => '', 'zipcode' => '', 'address' => '']])) }},
             addAddress() {
-                this.addresses.push({ region_id: '', country: '', state: '', city: '', address: '' });
+                this.addresses.push({ region_id: '', country: '', state: '', city: '', zipcode: '', address: '' });
             },
             removeAddress(index) {
                 if (this.addresses.length > 1) {
                     this.addresses.splice(index, 1);
                 } else {
-                    this.addresses = [{ region_id: '', country: '', state: '', city: '', address: '' }];
+                    this.addresses = [{ region_id: '', country: '', state: '', city: '', zipcode: '', address: '' }];
                 }
             }
         }">
@@ -168,7 +168,7 @@
                                 </button>
                             </div>
 
-                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-3">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-3">
                                 <div>
                                     <label class="block text-[11px] font-semibold text-slate-700 uppercase mb-1">State / Region</label>
                                     <select
@@ -199,6 +199,16 @@
                                         :name="`addresses[${index}][city]`"
                                         x-model="addr.city"
                                         placeholder="e.g. George Town / Miami"
+                                        class="block w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs text-slate-900 bg-white focus:border-[#C5A059] focus:ring-[#C5A059]"
+                                    >
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-700 uppercase mb-1">Zipcode / Postal Code</label>
+                                    <input
+                                        type="text"
+                                        :name="`addresses[${index}][zipcode]`"
+                                        x-model="addr.zipcode"
+                                        placeholder="e.g. KY1-1102 / 33101"
                                         class="block w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs text-slate-900 bg-white focus:border-[#C5A059] focus:ring-[#C5A059]"
                                     >
                                 </div>

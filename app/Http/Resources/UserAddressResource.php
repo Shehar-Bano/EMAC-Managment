@@ -24,6 +24,7 @@ class UserAddressResource extends JsonResource
             'country' => $this->country,
             'state' => $this->state ?? $this->region?->name,
             'city' => $this->city,
+            'zipcode' => $this->zipcode,
             'address' => $this->address,
             'is_primary' => (bool) $this->is_primary,
             'created_at' => $this->created_at?->toIso8601String(),

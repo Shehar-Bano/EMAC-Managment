@@ -55,11 +55,17 @@ class SocialAuthService
         if ($socialAccount && $socialAccount->user) {
             $user = $socialAccount->user;
 
-            if ($user->account_status === AccountStatus::SUSPENDED || $user->account_status === AccountStatus::BLOCKED) {
+            $isInactive = $user->trashed()
+                || $user->status !== 'active'
+                || $user->account_status === AccountStatus::SUSPENDED
+                || $user->account_status === AccountStatus::BLOCKED
+                || $user->account_status === AccountStatus::DELETED;
+
+            if ($isInactive) {
                 return [
                     'success' => false,
-                    'error_code' => 'ERR_ACCOUNT_RESTRICTED',
-                    'message' => 'Your account is currently restricted.',
+                    'error_code' => 'ERR_ACCOUNT_INACTIVE',
+                    'message' => 'Your account is inactive.',
                     'status_code' => 403,
                 ];
             }

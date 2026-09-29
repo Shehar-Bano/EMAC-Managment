@@ -62,7 +62,7 @@ class UpdateUserAction
                 $user->addresses()->delete();
 
                 foreach ($data['addresses'] as $index => $addr) {
-                    if (! empty($addr['address']) || ! empty($addr['city']) || ! empty($addr['country']) || ! empty($addr['state']) || ! empty($addr['region_id'])) {
+                    if (! empty($addr['address']) || ! empty($addr['city']) || ! empty($addr['country']) || ! empty($addr['state']) || ! empty($addr['zipcode']) || ! empty($addr['region_id'])) {
                         $regionId = ! empty($addr['region_id']) ? (int) $addr['region_id'] : null;
                         $region = $regionId ? Region::find($regionId) : null;
 
@@ -71,6 +71,7 @@ class UpdateUserAction
                             'country' => $addr['country'] ?? null,
                             'state' => $addr['state'] ?? $region?->name,
                             'city' => $addr['city'] ?? null,
+                            'zipcode' => $addr['zipcode'] ?? null,
                             'address' => $addr['address'] ?? null,
                             'is_primary' => $index === 0,
                         ]);

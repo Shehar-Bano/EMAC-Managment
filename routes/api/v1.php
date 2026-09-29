@@ -40,7 +40,7 @@ Route::prefix('v1')->group(function () {
         Route::post('password/reset', [PasswordController::class, 'resetPassword']);
 
         // Authenticated Auth & Password Endpoints
-        Route::middleware('auth:sanctum')->group(function () {
+        Route::middleware(['auth:sanctum', 'active.user'])->group(function () {
             Route::post('password/change/request-otp', [PasswordController::class, 'requestChangeOtp']);
             Route::post('password/change', [PasswordController::class, 'changePassword']);
             Route::post('refresh', [AuthController::class, 'refresh']);
@@ -51,7 +51,7 @@ Route::prefix('v1')->group(function () {
     });
 
     // Profile Management Endpoints (GET/POST/PUT/PATCH /api/v1/profile)
-    Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware(['auth:sanctum', 'active.user'])->group(function () {
         Route::get('profile', [ProfileController::class, 'show']);
         Route::match(['post', 'put', 'patch'], 'profile', [ProfileController::class, 'update']);
 

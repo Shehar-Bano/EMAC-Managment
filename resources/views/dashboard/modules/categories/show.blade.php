@@ -10,10 +10,12 @@
     <x-slot:header>
         <div class="flex items-center gap-4">
             <div class="w-16 h-16 rounded-2xl bg-[#FAF8F4] border border-[#C5A059]/30 flex items-center justify-center text-[#8F6B20] shrink-0 overflow-hidden font-bold text-xl ring-2 ring-[#C5A059]/40 shadow-sm">
-                @if ($category->image_url)
+                @if ($category->icon_url && (str_contains($category->icon_url, '/') || str_contains($category->icon_url, '.')))
+                    <img src="{{ $category->icon_url }}" alt="{{ $category->name }} Icon" class="w-full h-full object-cover">
+                @elseif ($category->image_url)
                     <img src="{{ $category->image_url }}" alt="{{ $category->name }}" class="w-full h-full object-cover">
                 @elseif ($category->icon)
-                    <span>{{ $category->icon }}</span>
+                    <span class="text-xs font-semibold">{{ $category->icon }}</span>
                 @else
                     <span>{{ substr($category->name, 0, 2) }}</span>
                 @endif
@@ -55,10 +57,22 @@
                         <dd><x-status-badge :status="$category->status" /></dd>
                     </div>
                     <div class="py-3 flex justify-between items-center">
-                        <dt class="font-semibold text-slate-500">Visual Image</dt>
+                        <dt class="font-semibold text-slate-500">Visual Icon</dt>
+                        <dd>
+                            @if ($category->icon_url && (str_contains($category->icon_url, '/') || str_contains($category->icon_url, '.')))
+                                <img src="{{ $category->icon_url }}" alt="{{ $category->name }} Icon" class="w-10 h-10 rounded-lg object-contain bg-slate-50 border border-slate-200 p-1">
+                            @elseif ($category->icon)
+                                <span class="px-2.5 py-1 rounded bg-slate-100 font-mono text-slate-700 text-[11px] font-semibold">{{ $category->icon }}</span>
+                            @else
+                                <span class="text-xs text-slate-400 font-medium">None</span>
+                            @endif
+                        </dd>
+                    </div>
+                    <div class="py-3 flex justify-between items-center">
+                        <dt class="font-semibold text-slate-500">Cover Image</dt>
                         <dd>
                             @if ($category->image_url)
-                                <img src="{{ $category->image_url }}" alt="{{ $category->name }}" class="w-14 h-14 rounded-xl object-cover ring-1 ring-[#C5A059]/50 shadow-2xs">
+                                <img src="{{ $category->image_url }}" alt="{{ $category->name }}" class="w-16 h-12 rounded-xl object-cover ring-1 ring-[#C5A059]/50 shadow-2xs">
                             @else
                                 <span class="text-xs text-slate-400 font-medium">None</span>
                             @endif
@@ -102,10 +116,12 @@
                         <div class="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/50 rounded-xl px-2 transition-colors">
                             <div class="flex items-center gap-3.5 flex-1">
                                 <div class="w-14 h-14 rounded-xl bg-[#FAF8F4] border border-[#C5A059]/30 ring-1 ring-[#C5A059]/20 flex items-center justify-center text-[#8F6B20] shrink-0 overflow-hidden font-bold text-sm shadow-xs">
-                                    @if ($subcategory->image_url)
+                                    @if ($subcategory->icon_url && (str_contains($subcategory->icon_url, '/') || str_contains($subcategory->icon_url, '.')))
+                                        <img src="{{ $subcategory->icon_url }}" alt="{{ $subcategory->name }}" class="w-full h-full object-cover">
+                                    @elseif ($subcategory->image_url)
                                         <img src="{{ $subcategory->image_url }}" alt="{{ $subcategory->name }}" class="w-full h-full object-cover">
                                     @elseif ($subcategory->icon)
-                                        <span>{{ $subcategory->icon }}</span>
+                                        <span class="text-xs">{{ $subcategory->icon }}</span>
                                     @else
                                         <span class="text-xs font-black text-[#8F6B20]">{{ strtoupper(substr($subcategory->name, 0, 2)) }}</span>
                                     @endif

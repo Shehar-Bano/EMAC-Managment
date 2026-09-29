@@ -24,7 +24,15 @@ class OtpController extends Controller
         $purpose = OtpPurpose::from($request->purpose);
         $identifier = strtolower(trim($request->identifier));
 
-        $user = User::where('email', $identifier)->orWhere('phone', $identifier)->first();
+        $user = User::withTrashed()->where('email', $identifier)->orWhere('phone', $identifier)->first();
+
+        if ($user && ($user->trashed() || $user->status !== 'active' || $user->account_status === AccountStatus::SUSPENDED || $user->account_status === AccountStatus::BLOCKED || $user->account_status === AccountStatus::DELETED)) {
+            return ApiResponse::error(
+                message: 'Your account is inactive.',
+                errorCode: 'ERR_ACCOUNT_INACTIVE',
+                statusCode: 403
+            );
+        }
 
         $result = $otpService->sendOtp($identifier, $purpose, $user);
 
@@ -65,7 +73,15 @@ class OtpController extends Controller
             );
         }
 
-        $user = User::where('email', $identifier)->orWhere('phone', $identifier)->first();
+        $user = User::withTrashed()->where('email', $identifier)->orWhere('phone', $identifier)->first();
+
+        if ($user && ($user->trashed() || $user->status !== 'active' || $user->account_status === AccountStatus::SUSPENDED || $user->account_status === AccountStatus::BLOCKED || $user->account_status === AccountStatus::DELETED)) {
+            return ApiResponse::error(
+                message: 'Your account is inactive.',
+                errorCode: 'ERR_ACCOUNT_INACTIVE',
+                statusCode: 403
+            );
+        }
 
         // 1. Registration OTP verification
         if ($purpose === OtpPurpose::REGISTRATION) {
