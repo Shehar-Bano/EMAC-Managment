@@ -16,6 +16,10 @@ use App\Http\Controllers\Web\Admin\Setting\SettingController;
 use App\Http\Controllers\Web\Admin\User\UserController;
 use App\Http\Controllers\Web\Auth\AuthController;
 use App\Http\Controllers\Web\WebsiteController;
+use App\Models\Category;
+use App\Models\Subcategory;
+use App\Models\User;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -32,26 +36,112 @@ Route::post('/contact', [WebsiteController::class, 'submitContact'])->name('cont
 Route::get('/privacy-policy', [WebsiteController::class, 'privacy'])->name('privacy');
 Route::get('/terms-and-conditions', [WebsiteController::class, 'terms'])->name('terms');
 
-// Direct storage file serving fallback (ensures images work even if host symlink is missing)
-Route::get('storage/{path}', function (string $path) {
-    $filePath = storage_path('app/public/'.$path);
-    if (! file_exists($filePath)) {        abort(404);
+// Direct storage file serving fallback (ensures images work even if host symlink is missing or broken)
+$serveStorageFile = function (string $path) {
+    $cleanPath = ltrim($path, '/');
+    $candidates = [
+        storage_path('app/public/'.$cleanPath),
+        storage_path('app/'.$cleanPath),
+        public_path('storage/'.$cleanPath),
+        storage_path('app/private/'.$cleanPath),
+        public_path($cleanPath),
+    ];
+
+    $targetFile = null;
+    foreach ($candidates as $candidate) {
+        if (file_exists($candidate) && ! is_dir($candidate)) {
+            $targetFile = $candidate;
+            break;
+        }
     }
 
-    return response()->file($filePath);
-})->where('path', '.*')->name('storage.fallback');
+    if (! $targetFile) {
+        abort(404, 'File not found on server.');
+    }
+
+    $mimeType = mime_content_type($targetFile) ?: 'application/octet-stream';
+
+    return response()->file($targetFile, [
+        'Content-Type' => $mimeType,
+        'Cache-Control' => 'public, max-age=86400',
+        'Access-Control-Allow-Origin' => '*',
+    ]);
+};
+
+Route::get('storage/{path}', $serveStorageFile)->where('path', '.*')->name('storage.fallback');
+Route::get('public/storage/{path}', $serveStorageFile)->where('path', '.*');
 
 // Quick storage link repair route
 Route::get('/fix-storage', function () {
     try {
-        \Illuminate\Support\Facades\Artisan::call('storage:link');
-        \Illuminate\Support\Facades\Artisan::call('view:clear');
-        \Illuminate\Support\Facades\Artisan::call('config:clear');
+        Artisan::call('storage:link');
+        Artisan::call('view:clear');
+        Artisan::call('config:clear');
 
         return '<h2 style="color:green; font-family:sans-serif;">Storage link created & caches cleared successfully!</h2>';
-    } catch (\Throwable $e) {
+    } catch (Throwable $e) {
         return '<h2 style="color:red; font-family:sans-serif;">Error: '.$e->getMessage().'</h2>';
     }
+});
+
+// Diagnostic storage check
+Route::get('/debug-storage', function () {
+    $publicStorage = storage_path('app/public');
+    $symlinkTarget = public_path('storage');
+
+    $listDir = function (string $dir) {
+        return is_dir($dir) ? array_diff(scandir($dir) ?: [], ['.', '..']) : [];
+    };
+
+    $files = $listDir($publicStorage);
+    $avatarFiles = $listDir($publicStorage.'/avatars');
+    $categoryFiles = $listDir($publicStorage.'/categories');
+    $subcategoryFiles = $listDir($publicStorage.'/subcategories');
+
+    $firstUser = User::whereNotNull('avatar')->first() ?? User::first();
+    $firstCategory = Category::whereNotNull('image')->first();
+    $firstSubcategory = Subcategory::whereNotNull('image')->first();
+
+    return response()->json([
+        'status' => 'Diagnostic Storage Report',
+        'app_url' => config('app.url'),
+        'current_request_root' => request()->root(),
+        'storage_path_app_public' => $publicStorage,
+        'storage_path_exists' => is_dir($publicStorage),
+        'storage_path_writable' => is_writable($publicStorage),
+        'public_path_storage' => $symlinkTarget,
+        'public_path_storage_exists' => file_exists($symlinkTarget),
+        'public_path_is_link' => is_link($symlinkTarget),
+        'folders_in_storage' => array_values($files),
+        'files_count' => [
+            'avatars' => count($avatarFiles),
+            'categories' => count($categoryFiles),
+            'subcategories' => count($subcategoryFiles),
+        ],
+        'sample_files' => [
+            'avatars' => array_slice(array_values($avatarFiles), 0, 5),
+            'categories' => array_slice(array_values($categoryFiles), 0, 5),
+            'subcategories' => array_slice(array_values($subcategoryFiles), 0, 5),
+        ],
+        'test_entities' => [
+            'user' => [
+                'name' => $firstUser?->name,
+                'avatar_db' => $firstUser?->avatar,
+                'avatar_url' => $firstUser?->avatar_url,
+            ],
+            'category' => [
+                'name' => $firstCategory?->name,
+                'image_db' => $firstCategory?->image,
+                'image_url' => $firstCategory?->image_url,
+            ],
+            'subcategory' => [
+                'name' => $firstSubcategory?->name,
+                'image_db' => $firstSubcategory?->image,
+                'image_url' => $firstSubcategory?->image_url,
+            ],
+        ],
+
+    ], 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 });
 
 /*
