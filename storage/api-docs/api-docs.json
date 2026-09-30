@@ -7,8 +7,12 @@
     },
     "servers": [
         {
+            "url": "/public",
+            "description": "Server with /public prefix (Live / Shared Hosting)"
+        },
+        {
             "url": "/",
-            "description": "Current Server Environment"
+            "description": "Direct / Root Server (Localhost / Custom Domain)"
         }
     ],
     "paths": {

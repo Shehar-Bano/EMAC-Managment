@@ -10,8 +10,12 @@ use OpenApi\Attributes as OA;
     title: 'EMAC ERP & Customer Authentication API'
 )]
 #[OA\Server(
+    url: '/public',
+    description: 'Server with /public prefix (Live / Shared Hosting)'
+)]
+#[OA\Server(
     url: '/',
-    description: 'Current Server Environment'
+    description: 'Direct / Root Server (Localhost / Custom Domain)'
 )]
 #[OA\SecurityScheme(
     securityScheme: 'bearerAuth',
