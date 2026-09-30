@@ -28,7 +28,7 @@ class CreateServiceRequestAction
                 'property_information' => $data['property_information'],
                 'preferred_service_date' => $data['preferred_service_date'],
                 'preferred_service_time' => $data['preferred_service_time'],
-                'priority' => $data['priority'] ?? ServiceRequestPriority::MEDIUM->value,
+                'priority' => ServiceRequestPriority::fromInput($data['priority'] ?? null, $data['is_emergency'] ?? null)->value,
                 'additional_notes' => $data['additional_notes'] ?? null,
                 'status' => ServiceRequestStatus::PENDING,
                 'type' => $data['type'] ?? 'app',

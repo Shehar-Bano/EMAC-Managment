@@ -60,10 +60,9 @@
                         <span class="w-2 h-2 rounded-full bg-rose-600 animate-ping"></span>
                         Emergency Priority
                     </span>
-                @elseif ($priorityVal === 'high')
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300 shadow-2xs">
-                        <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-                        High Priority
+                @else
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 shadow-2xs">
+                        Normal Priority
                     </span>
                 @endif
             </div>

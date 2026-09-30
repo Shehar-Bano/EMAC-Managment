@@ -238,6 +238,42 @@
                                 @enderror
                             </div>
 
+                            {{-- Priority / Emergency Request Option --}}
+                            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200" x-data="{ isEmergency: {{ old('is_emergency') || old('priority') === 'emergency' ? 'true' : 'false' }} }">
+                                <div class="flex items-start sm:items-center justify-between gap-3">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors"
+                                            :class="isEmergency ? 'bg-rose-100 text-rose-700 border border-rose-200' : 'bg-amber-100 text-[#8F6B20] border border-[#C5A059]/30'">
+                                            <span x-text="isEmergency ? '🚨' : '⚡'" class="text-xl"></span>
+                                        </div>
+                                        <div>
+                                            <label for="is_emergency_toggle" class="text-xs font-bold text-slate-900 cursor-pointer flex items-center gap-2">
+                                                <span>Emergency Priority Request</span>
+                                                <span x-show="isEmergency" x-cloak class="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-600 text-white uppercase tracking-wider animate-pulse">
+                                                    Urgent / 24/7
+                                                </span>
+                                            </label>
+                                            <p class="text-[11px] text-slate-500 mt-0.5">
+                                                <span x-show="!isEmergency">Normal request with standard scheduling and transparent quote.</span>
+                                                <span x-show="isEmergency" x-cloak class="text-rose-600 font-semibold">Flagged for immediate response and emergency priority handling.</span>
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                                        <input
+                                            type="checkbox"
+                                            id="is_emergency_toggle"
+                                            name="is_emergency"
+                                            value="1"
+                                            x-model="isEmergency"
+                                            class="sr-only peer"
+                                        >
+                                        <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-rose-600"></div>
+                                    </label>
+                                </div>
+                            </div>
+
                             {{-- Media Upload Section: Multiple Photographs & Video --}}
                             <div class="space-y-4 pt-2 border-t border-slate-200">
                                 <div>

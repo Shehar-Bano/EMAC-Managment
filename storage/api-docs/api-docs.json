@@ -1262,9 +1262,7 @@
                         "schema": {
                             "type": "string",
                             "enum": [
-                                "low",
-                                "medium",
-                                "high",
+                                "normal",
                                 "emergency"
                             ]
                         }
@@ -1330,7 +1328,7 @@
                                                     },
                                                     "priority": {
                                                         "type": "string",
-                                                        "example": "high"
+                                                        "example": "normal"
                                                     },
                                                     "status": {
                                                         "type": "string",
@@ -1439,14 +1437,17 @@
                                         "type": "string",
                                         "example": "10:00 AM - 12:00 PM"
                                     },
+                                    "is_emergency": {
+                                        "description": "Set true if this is an urgent/emergency repair request (defaults to false)",
+                                        "type": "boolean",
+                                        "example": false
+                                    },
                                     "priority": {
-                                        "description": "Priority of service (defaults to medium)",
+                                        "description": "Priority of service: normal (default) or emergency",
                                         "type": "string",
-                                        "example": "high",
+                                        "example": "normal",
                                         "enum": [
-                                            "low",
-                                            "medium",
-                                            "high",
+                                            "normal",
                                             "emergency"
                                         ]
                                     },
@@ -1572,7 +1573,7 @@
                                                 },
                                                 "priority": {
                                                     "type": "string",
-                                                    "example": "high"
+                                                    "example": "normal"
                                                 },
                                                 "status": {
                                                     "type": "string",

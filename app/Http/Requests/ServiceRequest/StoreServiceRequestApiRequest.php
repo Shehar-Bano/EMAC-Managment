@@ -31,6 +31,23 @@ class StoreServiceRequestApiRequest extends BaseAuthRequest
             // Remove empty string or null if no actual file was uploaded
             $this->request->remove('videos');
         }
+
+        // Resolve priority & emergency flag
+        if ($this->has('is_emergency')) {
+            $isEmergency = filter_var($this->input('is_emergency'), FILTER_VALIDATE_BOOLEAN);
+            $this->merge([
+                'priority' => $isEmergency ? 'emergency' : 'normal',
+            ]);
+        } elseif ($this->has('priority')) {
+            $rawPriority = strtolower(trim((string) $this->input('priority')));
+            $this->merge([
+                'priority' => in_array($rawPriority, ['emergency', 'urgent', '1', 'true'], true) ? 'emergency' : 'normal',
+            ]);
+        } else {
+            $this->merge([
+                'priority' => 'normal',
+            ]);
+        }
     }
 
     /**
@@ -48,7 +65,8 @@ class StoreServiceRequestApiRequest extends BaseAuthRequest
             'user_address_id' => ['required', 'integer', 'exists:user_addresses,id'],
             'preferred_service_date' => ['required', 'date', 'after_or_equal:today'],
             'preferred_service_time' => ['required', 'string', 'max:100'],
-            'priority' => ['nullable', 'string', 'in:low,medium,high,emergency'],
+            'is_emergency' => ['nullable', 'boolean'],
+            'priority' => ['nullable', 'string', 'in:normal,emergency'],
             'additional_notes' => ['nullable', 'string', 'max:2000'],
             'photographs' => ['nullable', 'array', 'max:10'],
             'photographs.*' => ['nullable', 'file', 'mimes:jpeg,png,jpg,webp', 'max:10240'],

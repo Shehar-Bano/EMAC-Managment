@@ -107,10 +107,8 @@
                     class="w-full px-2.5 py-1.5 text-xs bg-slate-50/60 border border-slate-300 rounded-lg focus:bg-white focus:border-[#C5A059] focus:ring-1 focus:ring-[#C5A059] transition-colors text-slate-700 font-medium"
                 >
                     <option value="all">All Priorities</option>
+                    <option value="normal" {{ request('priority') === 'normal' ? 'selected' : '' }}>⚡ Normal</option>
                     <option value="emergency" {{ request('priority') === 'emergency' ? 'selected' : '' }}>🚨 Emergency</option>
-                    <option value="high" {{ request('priority') === 'high' ? 'selected' : '' }}>🔥 High</option>
-                    <option value="medium" {{ request('priority') === 'medium' ? 'selected' : '' }}>⚡ Medium</option>
-                    <option value="low" {{ request('priority') === 'low' ? 'selected' : '' }}>🟢 Low</option>
                 </select>
             </div>
         </x-slot:extraFilters>
@@ -245,17 +243,9 @@
                                         <span class="w-1.5 h-1.5 rounded-full bg-rose-600 animate-ping"></span>
                                         Emergency
                                     </span>
-                                @elseif ($priorityVal === 'high')
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300">
-                                        High
-                                    </span>
-                                @elseif ($priorityVal === 'medium')
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-300">
-                                        Medium
-                                    </span>
                                 @else
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-300">
-                                        Low
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+                                        Normal
                                     </span>
                                 @endif
                             </td>

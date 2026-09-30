@@ -40,7 +40,7 @@ class ServiceRequestController extends Controller
             'quotesent' => ServiceRequest::where('status', ServiceRequestStatus::QUOTE_SENT)->count(),
             'reject' => ServiceRequest::where('status', ServiceRequestStatus::REJECT)->count(),
             'emergency' => ServiceRequest::where('priority', ServiceRequestPriority::EMERGENCY)->count(),
-            'high' => ServiceRequest::where('priority', ServiceRequestPriority::HIGH)->count(),
+            'normal' => ServiceRequest::where('priority', ServiceRequestPriority::NORMAL)->count(),
             'web' => ServiceRequest::where('type', 'web')->count(),
             'app' => ServiceRequest::where(function ($q) {
                 $q->where('type', 'app')->orWhereNull('type');
