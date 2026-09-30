@@ -34,19 +34,34 @@ class SubcategoryResource extends JsonResource
             }
         }
 
+        // Only include parent category object if accessed directly via a subcategory-only endpoint and not nested inside a category
+        $isNestedInCategories = $request->routeIs('*.categories.*')
+            || $request->is('*categories*')
+            || $request->is('*catalog*')
+            || $request->is('*categories-with-prices*');
+
+        $includeCategory = $this->relationLoaded('category') && ! $isNestedInCategories;
+
         return [
             'id' => $this->id,
             'category_id' => $this->category_id,
-            'category' => new CategoryResource($this->whenLoaded('category')),
+            'category' => $this->when($includeCategory, fn () => [
+                'id' => $this->category?->id,
+                'name' => $this->category?->name,
+                'slug' => $this->category?->slug,
+                'icon' => $this->category?->icon_url,
+                'icon_url' => $this->category?->icon_url,
+                'image' => $this->category?->image_url,
+                'image_url' => $this->category?->image_url,
+                'status' => $this->category?->status,
+            ]),
             'name' => $this->name,
             'slug' => $this->slug,
             'description' => $this->description,
-            'icon' => $this->icon,
+            'icon' => $this->icon_url,
             'icon_url' => $this->icon_url,
-            'icon_path' => $this->icon,
             'image' => $this->image_url,
             'image_url' => $this->image_url,
-            'image_path' => $this->image,
             'status' => $this->status,
             'sort_order' => $this->sort_order,
             'price' => $this->when($matchedPrice !== null, fn () => (float) $matchedPrice->price),

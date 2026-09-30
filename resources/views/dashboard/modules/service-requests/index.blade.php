@@ -20,7 +20,7 @@
     </x-slot:header>
 
     {{-- Quick Quotation & Priority Metrics --}}
-    <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-4">
+    <div class="grid grid-cols-2 sm:grid-cols-6 gap-3 mb-4">
         <a href="{{ route('dashboard.service-requests.index') }}" class="p-3 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:border-[#C5A059] transition-all">
             <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Requests</div>
             <div class="text-xl font-black text-slate-900 mt-1">{{ $stats['total'] }}</div>
@@ -39,19 +39,26 @@
             </div>
             <div class="text-xl font-black text-emerald-600 mt-1">{{ $stats['quotesent'] }}</div>
         </a>
-        <a href="{{ route('dashboard.service-requests.index', ['status' => 'reject']) }}" class="p-3 rounded-2xl bg-white border border-rose-200/80 shadow-2xs hover:border-rose-400 transition-all">
-            <div class="text-[10px] font-bold uppercase tracking-wider text-rose-600 flex items-center gap-1">
-                <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
-                Rejected
+        <a href="{{ route('dashboard.service-requests.index', ['type' => 'web']) }}" class="p-3 rounded-2xl bg-white border border-sky-200/80 shadow-2xs hover:border-sky-400 transition-all">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-sky-600 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span>
+                Web ({{ $stats['web'] }})
             </div>
-            <div class="text-xl font-black text-rose-600 mt-1">{{ $stats['reject'] }}</div>
+            <div class="text-xl font-black text-sky-700 mt-1">{{ $stats['web'] }}</div>
         </a>
-        <a href="{{ route('dashboard.service-requests.index', ['priority' => 'emergency']) }}" class="p-3 rounded-2xl bg-white border border-purple-200/80 shadow-2xs hover:border-purple-400 transition-all">
+        <a href="{{ route('dashboard.service-requests.index', ['type' => 'app']) }}" class="p-3 rounded-2xl bg-white border border-purple-200/80 shadow-2xs hover:border-purple-400 transition-all">
             <div class="text-[10px] font-bold uppercase tracking-wider text-purple-600 flex items-center gap-1">
-                <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span>
-                Emergency / High
+                <span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
+                App ({{ $stats['app'] }})
             </div>
-            <div class="text-xl font-black text-purple-700 mt-1">{{ $stats['emergency'] + $stats['high'] }}</div>
+            <div class="text-xl font-black text-purple-700 mt-1">{{ $stats['app'] }}</div>
+        </a>
+        <a href="{{ route('dashboard.service-requests.index', ['priority' => 'emergency']) }}" class="p-3 rounded-2xl bg-white border border-rose-200/80 shadow-2xs hover:border-rose-400 transition-all">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-rose-600 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span>
+                Emergency
+            </div>
+            <div class="text-xl font-black text-rose-700 mt-1">{{ $stats['emergency'] }}</div>
         </a>
     </div>
 
@@ -65,6 +72,19 @@
         :hasDates="true"
     >
         <x-slot:extraFilters>
+            {{-- Channel Origin Filter --}}
+            <div class="w-32 sm:w-36">
+                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Channel Origin</label>
+                <select
+                    name="type"
+                    class="w-full px-2.5 py-1.5 text-xs bg-slate-50/60 border border-slate-300 rounded-lg focus:bg-white focus:border-[#C5A059] focus:ring-1 focus:ring-[#C5A059] transition-colors text-slate-700 font-medium"
+                >
+                    <option value="all">All Channels</option>
+                    <option value="web" {{ request('type') === 'web' ? 'selected' : '' }}>🌐 Website</option>
+                    <option value="app" {{ request('type') === 'app' ? 'selected' : '' }}>📱 Mobile App</option>
+                </select>
+            </div>
+
             {{-- Status Filter --}}
             <div class="w-36 sm:w-40">
                 <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Request Status</label>
@@ -133,6 +153,7 @@
                             >
                         </th>
                         <th class="py-3 px-3.5">Customer & Request</th>
+                        <th class="py-3 px-3.5">Origin</th>
                         <th class="py-3 px-3.5">Property & Location</th>
                         <th class="py-3 px-3.5">Schedule</th>
                         <th class="py-3 px-3.5">Priority</th>
@@ -179,6 +200,21 @@
                                         </div>
                                     </div>
                                 </div>
+                            </td>
+
+                            {{-- Channel Origin --}}
+                            <td class="py-3 px-3.5">
+                                @if ($requestItem->type === 'web')
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-extrabold bg-sky-50 text-sky-700 border border-sky-200 shadow-2xs">
+                                        <svg class="w-3.5 h-3.5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg>
+                                        Website
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-extrabold bg-purple-50 text-purple-700 border border-purple-200 shadow-2xs">
+                                        <svg class="w-3.5 h-3.5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                                        Mobile App
+                                    </span>
+                                @endif
                             </td>
 
                             {{-- Property & Location --}}

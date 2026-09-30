@@ -219,6 +219,11 @@
                                         "example": "George Town",
                                         "nullable": true
                                     },
+                                    "zipcode": {
+                                        "type": "string",
+                                        "example": "KY1-1102",
+                                        "nullable": true
+                                    },
                                     "addresses": {
                                         "description": "Optional list of user addresses",
                                         "type": "array",
@@ -240,6 +245,11 @@
                                                 "city": {
                                                     "type": "string",
                                                     "example": "George Town"
+                                                },
+                                                "zipcode": {
+                                                    "type": "string",
+                                                    "example": "KY1-1102",
+                                                    "nullable": true
                                                 },
                                                 "address": {
                                                     "type": "string",
@@ -337,6 +347,11 @@
                                                 "otp_purpose": {
                                                     "type": "string",
                                                     "example": "registration"
+                                                },
+                                                "otp": {
+                                                    "description": "Generated 6-digit OTP",
+                                                    "type": "string",
+                                                    "example": "123456"
                                                 }
                                             },
                                             "type": "object"
@@ -1061,6 +1076,10 @@
                                                                 "type": "string",
                                                                 "example": "George Town"
                                                             },
+                                                            "zipcode": {
+                                                                "type": "string",
+                                                                "example": "KY1-1102"
+                                                            },
                                                             "address": {
                                                                 "type": "string",
                                                                 "example": "123 Example Street, Apt 4B"
@@ -1146,6 +1165,26 @@
                                     "region_id": {
                                         "type": "integer",
                                         "example": 1,
+                                        "nullable": true
+                                    },
+                                    "country": {
+                                        "type": "string",
+                                        "example": "Cayman Islands",
+                                        "nullable": true
+                                    },
+                                    "state": {
+                                        "type": "string",
+                                        "example": "Grand Cayman",
+                                        "nullable": true
+                                    },
+                                    "city": {
+                                        "type": "string",
+                                        "example": "George Town",
+                                        "nullable": true
+                                    },
+                                    "zipcode": {
+                                        "type": "string",
+                                        "example": "KY1-1102",
                                         "nullable": true
                                     },
                                     "image": {
@@ -2447,6 +2486,184 @@
                         "description": "Region not found"
                     }
                 }
+            }
+        },
+        "/api/v1/quotes": {
+            "get": {
+                "tags": [
+                    "Quotes"
+                ],
+                "summary": "List all quotes for authenticated customer",
+                "description": "Retrieves all quotes issued to the currently authenticated customer without needing quote ID. Can be filtered by status or service_request_id.",
+                "operationId": "f609ef4be7eb205dee5adb5dfae2ee97",
+                "parameters": [
+                    {
+                        "name": "service_request_id",
+                        "in": "query",
+                        "description": "Filter by specific Service Request ID",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Filter by quote status: pending, approved, declined, ask_for_question",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "pending"
+                        }
+                    },
+                    {
+                        "name": "all",
+                        "in": "query",
+                        "description": "Pass 1 to get all without pagination",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "example": false
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 10
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Quotes list retrieved successfully"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/service-requests/{id}/quote": {
+            "get": {
+                "tags": [
+                    "Quotes"
+                ],
+                "summary": "Get quote by Service Request ID",
+                "description": "Retrieves the latest quote for a specific service request using the service_request_id. Customer does not need the quote ID.",
+                "operationId": "971663faa12a806c82eb3059a93ce7a9",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Service Request ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Quote details retrieved successfully"
+                    },
+                    "404": {
+                        "description": "No quote found for this service request"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/service-requests/{id}/quote/respond": {
+            "post": {
+                "tags": [
+                    "Quotes"
+                ],
+                "summary": "Respond to a quote by Service Request ID",
+                "description": "Customer can approve, decline, or ask questions on a quote directly using the service request ID.",
+                "operationId": "71d37b1087296b753aaaff8d32c9fc4e",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Service Request ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "action"
+                                ],
+                                "properties": {
+                                    "action": {
+                                        "type": "string",
+                                        "example": "approve",
+                                        "enum": [
+                                            "approve",
+                                            "decline",
+                                            "ask_question"
+                                        ]
+                                    },
+                                    "customer_notes": {
+                                        "type": "string",
+                                        "example": "Approved, please proceed with the service.",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Response submitted successfully"
+                    },
+                    "404": {
+                        "description": "No quote found for this service request"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         }
     },

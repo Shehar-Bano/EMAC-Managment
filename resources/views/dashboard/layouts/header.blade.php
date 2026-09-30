@@ -28,7 +28,7 @@
                 type="text"
                 name="search"
                 value="{{ request('search') }}"
-                placeholder="Global search (employees, categories, inquiries)..."
+                placeholder="Global search (employees, categories, requests)..."
                 class="w-full pl-8 pr-12 py-1.5 text-xs bg-slate-50/80 hover:bg-slate-100/60 focus:bg-white border border-slate-200 rounded-lg focus:border-[#C5A059] focus:ring-1 focus:ring-[#C5A059] transition-all placeholder:text-slate-400 text-slate-700"
             >
             <div class="absolute inset-y-0 right-0 flex items-center pr-2">

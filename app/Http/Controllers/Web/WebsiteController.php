@@ -2,16 +2,26 @@
 
 namespace App\Http\Controllers\Web;
 
+use App\Enums\AccountStatus;
+use App\Enums\AuthSource;
+use App\Enums\ProfileStatus;
+use App\Enums\ServiceRequestPriority;
+use App\Enums\ServiceRequestStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
-use App\Models\ContactInquiry;
 use App\Models\LegalDocument;
 use App\Models\Region;
-use App\Models\RegionalServicePrice;
+use App\Models\Role;
+use App\Models\ServiceRequest;
 use App\Models\Subcategory;
+use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class WebsiteController extends Controller
 {
@@ -134,87 +144,153 @@ class WebsiteController extends Controller
             ->orderBy('sort_order')
             ->get();
 
-        return view('website.contact', compact('categories', 'regions'));
+        $user = Auth::user();
+        $userAddress = null;
+        $defaultRegionId = null;
+
+        if ($user) {
+            $userAddress = $user->addresses()->where('is_primary', true)->first() ?: $user->addresses()->first();
+            $defaultRegionId = $userAddress?->region_id;
+        }
+
+        if (! $defaultRegionId) {
+            $defaultRegionId = $request->filled('region_id') ? (int) $request->get('region_id') : ($regions->first()?->id ?? 1);
+        }
+
+        return view('website.contact', compact('categories', 'regions', 'user', 'userAddress', 'defaultRegionId'));
     }
 
     /**
-     * Handle the contact / service inquiry form submission with multiple images and video.
+     * Handle the website service / quote request and store directly into service_requests table with type = 'web'.
      */
     public function submitContact(Request $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:150'],
-            'email' => ['required', 'email', 'max:255'],
-            'phone' => ['nullable', 'string', 'max:50'],
-            'region_id' => ['nullable', 'integer', 'exists:regions,id'],
-            'market' => ['nullable', 'string', 'max:100'],
-            'category_id' => ['nullable', 'integer', 'exists:categories,id'],
-            'subcategory_id' => ['nullable', 'integer', 'exists:subcategories,id'],
+        $user = Auth::user();
+
+        $rules = [
+            'region_id' => ['required', 'integer', 'exists:regions,id'],
+            'category_id' => ['required', 'integer', 'exists:categories,id'],
+            'subcategory_id' => ['required', 'integer', 'exists:subcategories,id'],
+            'property_information' => ['nullable', 'string', 'max:500'],
+            'preferred_service_date' => ['nullable', 'date'],
+            'preferred_service_time' => ['nullable', 'string', 'max:100'],
             'message' => ['required', 'string', 'min:5', 'max:5000'],
             'photographs' => ['nullable', 'array', 'max:10'],
             'photographs.*' => ['file', 'image', 'mimes:jpeg,png,jpg,webp', 'max:10240'],
             'video' => ['nullable', 'file', 'mimetypes:video/mp4,video/quicktime,video/webm,video/x-msvideo,video/3gpp', 'max:51200'],
-        ]);
+        ];
 
-        // Resolve region and market name
-        $region = null;
-        if (! empty($validated['region_id'])) {
-            $region = Region::find($validated['region_id']);
+        if (! $user) {
+            $rules['name'] = ['required', 'string', 'max:150'];
+            $rules['email'] = ['required', 'email', 'max:255'];
+            $rules['phone'] = ['nullable', 'string', 'max:50'];
         }
 
-        $marketName = $region?->name ?? $validated['market'] ?? 'General Inquiry';
-        $currency = $region?->currency ?? 'USD';
-        $estimatedPrice = null;
+        $validated = $request->validate($rules);
 
-        // Auto calculate / attach estimated price if subcategory and region exist
-        if ($region && ! empty($validated['subcategory_id'])) {
-            $priceRecord = RegionalServicePrice::where('region_id', $region->id)
-                ->where('subcategory_id', $validated['subcategory_id'])
-                ->where('status', 'active')
-                ->whereNull('deleted_at')
-                ->first();
+        $serviceRequest = DB::transaction(function () use ($validated, $request, $user) {
+            // 1. Resolve User
+            if (! $user) {
+                $email = strtolower(trim($validated['email']));
+                $user = User::withTrashed()->where('email', $email)->first();
 
-            if ($priceRecord) {
-                $estimatedPrice = (float) $priceRecord->price;
-                $currency = $priceRecord->currency;
-            }
-        }
+                if (! $user) {
+                    $user = User::create([
+                        'name' => $validated['name'],
+                        'email' => $email,
+                        'phone' => $validated['phone'] ?? '+1 (000) 000-0000',
+                        'password' => Hash::make(Str::random(16)),
+                        'role' => 'customer',
+                        'source' => AuthSource::EMAIL,
+                        'account_status' => AccountStatus::PENDING,
+                        'profile_status' => ProfileStatus::INCOMPLETE,
+                        'status' => 'active',
+                    ]);
 
-        // Process multiple photographs
-        $storedPhotos = [];
-        if ($request->hasFile('photographs')) {
-            foreach ($request->file('photographs') as $photo) {
-                if ($photo->isValid()) {
-                    $storedPhotos[] = $photo->store('inquiries/photographs', 'public');
+                    $customerRole = Role::where('slug', 'customer')->first();
+                    if ($customerRole) {
+                        $user->roles()->syncWithoutDetaching([$customerRole->id]);
+                    }
                 }
             }
-        }
 
-        // Process video
-        $videoPath = null;
-        if ($request->hasFile('video') && $request->file('video')->isValid()) {
-            $videoPath = $request->file('video')->store('inquiries/videos', 'public');
-        }
+            // 2. Resolve Region & User Address
+            $region = Region::find($validated['region_id']);
+            $userAddress = $user->addresses()->where('is_primary', true)->first() ?: $user->addresses()->first();
 
-        ContactInquiry::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'phone' => $validated['phone'] ?? null,
-            'region_id' => $region?->id,
-            'market' => $marketName,
-            'category_id' => $validated['category_id'] ?? null,
-            'subcategory_id' => $validated['subcategory_id'] ?? null,
-            'estimated_price' => $estimatedPrice,
-            'currency' => $currency,
-            'message' => $validated['message'],
-            'photographs' => ! empty($storedPhotos) ? $storedPhotos : null,
-            'video' => $videoPath,
-            'status' => 'new',
-        ]);
+            if (! $userAddress) {
+                $userAddress = $user->addresses()->create([
+                    'region_id' => $region?->id,
+                    'country' => $region?->country ?? 'USA',
+                    'state' => $region?->name ?? 'Service Territory',
+                    'city' => $region?->name ?? 'Local City',
+                    'zipcode' => '00000',
+                    'address' => ! empty($validated['property_information']) ? $validated['property_information'] : ($region ? "Property in {$region->name}" : 'Customer Service Address'),
+                    'is_primary' => true,
+                ]);
+            }
+
+            // 3. Resolve Category / Subcategory
+            $categoryId = (int) $validated['category_id'];
+            $subcategoryId = (int) $validated['subcategory_id'];
+
+            $marketName = $region?->name ?? 'Service Territory';
+            $propertyInfo = ! empty($validated['property_information'])
+                ? $validated['property_information']
+                : ($userAddress?->address ?? "Service Location: {$marketName}");
+
+            // 4. Create Service Request Record directly in service_requests table
+            $sr = ServiceRequest::create([
+                'user_id' => $user->id,
+                'user_address_id' => $userAddress?->id,
+                'category_id' => $categoryId,
+                'subcategory_id' => $subcategoryId,
+                'description' => $validated['message'],
+                'property_information' => $propertyInfo,
+                'preferred_service_date' => $validated['preferred_service_date'] ?? now()->addDays(2)->format('Y-m-d'),
+                'preferred_service_time' => $validated['preferred_service_time'] ?? 'Flexible',
+                'priority' => ServiceRequestPriority::MEDIUM->value,
+                'additional_notes' => 'Submitted via Website Online Quote Request form',
+                'status' => ServiceRequestStatus::PENDING,
+                'type' => 'web',
+            ]);
+
+            // 5. Store Multiple Attached Photographs
+            if ($request->hasFile('photographs')) {
+                foreach ($request->file('photographs') as $photo) {
+                    if ($photo->isValid()) {
+                        $path = $photo->store('service_requests/photos', 'public');
+                        $sr->photographs()->create([
+                            'file_path' => $path,
+                            'file_name' => $photo->getClientOriginalName(),
+                            'file_size' => $photo->getSize(),
+                            'mime_type' => $photo->getClientMimeType(),
+                        ]);
+                    }
+                }
+            }
+
+            // 6. Store Video
+            if ($request->hasFile('video') && $request->file('video')->isValid()) {
+                $video = $request->file('video');
+                $path = $video->store('service_requests/videos', 'public');
+                $sr->videos()->create([
+                    'file_path' => $path,
+                    'file_name' => $video->getClientOriginalName(),
+                    'file_size' => $video->getSize(),
+                    'mime_type' => $video->getClientMimeType(),
+                ]);
+            }
+
+            return $sr;
+        });
+
+        $reqNumber = '#REQ-'.str_pad($serviceRequest->id, 5, '0', STR_PAD_LEFT);
+        $displayName = $user?->name ?? ($validated['name'] ?? 'Valued Customer');
 
         return redirect()
             ->route('contact')
-            ->with('success', "Thank you {$validated['name']}! Your quote request for {$marketName} has been submitted successfully. Our regional coordinator will review your request and media files and get back to you promptly.");
+            ->with('success', "Thank you {$displayName}! Your service request ({$reqNumber}) has been submitted successfully. Our team will review your project details and prepare an estimate promptly.");
     }
 
     /**

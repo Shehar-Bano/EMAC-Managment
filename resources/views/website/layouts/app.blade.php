@@ -85,18 +85,32 @@
                 </nav>
 
                 {{-- Right CTAs --}}
-                <div class="hidden sm:flex items-center gap-3">
+                <div class="hidden sm:flex items-center gap-2">
                     @auth
-                        <a href="{{ route('dashboard.index') }}" class="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-900 bg-[#C5A059] hover:bg-[#b8934b] rounded-lg shadow-xs transition-colors">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-                            <span>Dashboard</span>
-                        </a>
+                        @if (auth()->user()->hasRole(['super-admin', 'admin', 'manager', 'coordinator', 'technician']) || auth()->user()->isSuperAdmin())
+                            <a href="{{ route('dashboard.index') }}" class="px-3 py-2 text-xs font-bold text-slate-700 hover:text-[#8F6B20] hover:bg-slate-50 rounded-lg transition-colors">
+                                Dashboard
+                            </a>
+                        @endif
+                        <form method="POST" action="{{ route('logout') }}" class="inline">
+                            @csrf
+                            <button type="submit" class="px-3 py-2 text-xs font-bold text-slate-700 hover:text-rose-600 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer">
+                                Sign Out
+                            </button>
+                        </form>
                     @else
-                        <a href="{{ route('contact') }}" class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-slate-900 bg-[#C5A059] hover:bg-[#b8934b] rounded-lg shadow-xs transition-colors">
-                            <span>Request a Quote</span>
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        <a href="{{ route('login') }}" class="px-3.5 py-2 text-xs font-bold text-slate-700 hover:text-[#8F6B20] hover:bg-slate-50 rounded-lg transition-colors">
+                            Sign In
+                        </a>
+                        <a href="{{ route('register') }}" class="px-3.5 py-2 text-xs font-bold text-slate-800 hover:text-[#8F6B20] bg-slate-100/80 hover:bg-amber-50 border border-slate-200 hover:border-[#C5A059]/40 rounded-lg transition-all">
+                            Sign Up
                         </a>
                     @endauth
+
+                    <a href="{{ route('contact') }}" class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-slate-900 bg-[#C5A059] hover:bg-[#b8934b] rounded-lg shadow-xs transition-colors ml-1">
+                        <span>Request a Quote</span>
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </a>
                 </div>
 
                 {{-- Mobile Menu Toggle --}}
@@ -128,10 +142,22 @@
             <a href="{{ route('contact') }}" class="block px-3 py-2 rounded-lg text-sm font-semibold text-slate-800 hover:bg-slate-50">Contact</a>
             <div class="pt-4 border-t border-slate-200 space-y-2">
                 @auth
-                    <a href="{{ route('dashboard.index') }}" class="block w-full text-center px-4 py-2.5 text-xs font-bold text-slate-900 bg-[#C5A059] rounded-lg">Open Dashboard</a>
+                    <div class="grid grid-cols-2 gap-2">
+                        @if (auth()->user()->hasRole(['super-admin', 'admin', 'manager', 'coordinator', 'technician']) || auth()->user()->isSuperAdmin())
+                            <a href="{{ route('dashboard.index') }}" class="block w-full text-center px-4 py-2 text-xs font-bold text-slate-800 bg-slate-100 rounded-lg hover:bg-slate-200">Dashboard</a>
+                        @endif
+                        <form method="POST" action="{{ route('logout') }}" class="inline w-full">
+                            @csrf
+                            <button type="submit" class="block w-full text-center px-4 py-2 text-xs font-bold text-rose-600 bg-rose-50 border border-rose-200 rounded-lg hover:bg-rose-100 cursor-pointer">Sign Out</button>
+                        </form>
+                    </div>
                 @else
-                    <a href="{{ route('contact') }}" class="block w-full text-center px-4 py-2.5 text-xs font-bold text-slate-900 bg-[#C5A059] rounded-lg">Request a Quote</a>
+                    <div class="grid grid-cols-2 gap-2">
+                        <a href="{{ route('login') }}" class="block w-full text-center px-4 py-2 text-xs font-bold text-slate-800 bg-slate-100 rounded-lg hover:bg-slate-200">Sign In</a>
+                        <a href="{{ route('register') }}" class="block w-full text-center px-4 py-2 text-xs font-bold text-[#8F6B20] bg-amber-50 border border-[#C5A059]/30 rounded-lg hover:bg-amber-100">Sign Up</a>
+                    </div>
                 @endauth
+                <a href="{{ route('contact') }}" class="block w-full text-center px-4 py-2.5 text-xs font-bold text-slate-900 bg-[#C5A059] rounded-lg">Request a Quote</a>
             </div>
         </div>
     </header>

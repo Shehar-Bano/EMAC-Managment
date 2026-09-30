@@ -121,6 +121,7 @@ class OpenApiDoc
                                 new OA\Property(property: 'profile_status', type: 'string', example: 'incomplete'),
                                 new OA\Property(property: 'otp_required', type: 'boolean', example: true),
                                 new OA\Property(property: 'otp_purpose', type: 'string', example: 'registration'),
+                                new OA\Property(property: 'otp', type: 'string', example: '123456', description: 'Generated 6-digit OTP'),
                             ],
                             type: 'object'
                         ),
@@ -984,4 +985,68 @@ class OpenApiDoc
         ]
     )]
     public function getRegionDoc() {}
+
+    #[OA\Get(
+        path: '/api/v1/quotes',
+        summary: 'List all quotes for authenticated customer',
+        description: 'Retrieves all quotes issued to the currently authenticated customer without needing quote ID. Can be filtered by status or service_request_id.',
+        security: [['bearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'service_request_id', in: 'query', required: false, description: 'Filter by specific Service Request ID', schema: new OA\Schema(type: 'integer', example: 1)),
+            new OA\Parameter(name: 'status', in: 'query', required: false, description: 'Filter by quote status: pending, approved, declined, ask_for_question', schema: new OA\Schema(type: 'string', example: 'pending')),
+            new OA\Parameter(name: 'all', in: 'query', required: false, description: 'Pass 1 to get all without pagination', schema: new OA\Schema(type: 'boolean', example: false)),
+            new OA\Parameter(name: 'page', in: 'query', required: false, schema: new OA\Schema(type: 'integer', example: 1)),
+            new OA\Parameter(name: 'per_page', in: 'query', required: false, schema: new OA\Schema(type: 'integer', example: 10)),
+        ],
+        tags: ['Quotes'],
+        responses: [
+            new OA\Response(response: 200, description: 'Quotes list retrieved successfully'),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+        ]
+    )]
+    public function getQuotesDoc() {}
+
+    #[OA\Get(
+        path: '/api/v1/service-requests/{id}/quote',
+        summary: 'Get quote by Service Request ID',
+        description: 'Retrieves the latest quote for a specific service request using the service_request_id. Customer does not need the quote ID.',
+        security: [['bearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, description: 'Service Request ID', schema: new OA\Schema(type: 'integer', example: 1)),
+        ],
+        tags: ['Quotes'],
+        responses: [
+            new OA\Response(response: 200, description: 'Quote details retrieved successfully'),
+            new OA\Response(response: 404, description: 'No quote found for this service request'),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+        ]
+    )]
+    public function getQuoteByServiceRequestDoc() {}
+
+    #[OA\Post(
+        path: '/api/v1/service-requests/{id}/quote/respond',
+        summary: 'Respond to a quote by Service Request ID',
+        description: 'Customer can approve, decline, or ask questions on a quote directly using the service request ID.',
+        security: [['bearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, description: 'Service Request ID', schema: new OA\Schema(type: 'integer', example: 1)),
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['action'],
+                properties: [
+                    new OA\Property(property: 'action', type: 'string', enum: ['approve', 'decline', 'ask_question'], example: 'approve'),
+                    new OA\Property(property: 'customer_notes', type: 'string', example: 'Approved, please proceed with the service.', nullable: true),
+                ]
+            )
+        ),
+        tags: ['Quotes'],
+        responses: [
+            new OA\Response(response: 200, description: 'Response submitted successfully'),
+            new OA\Response(response: 404, description: 'No quote found for this service request'),
+            new OA\Response(response: 422, description: 'Validation error'),
+        ]
+    )]
+    public function respondQuoteByServiceRequestDoc() {}
 }

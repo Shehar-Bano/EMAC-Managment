@@ -21,7 +21,7 @@
     <section class="py-14 bg-white" x-data="quoteFormHandler({
         categories: {{ Js::from($categories) }},
         regions: {{ Js::from($regions) }},
-        initialRegionId: {{ (int) old('region_id', request('region_id', $regions->first()?->id ?? 1)) }},
+        initialRegionId: {{ (int) old('region_id', $defaultRegionId ?? ($regions->first()?->id ?? 1)) }},
         initialCategoryId: {{ (int) old('category_id', request('category_id', $categories->first()?->id ?? 0)) }},
         initialSubcategoryId: {{ (int) old('subcategory_id', request('subcategory_id', 0)) }},
     })">
@@ -30,97 +30,168 @@
                 {{-- Form Column --}}
                 <div class="lg:col-span-7">
                     <div class="p-6 sm:p-8 rounded-3xl bg-slate-50 border border-slate-200 shadow-xs">
-                        <div class="mb-6 border-b border-slate-200 pb-4">
-                            <h2 class="text-lg font-bold text-slate-900">Service Quote Request Form</h2>
-                            <p class="text-xs text-slate-500 mt-0.5">Fill out your details and project info for immediate coordinator response.</p>
+                        <div class="mb-6 border-b border-slate-200 pb-4 flex items-center justify-between gap-4">
+                            <div>
+                                <h2 class="text-lg font-bold text-slate-900">Service Quote Request Form</h2>
+                                <p class="text-xs text-slate-500 mt-0.5">Select your category, service task, and describe your maintenance needs.</p>
+                            </div>
+                            <span class="px-2.5 py-1 rounded-lg bg-amber-50 text-[#8F6B20] text-[11px] font-bold border border-[#C5A059]/30">
+                                Step 1 of 1
+                            </span>
                         </div>
+
+                        {{-- Logged In User Verified Info Banner / Guest Login Prompt --}}
+                        @auth
+                            <div class="mb-5 p-4 rounded-2xl bg-amber-50/70 border border-[#C5A059]/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-2xs">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#E5C158] to-[#C5A059] text-slate-950 font-black flex items-center justify-center text-sm shrink-0 shadow-xs">
+                                        {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                                    </div>
+                                    <div>
+                                        <div class="font-bold text-slate-900 flex items-center gap-1.5">
+                                            <span>{{ auth()->user()->name }}</span>
+                                            <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">Auto-filled</span>
+                                        </div>
+                                        <div class="text-slate-600 text-[11px] mt-0.5">
+                                            {{ auth()->user()->email }} • {{ auth()->user()->phone ?? 'Phone on file' }}
+                                        </div>
+                                    </div>
+                                </div>
+                                @if ($userAddress)
+                                    <div class="text-[11px] text-slate-600 sm:text-right border-t sm:border-t-0 pt-2 sm:pt-0 border-amber-200/60">
+                                        <div class="font-semibold text-slate-700">Registered Territory:</div>
+                                        <div class="font-bold text-[#8F6B20]">{{ $userAddress->region?->name ?? 'Service Market' }}</div>
+                                    </div>
+                                @endif
+                            </div>
+                        @else
+                            <div class="mb-5 p-3.5 rounded-2xl bg-white border border-slate-200/80 flex flex-wrap items-center justify-between gap-3 text-xs shadow-2xs">
+                                <div class="flex items-center gap-2 text-slate-600">
+                                    <svg class="w-4 h-4 text-[#C5A059]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    <span>Already registered with EMAC?</span>
+                                </div>
+                                <a href="{{ route('login') }}" class="font-bold text-[#8F6B20] hover:text-[#C5A059] hover:underline">
+                                    Sign In to auto-fill details &rarr;
+                                </a>
+                            </div>
+                        @endauth
 
                         <form method="POST" action="{{ route('contact.submit') }}" enctype="multipart/form-data" class="space-y-5">
                             @csrf
 
-                            {{-- Contact Information --}}
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                {{-- Name --}}
+                            {{-- Guest Contact Information (Hidden/Auto-populated for logged-in user) --}}
+                            @guest
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    {{-- Name --}}
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Full Name *</label>
+                                        <input
+                                            type="text"
+                                            name="name"
+                                            value="{{ old('name') }}"
+                                            placeholder="John Doe"
+                                            required
+                                            class="w-full px-3.5 py-2.5 text-xs bg-white border border-slate-300 rounded-xl focus:border-[#C5A059] focus:ring-1 focus:ring-[#C5A059] outline-none"
+                                        >
+                                        @error('name')
+                                            <p class="mt-1 text-[11px] text-rose-600">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+
+                                    {{-- Email --}}
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Email Address *</label>
+                                        <input
+                                            type="email"
+                                            name="email"
+                                            value="{{ old('email') }}"
+                                            placeholder="john@example.com"
+                                            required
+                                            class="w-full px-3.5 py-2.5 text-xs bg-white border border-slate-300 rounded-xl focus:border-[#C5A059] focus:ring-1 focus:ring-[#C5A059] outline-none"
+                                        >
+                                        @error('email')
+                                            <p class="mt-1 text-[11px] text-rose-600">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    {{-- Phone --}}
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Phone Number</label>
+                                        <input
+                                            type="text"
+                                            name="phone"
+                                            value="{{ old('phone') }}"
+                                            placeholder="+1 (555) 000-0000"
+                                            class="w-full px-3.5 py-2.5 text-xs bg-white border border-slate-300 rounded-xl focus:border-[#C5A059] focus:ring-1 focus:ring-[#C5A059] outline-none"
+                                        >
+                                        @error('phone')
+                                            <p class="mt-1 text-[11px] text-rose-600">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+
+                                    {{-- Property Location / Street Address (No zipcode) --}}
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Property Location / Street Address</label>
+                                        <input
+                                            type="text"
+                                            name="property_information"
+                                            value="{{ old('property_information') }}"
+                                            placeholder="e.g. 742 Evergreen Terrace, Apt 4B"
+                                            class="w-full px-3.5 py-2.5 text-xs bg-white border border-slate-300 rounded-xl focus:border-[#C5A059] focus:ring-1 focus:ring-[#C5A059] outline-none"
+                                        >
+                                    </div>
+                                </div>
+                            @else
+                                {{-- For logged-in user, optional field to specify alternate property location if different from primary --}}
                                 <div>
-                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Full Name *</label>
+                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                                        Property Location / Service Address
+                                    </label>
                                     <input
                                         type="text"
-                                        name="name"
-                                        value="{{ old('name') }}"
-                                        placeholder="John Doe"
-                                        required
+                                        name="property_information"
+                                        value="{{ old('property_information', $userAddress?->address) }}"
+                                        placeholder="e.g. 742 Evergreen Terrace, Apt 4B"
                                         class="w-full px-3.5 py-2.5 text-xs bg-white border border-slate-300 rounded-xl focus:border-[#C5A059] focus:ring-1 focus:ring-[#C5A059] outline-none"
                                     >
-                                    @error('name')
-                                        <p class="mt-1 text-[11px] text-rose-600">{{ $message }}</p>
-                                    @enderror
+                                    <p class="text-[10px] text-slate-400 mt-1">Pre-filled with your on-file address. You can update this for a different property.</p>
                                 </div>
+                            @endguest
 
-                                {{-- Email --}}
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Email Address *</label>
-                                    <input
-                                        type="email"
-                                        name="email"
-                                        value="{{ old('email') }}"
-                                        placeholder="john@example.com"
-                                        required
-                                        class="w-full px-3.5 py-2.5 text-xs bg-white border border-slate-300 rounded-xl focus:border-[#C5A059] focus:ring-1 focus:ring-[#C5A059] outline-none"
-                                    >
-                                    @error('email')
-                                        <p class="mt-1 text-[11px] text-rose-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                {{-- Phone --}}
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Phone Number</label>
-                                    <input
-                                        type="text"
-                                        name="phone"
-                                        value="{{ old('phone') }}"
-                                        placeholder="+1 (555) 000-0000"
-                                        class="w-full px-3.5 py-2.5 text-xs bg-white border border-slate-300 rounded-xl focus:border-[#C5A059] focus:ring-1 focus:ring-[#C5A059] outline-none"
-                                    >
-                                    @error('phone')
-                                        <p class="mt-1 text-[11px] text-rose-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-
-                                {{-- Service Region (Dynamic from DB) --}}
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Service Market / Region *</label>
-                                    <select
-                                        name="region_id"
-                                        x-model.number="selectedRegionId"
-                                        @change="updatePricing()"
-                                        required
-                                        class="w-full px-3.5 py-2.5 text-xs bg-white border border-slate-300 rounded-xl focus:border-[#C5A059] focus:ring-1 focus:ring-[#C5A059] outline-none font-semibold"
-                                    >
-                                        <template x-for="reg in regions" :key="reg.id">
-                                            <option :value="reg.id" x-text="reg.name + ' (' + reg.currency + ')'"></option>
-                                        </template>
-                                    </select>
-                                    @error('region_id')
-                                        <p class="mt-1 text-[11px] text-rose-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
+                            {{-- Service Territory / Region Selector --}}
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Service Market / Region *</label>
+                                <select
+                                    name="region_id"
+                                    x-model.number="selectedRegionId"
+                                    @change="updateRegion()"
+                                    required
+                                    class="w-full px-3.5 py-2.5 text-xs bg-white border border-slate-300 rounded-xl focus:border-[#C5A059] focus:ring-1 focus:ring-[#C5A059] outline-none font-semibold cursor-pointer"
+                                >
+                                    <template x-for="reg in regions" :key="reg.id">
+                                        <option :value="reg.id" x-text="reg.name + ' (' + reg.currency + ')'"></option>
+                                    </template>
+                                </select>
+                                @error('region_id')
+                                    <p class="mt-1 text-[11px] text-rose-600">{{ $message }}</p>
+                                @enderror
                             </div>
 
                             {{-- Service Category & Subcategory Selection --}}
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 {{-- Category --}}
                                 <div>
-                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Service Category</label>
+                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Service Category *</label>
                                     <select
                                         name="category_id"
                                         x-model.number="selectedCategoryId"
                                         @change="onCategoryChange()"
-                                        class="w-full px-3.5 py-2.5 text-xs bg-white border border-slate-300 rounded-xl focus:border-[#C5A059] focus:ring-1 focus:ring-[#C5A059] outline-none font-medium"
+                                        required
+                                        class="w-full px-3.5 py-2.5 text-xs bg-white border border-slate-300 rounded-xl focus:border-[#C5A059] focus:ring-1 focus:ring-[#C5A059] outline-none font-semibold cursor-pointer"
                                     >
-                                        <option value="0">-- Select Category --</option>
+                                        <option value="">-- Select Category --</option>
                                         <template x-for="cat in categories" :key="cat.id">
                                             <option :value="cat.id" x-text="cat.name"></option>
                                         </template>
@@ -132,15 +203,16 @@
 
                                 {{-- Subcategory --}}
                                 <div>
-                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Specific Service / Task</label>
+                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Specific Service / Task *</label>
                                     <select
                                         name="subcategory_id"
                                         x-model.number="selectedSubcategoryId"
                                         @change="updatePricing()"
                                         :disabled="subcategoriesList.length === 0"
-                                        class="w-full px-3.5 py-2.5 text-xs bg-white border border-slate-300 rounded-xl focus:border-[#C5A059] focus:ring-1 focus:ring-[#C5A059] outline-none font-medium disabled:bg-slate-100 disabled:text-slate-400"
+                                        required
+                                        class="w-full px-3.5 py-2.5 text-xs bg-white border border-slate-300 rounded-xl focus:border-[#C5A059] focus:ring-1 focus:ring-[#C5A059] outline-none font-semibold disabled:bg-slate-100 disabled:text-slate-400 cursor-pointer"
                                     >
-                                        <option value="0">-- Select Specific Task --</option>
+                                        <option value="">-- Select Specific Task --</option>
                                         <template x-for="sub in subcategoriesList" :key="sub.id + '-' + selectedRegionId">
                                             <option :value="sub.id" x-text="getSubcategoryOptionLabel(sub)"></option>
                                         </template>
@@ -158,7 +230,7 @@
                                     name="message"
                                     rows="4"
                                     required
-                                    placeholder="Please describe the repairs or maintenance needed, preferred appointment time, and property address..."
+                                    placeholder="Please describe the repairs or maintenance needed, symptoms of the problem, and any specific preferences..."
                                     class="w-full px-3.5 py-2.5 text-xs bg-white border border-slate-300 rounded-xl focus:border-[#C5A059] focus:ring-1 focus:ring-[#C5A059] outline-none leading-relaxed"
                                 >{{ old('message') }}</textarea>
                                 @error('message')
@@ -289,6 +361,7 @@
                 selectedVideoName: '',
 
                 init() {
+                    this.updateRegion();
                     if (this.selectedCategoryId > 0) {
                         this.onCategoryChange();
                     } else if (this.categories.length > 0) {
@@ -298,7 +371,9 @@
                     this.updatePricing();
                 },
 
-                onRegionChange() {
+                updateRegion() {
+                    const currentRegion = this.regions.find(r => Number(r.id) === Number(this.selectedRegionId));
+                    this.currency = currentRegion ? currentRegion.currency : 'USD';
                     this.updatePricing();
                 },
 

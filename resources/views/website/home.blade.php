@@ -103,51 +103,84 @@
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 @foreach ($categories as $category)
-                    <div class="bg-slate-50 rounded-2xl border border-slate-200 p-6 sm:p-8 flex flex-col justify-between hover:border-[#C5A059]/60 transition-colors">
+                    <div class="bg-white rounded-3xl border border-slate-200/90 hover:border-[#C5A059] shadow-md hover:shadow-2xl transition-all duration-300 flex flex-col justify-between overflow-hidden group">
                         <div>
-                            <div class="flex items-center gap-3.5 mb-4">
-                                <div class="w-11 h-11 rounded-xl bg-white border border-slate-200 text-[#C5A059] flex items-center justify-center text-xl shadow-2xs shrink-0 overflow-hidden">
-                                    @if ($category->image_url)
-                                        <img src="{{ $category->image_url }}" alt="{{ $category->name }}" class="w-full h-full object-cover">
-                                    @elseif ($category->icon)
-                                        <span>{{ $category->icon }}</span>
-                                    @else
-                                        <span>🛠️</span>
-                                    @endif
-                                </div>
-                                <div>
-                                    <h3 class="text-xl font-bold text-slate-900">{{ $category->name }}</h3>
-                                    <span class="text-xs font-semibold text-[#8F6B20]">{{ $category->activeSubcategories->count() }} Available Services</span>
+                            {{-- Category Banner Header with Background Image & Light Top-Right Gradient --}}
+                            <div class="relative h-48 w-full overflow-hidden bg-slate-950">
+                                @if ($category->image_url)
+                                    <img
+                                        src="{{ $category->image_url }}"
+                                        alt="{{ $category->name }}"
+                                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                                    >
+                                    <div class="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/40 to-transparent"></div>
+                                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent"></div>
+                                @else
+                                    <div class="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-950 to-[#1f1a10]"></div>
+                                    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#C5A059]/20 via-transparent to-transparent"></div>
+                                @endif
+
+                                {{-- Header Content overlaid on image --}}
+                                <div class="absolute inset-0 p-6 flex flex-col justify-between">
+                                    <div class="flex items-center justify-between">
+                                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold bg-[#C5A059]/20 text-[#E5C158] border border-[#C5A059]/40 backdrop-blur-xs">
+                                            <span>{{ $category->activeSubcategories->count() }} Available Services</span>
+                                        </span>
+                                    </div>
+
+                                    <div class="flex items-end gap-3.5">
+                                        {{-- Category Icon Container --}}
+                                        <div class="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur-md border border-white/20 p-2.5 shadow-lg flex items-center justify-center text-xl shrink-0 ring-1 ring-[#C5A059]/40 text-[#E5C158]">
+                                            @if ($category->icon_url && (str_contains($category->icon_url, '/') || str_contains($category->icon_url, '.')))
+                                                <img src="{{ $category->icon_url }}" alt="{{ $category->name }} Icon" class="w-full h-full object-contain">
+                                            @elseif ($category->icon)
+                                                <span>{{ $category->icon }}</span>
+                                            @else
+                                                <svg class="w-7 h-7 text-[#E5C158]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                                            @endif
+                                        </div>
+                                        <div>
+                                            <h3 class="text-xl font-black text-white tracking-tight drop-shadow-sm">{{ $category->name }}</h3>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
-                            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed mb-6">
-                                {{ $category->description }}
-                            </p>
+                            {{-- Card Body --}}
+                            <div class="p-6">
+                                <p class="text-xs sm:text-sm text-slate-600 leading-relaxed mb-6 line-clamp-2">
+                                    {{ $category->description }}
+                                </p>
 
-                            <div class="mb-6">
-                                <div class="text-xs font-bold text-slate-700 mb-2.5">Included Services:</div>
-                                <div class="flex flex-wrap gap-1.5">
-                                    @foreach ($category->activeSubcategories as $sub)
-                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs bg-white border border-slate-200 text-slate-700">
-                                            @if ($sub->image_url)
-                                                <img src="{{ $sub->image_url }}" alt="{{ $sub->name }}" class="w-3.5 h-3.5 object-cover rounded-xs">
-                                            @elseif ($sub->icon)
-                                                <span class="text-xs">{{ $sub->icon }}</span>
-                                            @endif
-                                            <span>{{ $sub->name }}</span>
-                                        </span>
-                                    @endforeach
+                                <div>
+                                    <div class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-3">Included Trades & Services:</div>
+                                    <div class="flex flex-wrap gap-2">
+                                        @foreach ($category->activeSubcategories as $sub)
+                                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs bg-slate-50 hover:bg-amber-50/50 border border-slate-200 text-slate-700 transition-colors">
+                                                @if ($sub->icon_url && (str_contains($sub->icon_url, '/') || str_contains($sub->icon_url, '.')))
+                                                    <img src="{{ $sub->icon_url }}" alt="{{ $sub->name }}" class="w-4 h-4 object-contain">
+                                                @elseif ($sub->icon)
+                                                    <span class="text-xs">{{ $sub->icon }}</span>
+                                                @else
+                                                    <svg class="w-3.5 h-3.5 text-[#8F6B20]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                                @endif
+                                                <span class="font-medium">{{ $sub->name }}</span>
+                                            </span>
+                                        @endforeach
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="pt-4 border-t border-slate-200 flex items-center justify-between">
-                            <a href="{{ route('services') }}" class="text-xs font-semibold text-slate-700 hover:text-slate-900">
-                                View Details &rarr;
+                        {{-- Card Footer --}}
+                        <div class="px-6 py-4 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between">
+                            <a href="{{ route('services') }}" class="text-xs font-bold text-slate-700 hover:text-[#8F6B20] transition-colors flex items-center gap-1">
+                                <span>Browse Rates & Details</span>
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                             </a>
-                            <a href="{{ route('contact', ['category_id' => $category->id]) }}" class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-slate-900 bg-[#C5A059] hover:bg-[#b8934b] rounded-lg transition-colors">
+                            <a href="{{ route('contact', ['category_id' => $category->id]) }}" class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-extrabold text-slate-950 bg-gradient-to-r from-[#C5A059] to-[#D4AF37] hover:from-[#d4af37] hover:to-[#e5c158] rounded-xl shadow-sm hover:shadow-md transition-all">
                                 <span>Get a Quote</span>
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                             </a>
                         </div>
                     </div>

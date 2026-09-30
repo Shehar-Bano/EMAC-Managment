@@ -23,7 +23,7 @@ class ServiceRequestController extends Controller
 
         $perPageParam = strtolower($request->get('per_page', '10'));
         $query = ServiceRequest::with(['user', 'category', 'subcategory', 'address', 'photographs', 'videos', 'latestQuote'])
-            ->filter($request->only(['search', 'quote_status', 'priority', 'status', 'date_from', 'date_to', 'category_id', 'subcategory_id']))
+            ->filter($request->only(['search', 'quote_status', 'priority', 'status', 'date_from', 'date_to', 'category_id', 'subcategory_id', 'type']))
             ->latest('id');
 
         if ($perPageParam === 'all') {
@@ -41,6 +41,10 @@ class ServiceRequestController extends Controller
             'reject' => ServiceRequest::where('status', ServiceRequestStatus::REJECT)->count(),
             'emergency' => ServiceRequest::where('priority', ServiceRequestPriority::EMERGENCY)->count(),
             'high' => ServiceRequest::where('priority', ServiceRequestPriority::HIGH)->count(),
+            'web' => ServiceRequest::where('type', 'web')->count(),
+            'app' => ServiceRequest::where(function ($q) {
+                $q->where('type', 'app')->orWhereNull('type');
+            })->count(),
         ];
 
         return view('dashboard.modules.service-requests.index', compact('requests', 'stats'));
@@ -125,7 +129,7 @@ class ServiceRequestController extends Controller
         $this->authorize('service_requests.export');
 
         $requests = ServiceRequest::with(['user', 'address'])
-            ->filter($request->only(['search', 'status', 'priority', 'date_from', 'date_to']))
+            ->filter($request->only(['search', 'status', 'priority', 'date_from', 'date_to', 'type', 'category_id', 'subcategory_id']))
             ->latest('id')
             ->get();
 
@@ -138,6 +142,7 @@ class ServiceRequestController extends Controller
             $handle = fopen('php://output', 'w');
             fputcsv($handle, [
                 'ID',
+                'Channel Origin',
                 'Customer Name',
                 'Customer Email',
                 'Customer Phone',
@@ -156,6 +161,7 @@ class ServiceRequestController extends Controller
             foreach ($requests as $item) {
                 fputcsv($handle, [
                     $item->id,
+                    strtoupper($item->type ?? 'app'),
                     $item->user?->name ?? 'N/A',
                     $item->user?->email ?? 'N/A',
                     $item->user?->phone ?? 'N/A',

@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\ServiceRequest;
 
+use App\Http\Resources\Quote\QuoteResource;
 use App\Http\Resources\UserAddressResource;
 use App\Models\ServiceRequest;
 use Illuminate\Http\Request;
@@ -27,13 +28,19 @@ class ServiceRequestResource extends JsonResource
                 'id' => $this->category->id,
                 'name' => $this->category->name,
                 'slug' => $this->category->slug,
-                'icon' => $this->category->icon,
+                'icon' => $this->category->icon_url,
+                'icon_url' => $this->category->icon_url,
+                'image' => $this->category->image_url,
+                'image_url' => $this->category->image_url,
             ] : null,
             'subcategory' => $this->subcategory ? [
                 'id' => $this->subcategory->id,
                 'name' => $this->subcategory->name,
                 'slug' => $this->subcategory->slug,
-                'icon' => $this->subcategory->icon,
+                'icon' => $this->subcategory->icon_url,
+                'icon_url' => $this->subcategory->icon_url,
+                'image' => $this->subcategory->image_url,
+                'image_url' => $this->subcategory->image_url,
             ] : null,
             'description' => $this->description,
             'property_information' => $this->property_information,
@@ -42,6 +49,7 @@ class ServiceRequestResource extends JsonResource
             'priority' => $this->priority instanceof \BackedEnum ? $this->priority->value : $this->priority,
             'additional_notes' => $this->additional_notes,
             'status' => $this->status instanceof \BackedEnum ? $this->status->value : $this->status,
+            'type' => $this->type ?? 'app',
             'location' => $this->address ? (new UserAddressResource($this->address))->resolve() : null,
             'user' => $this->relationLoaded('user') ? [
                 'id' => $this->user->id,
@@ -49,6 +57,11 @@ class ServiceRequestResource extends JsonResource
                 'email' => $this->user->email,
                 'phone' => $this->user->phone,
             ] : null,
+            'quote' => $this->relationLoaded('latestQuote') && $this->latestQuote
+                ? (new QuoteResource($this->latestQuote))->resolve()
+                : ($this->relationLoaded('quotes') && $this->quotes->isNotEmpty()
+                    ? (new QuoteResource($this->quotes->first()))->resolve()
+                    : null),
             'photographs' => $this->photographs->map(fn ($photo) => [
                 'id' => $photo->id,
                 'file_path' => $photo->file_path,

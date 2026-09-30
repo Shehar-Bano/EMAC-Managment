@@ -3,7 +3,6 @@
 use App\Http\Controllers\Web\Admin\Category\CategoryController;
 use App\Http\Controllers\Web\Admin\Category\SubcategoryController;
 use App\Http\Controllers\Web\Admin\DashboardController;
-use App\Http\Controllers\Web\Admin\Inquiry\InquiryController;
 use App\Http\Controllers\Web\Admin\Legal\PrivacyController;
 use App\Http\Controllers\Web\Admin\Legal\TermsController;
 use App\Http\Controllers\Web\Admin\Permission\PermissionController;
@@ -152,6 +151,11 @@ Route::get('/debug-storage', function () {
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+    Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
+    Route::post('/register', [AuthController::class, 'register'])->name('register.post');
+    Route::get('/verify-otp', [AuthController::class, 'showVerifyOtpForm'])->name('otp.verify.form');
+    Route::post('/verify-otp', [AuthController::class, 'verifyOtp'])->name('otp.verify');
+    Route::post('/resend-otp', [AuthController::class, 'resendOtp'])->name('otp.resend');
     Route::get('/forgot-password', [AuthController::class, 'showForgotPasswordForm'])->name('password.request');
     Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name('password.email');
 });
@@ -166,13 +170,6 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 Route::prefix('dashboard')->name('dashboard.')->middleware(['auth', 'active.user'])->group(function () {
     // Dashboard Overview
     Route::get('/', [DashboardController::class, 'index'])->name('index');
-
-    // Leads & Inquiries Module
-    Route::get('inquiries/export', [InquiryController::class, 'export'])->name('inquiries.export');
-    Route::post('inquiries/bulk-delete', [InquiryController::class, 'bulkDelete'])->name('inquiries.bulk-delete');
-    Route::delete('inquiries/bulk-delete', [InquiryController::class, 'bulkDelete']);
-    Route::patch('inquiries/{inquiry}/status', [InquiryController::class, 'updateStatus'])->name('inquiries.status');
-    Route::resource('inquiries', InquiryController::class)->only(['index', 'show', 'destroy']);
 
     // Customer Service Requests Module
     Route::get('service-requests/export', [ServiceRequestController::class, 'export'])->name('service-requests.export');

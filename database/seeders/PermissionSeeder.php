@@ -242,38 +242,6 @@ class PermissionSeeder extends Seeder
                 'description' => 'Toggle regional service price active/inactive state',
             ],
 
-            // Inquiry Management
-            [
-                'group' => 'inquiries',
-                'name' => 'inquiries.view',
-                'label' => 'View Inquiries',
-                'description' => 'View incoming service requests and customer inquiries',
-            ],
-            [
-                'group' => 'inquiries',
-                'name' => 'inquiries.edit',
-                'label' => 'Update Inquiry',
-                'description' => 'Update inquiry status and follow-up notes',
-            ],
-            [
-                'group' => 'inquiries',
-                'name' => 'inquiries.delete',
-                'label' => 'Delete Inquiry',
-                'description' => 'Delete an inquiry record',
-            ],
-            [
-                'group' => 'inquiries',
-                'name' => 'inquiries.bulk-delete',
-                'label' => 'Bulk Delete Inquiries',
-                'description' => 'Delete multiple selected customer inquiries',
-            ],
-            [
-                'group' => 'inquiries',
-                'name' => 'inquiries.status',
-                'label' => 'Update Inquiry Status',
-                'description' => 'Change inquiry progress state (new, contacted, quoted, completed)',
-            ],
-
             // Service Request Management
             [
                 'group' => 'service_requests',

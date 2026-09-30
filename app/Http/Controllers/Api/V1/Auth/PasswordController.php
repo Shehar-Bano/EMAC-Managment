@@ -27,8 +27,10 @@ class PasswordController extends Controller
         $email = strtolower(trim($request->email));
         $user = User::where('email', $email)->first();
 
+        $otp = null;
         if ($user) {
-            $otpService->sendOtp($email, OtpPurpose::FORGOT_PASSWORD, $user);
+            $otpResult = $otpService->sendOtp($email, OtpPurpose::FORGOT_PASSWORD, $user);
+            $otp = $otpResult['raw_otp'] ?? null;
         }
 
         // Always return generic response to prevent email enumeration
@@ -38,6 +40,7 @@ class PasswordController extends Controller
                 'purpose' => OtpPurpose::FORGOT_PASSWORD->value,
                 'expires_in_seconds' => OtpService::EXPIRATION_SECONDS,
                 'resend_available_in_seconds' => OtpService::RESEND_COOLDOWN_SECONDS,
+                'otp' => $otp,
             ],
             message: 'If an account exists for this email, an OTP has been sent.',
             statusCode: 200
@@ -109,6 +112,7 @@ class PasswordController extends Controller
                 'purpose' => OtpPurpose::RESET_PASSWORD->value,
                 'expires_in_seconds' => OtpService::EXPIRATION_SECONDS,
                 'resend_available_in_seconds' => OtpService::RESEND_COOLDOWN_SECONDS,
+                'otp' => $result['raw_otp'] ?? null,
             ],
             message: 'OTP sent successfully.',
             statusCode: 200

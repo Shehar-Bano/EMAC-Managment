@@ -59,8 +59,11 @@ Route::prefix('v1')->group(function () {
         Route::get('service-requests', [ServiceRequestController::class, 'index']);
         Route::post('service-requests', [ServiceRequestController::class, 'store']);
         Route::get('service-requests/{id}', [ServiceRequestController::class, 'show']);
+        Route::get('service-requests/{id}/quote', [QuoteController::class, 'getByServiceRequest']);
+        Route::post('service-requests/{id}/quote/respond', [QuoteController::class, 'respondByServiceRequest']);
 
         // Customer Quote Endpoints
+        Route::get('quotes', [QuoteController::class, 'index']);
         Route::get('quotes/{id}', [QuoteController::class, 'show']);
         Route::post('quotes/{id}/respond', [QuoteController::class, 'respond']);
     });

@@ -56,25 +56,18 @@ class PermissionGroupSeeder extends Seeder
                 'sort_order' => 6,
             ],
             [
-                'name' => 'Inquiry & Lead Management',
-                'slug' => 'inquiries',
-                'icon' => 'chat-bubble-left-right',
-                'description' => 'Manage incoming customer service inquiries, quote requests, and leads',
-                'sort_order' => 7,
-            ],
-            [
                 'name' => 'Customer Service Requests',
                 'slug' => 'service_requests',
                 'icon' => 'clipboard-document-list',
                 'description' => 'Manage customer service requests, attachments, and fulfillment workflows',
-                'sort_order' => 8,
+                'sort_order' => 7,
             ],
             [
                 'name' => 'Quotes & Estimates',
                 'slug' => 'quotes',
                 'icon' => 'document-chart-bar',
                 'description' => 'Generate, review, send, and manage customer quotes and pricing breakdowns',
-                'sort_order' => 9,
+                'sort_order' => 8,
             ],
             [
                 'name' => 'Legal & Compliance',

@@ -87,7 +87,7 @@ class AuthController extends Controller
         });
 
         // Generate registration OTP
-        $otpService->sendOtp($user->email, OtpPurpose::REGISTRATION, $user);
+        $otpResult = $otpService->sendOtp($user->email, OtpPurpose::REGISTRATION, $user);
 
         return ApiResponse::success(
             data: [
@@ -99,6 +99,7 @@ class AuthController extends Controller
                 'profile_status' => ProfileStatus::INCOMPLETE->value,
                 'otp_required' => true,
                 'otp_purpose' => OtpPurpose::REGISTRATION->value,
+                'otp' => $otpResult['raw_otp'] ?? null,
             ],
             message: 'Registration successful. Please verify your account using the OTP sent to your registered contact.',
             statusCode: 201

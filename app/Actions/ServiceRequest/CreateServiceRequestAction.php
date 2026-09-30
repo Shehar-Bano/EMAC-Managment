@@ -31,6 +31,7 @@ class CreateServiceRequestAction
                 'priority' => $data['priority'] ?? ServiceRequestPriority::MEDIUM->value,
                 'additional_notes' => $data['additional_notes'] ?? null,
                 'status' => ServiceRequestStatus::PENDING,
+                'type' => $data['type'] ?? 'app',
             ]);
 
             // Handle Photographs

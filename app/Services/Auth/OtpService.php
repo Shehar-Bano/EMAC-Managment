@@ -89,6 +89,7 @@ class OtpService
                 'masked_destination' => $maskedDestination,
                 'expires_in_seconds' => self::EXPIRATION_SECONDS,
                 'resend_available_in_seconds' => self::RESEND_COOLDOWN_SECONDS,
+                'otp' => $rawOtp,
             ],
             'raw_otp' => $rawOtp, // Can be utilized in test assertions
         ];

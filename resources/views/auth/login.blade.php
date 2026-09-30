@@ -1,13 +1,19 @@
-<x-auth.layout :title="'Sign In to Dashboard — EMAC Development'">
+<x-auth.layout :title="'Sign In — EMAC Development'">
     <div class="mb-6 text-center">
         <h1 class="text-2xl font-bold tracking-tight text-slate-900">Sign In</h1>
-        <p class="text-xs text-slate-500 mt-1">Enter your authorized credentials to access the administrative console</p>
+        <p class="text-xs text-slate-500 mt-1">Enter your registered email and password to access your account</p>
     </div>
 
     {{-- Error Flash Alert --}}
     @if (session('status'))
         <div class="mb-5 p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs font-semibold text-emerald-700">
             {{ session('status') }}
+        </div>
+    @endif
+
+    @if (session('error'))
+        <div class="mb-5 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs font-semibold text-rose-700">
+            {{ session('error') }}
         </div>
     @endif
 
@@ -21,7 +27,7 @@
                 name="email"
                 type="email"
                 value="{{ old('email') }}"
-                placeholder="name@emac.test"
+                placeholder="name@domain.com"
                 required
                 autofocus
             >
@@ -74,15 +80,23 @@
         <div class="flex items-center justify-between pt-1">
             <label class="flex items-center gap-2 cursor-pointer text-xs text-slate-600">
                 <input type="checkbox" name="remember" class="w-4 h-4 rounded-sm border-slate-300 text-[#C5A059] focus:ring-[#C5A059] cursor-pointer">
-                <span>Remember this workstation</span>
+                <span>Remember this device</span>
             </label>
         </div>
 
         {{-- Submit Button --}}
         <div class="pt-2">
             <x-button type="submit" variant="primary" class="w-full py-2.5">
-                Sign In to Dashboard
+                Sign In
             </x-button>
+        </div>
+
+        {{-- Register Link --}}
+        <div class="text-center pt-3 text-xs text-slate-500 border-t border-slate-100">
+            <span>Don't have an account?</span>
+            <a href="{{ route('register') }}" class="font-bold text-[#8F6B20] hover:text-[#C5A059] hover:underline ml-1">
+                Create Customer Account
+            </a>
         </div>
     </form>
 </x-auth.layout>

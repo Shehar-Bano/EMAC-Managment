@@ -40,6 +40,7 @@ class ServiceRequest extends Model
         'priority',
         'additional_notes',
         'status',
+        'type',
     ];
 
     /**
@@ -171,6 +172,11 @@ class ServiceRequest extends Model
                     $q->doesntHave('quotes');
                 } elseif ($quoteStatus === 'sent') {
                     $q->has('quotes');
+                }
+            })
+            ->when($filters['type'] ?? null, function (Builder $q, $type) {
+                if ($type !== 'all' && ! empty($type)) {
+                    $q->where('type', $type);
                 }
             })
             ->when($filters['date_from'] ?? null, function (Builder $q, $dateFrom) {

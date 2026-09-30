@@ -1,3 +1,3 @@
-@props(['title' => null])
+@props(['title' => null, 'maxWidth' => null])
 
-@include('auth.layouts.auth', ['title' => $title, 'slot' => $slot])
+@include('auth.layouts.auth', ['title' => $title, 'maxWidth' => $maxWidth, 'slot' => $slot])
