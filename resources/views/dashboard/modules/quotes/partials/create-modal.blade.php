@@ -299,8 +299,8 @@
         document.getElementById('quote-modal-customer-name').innerText = customerName || 'Valued Customer';
         
         const descElem = document.getElementById('quote-service-description');
-        if (descElem && defaultDescription) {
-            descElem.value = defaultDescription;
+        if (descElem) {
+            descElem.value = '';
         }
 
         const modal = document.getElementById('create-quote-modal');

@@ -1,0 +1,270 @@
+<html xmlns:o='urn:schemas-microsoft-com:office:office' 
+      xmlns:w='urn:schemas-microsoft-com:office:word' 
+      xmlns='http://www.w3.org/TR/REC-html40'>
+<head>
+    <meta charset="utf-8">
+    <title>PROJECT TIMELINE & IMPLEMENTATION ROADMAP</title>
+    <!--[if gte mso 9]>
+    <xml>
+        <w:WordDocument>
+            <w:View>Print</w:View>
+            <w:Zoom>100</w:Zoom>
+            <w:DoNotOptimizeForBrowser/>
+        </w:WordDocument>
+    </xml>
+    <![endif]-->
+    <style>
+        @page Section1 {
+            size: 8.5in 11.0in;
+            margin: 0.8in 0.8in 0.8in 0.8in;
+            mso-header-margin: 0.5in;
+            mso-footer-margin: 0.5in;
+            mso-paper-source: 0;
+        }
+        div.Section1 {
+            page: Section1;
+        }
+        body {
+            font-family: 'Calibri', 'Arial', sans-serif;
+            font-size: 11pt;
+            color: #1a1a1a;
+            line-height: 1.4;
+        }
+        h1 {
+            font-family: 'Arial', sans-serif;
+            font-size: 18pt;
+            font-weight: bold;
+            color: #0f172a;
+            margin: 0 0 4pt 0;
+            text-transform: uppercase;
+            letter-spacing: -0.5pt;
+        }
+        .subtitle {
+            font-family: 'Arial', sans-serif;
+            font-size: 11pt;
+            font-weight: bold;
+            color: #8f6c34;
+            margin: 0 0 12pt 0;
+        }
+        .divider {
+            border-bottom: 2.5pt solid #0f172a;
+            margin-bottom: 12pt;
+        }
+        .intro {
+            font-size: 10pt;
+            color: #475569;
+            margin-bottom: 16pt;
+            line-height: 1.45;
+        }
+        .section-header {
+            font-family: 'Arial', sans-serif;
+            font-size: 12pt;
+            font-weight: bold;
+            color: #0f172a;
+            text-transform: uppercase;
+            border-left: 3pt solid #c5a059;
+            padding-left: 6pt;
+            margin-bottom: 10pt;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 6pt;
+            margin-bottom: 16pt;
+        }
+        th {
+            background-color: #f1f5f9;
+            color: #0f172a;
+            font-family: 'Arial', sans-serif;
+            font-size: 10pt;
+            font-weight: bold;
+            border: 1pt solid #cbd5e1;
+            padding: 8pt;
+            text-align: left;
+        }
+        td {
+            border: 1pt solid #cbd5e1;
+            padding: 8pt;
+            font-size: 9.5pt;
+            vertical-align: top;
+        }
+        .phase-cell {
+            width: 26%;
+            background-color: #f8fafc;
+            font-weight: bold;
+        }
+        .phase-title {
+            font-size: 10.5pt;
+            color: #8f6c34;
+            font-weight: bold;
+        }
+        .phase-time {
+            font-size: 9pt;
+            color: #64748b;
+        }
+        .module-heading {
+            font-weight: bold;
+            color: #0f172a;
+            margin-bottom: 4pt;
+            font-size: 10pt;
+        }
+        ul {
+            margin: 0;
+            padding-left: 14pt;
+        }
+        li {
+            margin-bottom: 3pt;
+            color: #334155;
+            font-size: 9pt;
+            line-height: 1.35;
+        }
+        .footer {
+            margin-top: 20pt;
+            border-top: 1pt solid #e2e8f0;
+            padding-top: 6pt;
+            font-size: 8.5pt;
+            color: #64748b;
+            text-align: justify;
+        }
+    </style>
+</head>
+<body>
+<div class="Section1">
+
+    <h1>PROJECT TIMELINE &amp; IMPLEMENTATION ROADMAP</h1>
+    <div class="subtitle">EMAC Website, ERP Dashboard &amp; Backend APIs Development Schedule</div>
+    <div class="divider"></div>
+
+    <p class="intro">
+        This document outlines the structured 6-week module breakdown, deliverables, and timeline required for the design, development, testing, and multi-market deployment of the <strong>EMAC Development, LLC. Public Website, Authenticated ERP Management Dashboard, and RESTful Mobile Backend APIs</strong> (Florida, Jamaica &amp; Cayman Islands).
+    </p>
+
+    <div class="section-header">PHASE BREAKDOWN &amp; MILESTONES (6-WEEK SCHEDULE)</div>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 25%;">Phase &amp; Duration</th>
+                <th style="width: 75%;">Key Modules &amp; Deliverables</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Week 1 -->
+            <tr>
+                <td class="phase-cell">
+                    <div class="phase-title">Phase 1</div>
+                    <div class="phase-time">(Week 1)</div>
+                </td>
+                <td>
+                    <div class="module-heading">Foundation, Secure Authentication &amp; User Directory</div>
+                    <ul>
+                        <li><strong>Public Website:</strong> Modern luxury branding, responsive layout, and regional market utility bar (KY • FL • JM).</li>
+                        <li><strong>ERP Authentication:</strong> Super Admin, Technician &amp; Customer authentication with password reset workflows.</li>
+                        <li><strong>Role-Based Access Control (RBAC):</strong> Permission groups, policy gates, and granular access rules.</li>
+                        <li><strong>User Profiles &amp; Multi-Address:</strong> User avatar photo uploads and <code>user_addresses</code> table (Country, State, City, Address).</li>
+                        <li><strong>RESTful API:</strong> Laravel Sanctum secure token generation &amp; authentication endpoints (<code>/api/v1/auth/*</code>).</li>
+                    </ul>
+                </td>
+            </tr>
+
+            <!-- Week 2 -->
+            <tr>
+                <td class="phase-cell">
+                    <div class="phase-title">Phase 2</div>
+                    <div class="phase-time">(Week 2)</div>
+                </td>
+                <td>
+                    <div class="module-heading">Service Request Flow, Quoting &amp; Job Dispatch Module</div>
+                    <ul>
+                        <li><strong>Online Lead Capture:</strong> Interactive service request form with dynamic category dropdowns and market selection.</li>
+                        <li><strong>Leads &amp; Inquiries Management:</strong> Dashboard inquiry workflow (<code>New</code> &rarr; <code>Contacted</code> &rarr; <code>In Progress</code> &rarr; <code>Closed</code>).</li>
+                        <li><strong>Quoting Engine:</strong> Transparent cost estimation tool with labor, materials, and timeline breakdowns.</li>
+                        <li><strong>Technician Job Dispatch:</strong> Job assignment interface, service status transitions, and appointment scheduling.</li>
+                        <li><strong>Mobile APIs:</strong> Service inquiry submission, job list, and status update endpoints (<code>/api/v1/jobs/*</code>).</li>
+                    </ul>
+                </td>
+            </tr>
+
+            <!-- Week 3 -->
+            <tr>
+                <td class="phase-cell">
+                    <div class="phase-title">Phase 3</div>
+                    <div class="phase-time">(Week 3)</div>
+                </td>
+                <td>
+                    <div class="module-heading">Property Maintenance Subscriptions &amp; Cayman House Plans</div>
+                    <ul>
+                        <li><strong>Maintenance Subscriptions:</strong> Recurring monthly maintenance tiers for Florida homeowners, Cayman landlords, and Jamaica vacation rentals.</li>
+                        <li><strong>Automated Task Generation:</strong> Routine preventive inspection tasks auto-assigned to regional technicians.</li>
+                        <li><strong>Cayman House Plans Store:</strong> Blueprint catalog compliant with Cayman planning codes, 150+ MPH wind loads, and setbacks.</li>
+                        <li><strong>Custom Plan Modifications:</strong> Customer alteration request portal for bedroom additions and lot adaptations.</li>
+                        <li><strong>Mobile APIs:</strong> Subscription management and house plan catalog endpoints (<code>/api/v1/subscriptions/*</code>).</li>
+                    </ul>
+                </td>
+            </tr>
+
+            <!-- Week 4 -->
+            <tr>
+                <td class="phase-cell">
+                    <div class="phase-title">Phase 4</div>
+                    <div class="phase-time">(Week 4)</div>
+                </td>
+                <td>
+                    <div class="module-heading">Payment Gateway &amp; Digital Invoicing Integration</div>
+                    <ul>
+                        <li><strong>Payment Gateway Integration:</strong> Secure credit card processing, upfront deposits, and job milestone payments.</li>
+                        <li><strong>Automated Invoicing:</strong> PDF tax invoice generation, receipt issuance, and transaction audit trails.</li>
+                        <li><strong>Financial Tracking:</strong> Technician payout calculations, gross revenue reports, and customer billing histories.</li>
+                        <li><strong>Payment Webhooks:</strong> Real-time payment verification and instant status update listeners.</li>
+                        <li><strong>Mobile APIs:</strong> Checkout sessions, payment intents, and invoice history endpoints (<code>/api/v1/payments/*</code>).</li>
+                    </ul>
+                </td>
+            </tr>
+
+            <!-- Week 5 -->
+            <tr>
+                <td class="phase-cell">
+                    <div class="phase-title">Phase 5</div>
+                    <div class="phase-time">(Week 5)</div>
+                </td>
+                <td>
+                    <div class="module-heading">Testing, Security Audits &amp; Quality Assurance (QA)</div>
+                    <ul>
+                        <li><strong>End-to-End Workflow Testing:</strong> Testing complete customer request &rarr; quote &rarr; payment &rarr; technician dispatch lifecycle.</li>
+                        <li><strong>Security &amp; RBAC Audits:</strong> Gate authorizations, SQL injection prevention, rate limiting, and Sanctum token validation.</li>
+                        <li><strong>Mobile App Handshake:</strong> Cross-testing APIs with iOS &amp; Android mobile clients for latency and payload checks.</li>
+                        <li><strong>Performance &amp; Optimization:</strong> Database query optimization (N+1 resolution), Blade caching, and asset minification.</li>
+                        <li><strong>Bug Fixing:</strong> Comprehensive bug resolution across responsive layouts and dashboard modules.</li>
+                    </ul>
+                </td>
+            </tr>
+
+            <!-- Week 6 -->
+            <tr>
+                <td class="phase-cell">
+                    <div class="phase-title">Phase 6</div>
+                    <div class="phase-time">(Week 6)</div>
+                </td>
+                <td>
+                    <div class="module-heading">Production Deployment, Multi-Market Setup &amp; Go-Live</div>
+                    <ul>
+                        <li><strong>Production Server Setup:</strong> Deployment on live production environment with SSL/TLS and automated daily backups.</li>
+                        <li><strong>Multi-Market Setup:</strong> Florida, Jamaica, and Cayman Islands regional domain routing and notification channels.</li>
+                        <li><strong>Staff &amp; Admin Training:</strong> Operating manuals and training sessions for ERP coordinators and field technicians.</li>
+                        <li><strong>Go-Live &amp; Handoff:</strong> Final production cutover, live monitoring, and ongoing technical support handover.</li>
+                    </ul>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <table style="border: none; margin-top: 15pt;">
+        <tr style="border: none; background: none;">
+            <td style="border: none; font-size: 8.5pt; color: #64748b; padding: 0;">EMAC Development, LLC. &mdash; Project Timeline</td>
+            <td style="border: none; font-size: 8.5pt; color: #64748b; text-align: right; padding: 0;">Page 1 of 1</td>
+        </tr>
+    </table>
+
+</div>
+</body>
+</html>

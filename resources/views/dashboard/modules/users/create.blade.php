@@ -229,21 +229,22 @@
                 </div>
             </x-card>
 
-            {{-- Assigned Role Section --}}
-            <x-card title="Assigned Role & Privileges" subtitle="Designate the specific role for this {{ strtolower($typeInfo['singular']) }} account">
+            {{-- Assigned Role Section (Single Radio Selection) --}}
+            <x-card title="Assigned Security Role" subtitle="Select the primary role for this {{ strtolower($typeInfo['singular']) }} account">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     @foreach ($roles as $role)
                         @php
                             $isTargetRole = ($role->slug === $typeInfo['role_slug']);
-                            $isChecked = in_array($role->id, old('roles', ($isTargetRole ? [$role->id] : [])));
+                            $selectedRoleId = (int) old('role_id', old('roles.0', ($isTargetRole ? $role->id : ($defaultRole->id ?? null))));
+                            $isChecked = ($role->id === $selectedRoleId);
                         @endphp
-                        <label class="flex items-start gap-3 p-3.5 rounded-xl border transition-colors cursor-pointer {{ $isTargetRole ? 'border-[#C5A059] bg-[#C5A059]/10' : 'border-slate-200 hover:border-slate-300 bg-white' }}">
+                        <label class="flex items-start gap-3 p-3.5 rounded-xl border transition-all cursor-pointer {{ $isChecked ? 'border-[#C5A059] bg-amber-50/50 ring-1 ring-[#C5A059]' : 'border-slate-200 hover:border-slate-300 bg-white' }}">
                             <input
-                                type="checkbox"
-                                name="roles[]"
+                                type="radio"
+                                name="role_id"
                                 value="{{ $role->id }}"
                                 {{ $isChecked ? 'checked' : '' }}
-                                class="mt-0.5 rounded-sm border-slate-300 text-[#C5A059] focus:ring-[#C5A059] w-4 h-4 cursor-pointer"
+                                class="mt-0.5 border-slate-300 text-[#C5A059] focus:ring-[#C5A059] w-4 h-4 cursor-pointer"
                             >
                             <div class="text-xs">
                                 <div class="flex items-center gap-1.5">
@@ -257,6 +258,9 @@
                         </label>
                     @endforeach
                 </div>
+                @error('role_id')
+                    <p class="mt-2 text-xs text-rose-600">{{ $message }}</p>
+                @enderror
                 @error('roles')
                     <p class="mt-2 text-xs text-rose-600">{{ $message }}</p>
                 @enderror

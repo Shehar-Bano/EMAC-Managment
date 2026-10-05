@@ -3,9 +3,9 @@
 namespace Tests\Feature;
 
 use App\Models\Category;
-use App\Models\ContactInquiry;
 use App\Models\Region;
 use App\Models\RegionalServicePrice;
+use App\Models\ServiceRequest;
 use App\Models\Subcategory;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\UploadedFile;
@@ -54,8 +54,8 @@ class WebsiteQuoteInquiryTest extends TestCase
             'status' => 'active',
         ]);
 
-        $photo1 = UploadedFile::fake()->image('leak1.jpg', 800, 600);
-        $photo2 = UploadedFile::fake()->image('leak2.png', 800, 600);
+        $photo1 = UploadedFile::fake()->create('leak1.jpg', 800, 'image/jpeg');
+        $photo2 = UploadedFile::fake()->create('leak2.png', 800, 'image/png');
         $video = UploadedFile::fake()->create('walkthrough.mp4', 5000, 'video/mp4');
 
         $response = $this->post('/contact', [
@@ -73,15 +73,66 @@ class WebsiteQuoteInquiryTest extends TestCase
         $response->assertRedirect('/contact');
         $response->assertSessionHas('success');
 
-        $inquiry = ContactInquiry::latest('id')->first();
-        $this->assertNotNull($inquiry);
-        $this->assertEquals('John Customer', $inquiry->name);
-        $this->assertEquals($region->id, $inquiry->region_id);
-        $this->assertEquals($category->id, $inquiry->category_id);
-        $this->assertEquals($subcategory->id, $inquiry->subcategory_id);
-        $this->assertEquals('562.50', (string) $inquiry->estimated_price);
-        $this->assertEquals('KYD', $inquiry->currency);
-        $this->assertCount(2, $inquiry->photographs);
-        $this->assertNotNull($inquiry->video);
+        $serviceRequest = ServiceRequest::latest('id')->first();
+        $this->assertNotNull($serviceRequest);
+        $this->assertEquals($category->id, $serviceRequest->category_id);
+        $this->assertEquals($subcategory->id, $serviceRequest->subcategory_id);
+        $this->assertEquals('web', $serviceRequest->type);
+        $this->assertCount(2, $serviceRequest->photographs);
+        $this->assertCount(1, $serviceRequest->videos);
+        $this->assertEquals('walkthrough.mp4', $serviceRequest->videos->first()->file_name);
+    }
+
+    public function test_can_submit_website_quote_via_ajax_with_video(): void
+    {
+        Storage::fake('public');
+
+        $region = Region::firstOrCreate(
+            ['slug' => 'grand-cayman'],
+            [
+                'name' => 'Grand Cayman',
+                'code' => 'GCM',
+                'currency' => 'KYD',
+                'status' => 'active',
+            ]
+        );
+
+        $category = Category::create([
+            'name' => 'Electrical',
+            'slug' => 'electrical',
+            'icon' => '⚡',
+            'status' => 'active',
+        ]);
+
+        $subcategory = Subcategory::create([
+            'category_id' => $category->id,
+            'name' => 'Panel Upgrade',
+            'slug' => 'panel-upgrade',
+            'icon' => '🔌',
+            'status' => 'active',
+        ]);
+
+        $video = UploadedFile::fake()->create('circuit_breaker.webm', 8000, 'video/webm');
+
+        $response = $this->postJson('/contact', [
+            'name' => 'Jane Smith',
+            'email' => 'jane.smith@example.com',
+            'phone' => '+1 (345) 949-1111',
+            'region_id' => $region->id,
+            'category_id' => $category->id,
+            'subcategory_id' => $subcategory->id,
+            'message' => 'Need emergency breaker inspection and panel quote.',
+            'video' => $video,
+        ]);
+
+        $response->assertOk();
+        $response->assertJson([
+            'success' => true,
+        ]);
+
+        $serviceRequest = ServiceRequest::latest('id')->first();
+        $this->assertNotNull($serviceRequest);
+        $this->assertCount(1, $serviceRequest->videos);
+        $this->assertEquals('circuit_breaker.webm', $serviceRequest->videos->first()->file_name);
     }
 }

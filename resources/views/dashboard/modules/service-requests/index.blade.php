@@ -32,12 +32,19 @@
             </div>
             <div class="text-xl font-black text-amber-600 mt-1">{{ $stats['pending'] }}</div>
         </a>
-        <a href="{{ route('dashboard.service-requests.index', ['status' => 'quotesent']) }}" class="p-3 rounded-2xl bg-white border border-emerald-200/80 shadow-2xs hover:border-emerald-400 transition-all">
+        <a href="{{ route('dashboard.service-requests.index', ['status' => 'active']) }}" class="p-3 rounded-2xl bg-white border border-blue-200/80 shadow-2xs hover:border-blue-400 transition-all">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-blue-600 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                Active
+            </div>
+            <div class="text-xl font-black text-blue-600 mt-1">{{ $stats['active'] }}</div>
+        </a>
+        <a href="{{ route('dashboard.service-requests.index', ['status' => 'completed']) }}" class="p-3 rounded-2xl bg-white border border-emerald-200/80 shadow-2xs hover:border-emerald-400 transition-all">
             <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-600 flex items-center gap-1">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                Quote Sent
+                Completed
             </div>
-            <div class="text-xl font-black text-emerald-600 mt-1">{{ $stats['quotesent'] }}</div>
+            <div class="text-xl font-black text-emerald-600 mt-1">{{ $stats['completed'] }}</div>
         </a>
         <a href="{{ route('dashboard.service-requests.index', ['type' => 'web']) }}" class="p-3 rounded-2xl bg-white border border-sky-200/80 shadow-2xs hover:border-sky-400 transition-all">
             <div class="text-[10px] font-bold uppercase tracking-wider text-sky-600 flex items-center gap-1">
@@ -45,13 +52,6 @@
                 Web ({{ $stats['web'] }})
             </div>
             <div class="text-xl font-black text-sky-700 mt-1">{{ $stats['web'] }}</div>
-        </a>
-        <a href="{{ route('dashboard.service-requests.index', ['type' => 'app']) }}" class="p-3 rounded-2xl bg-white border border-purple-200/80 shadow-2xs hover:border-purple-400 transition-all">
-            <div class="text-[10px] font-bold uppercase tracking-wider text-purple-600 flex items-center gap-1">
-                <span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
-                App ({{ $stats['app'] }})
-            </div>
-            <div class="text-xl font-black text-purple-700 mt-1">{{ $stats['app'] }}</div>
         </a>
         <a href="{{ route('dashboard.service-requests.index', ['priority' => 'emergency']) }}" class="p-3 rounded-2xl bg-white border border-rose-200/80 shadow-2xs hover:border-rose-400 transition-all">
             <div class="text-[10px] font-bold uppercase tracking-wider text-rose-600 flex items-center gap-1">
@@ -94,8 +94,8 @@
                 >
                     <option value="all">All Statuses</option>
                     <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>⏳ Pending</option>
-                    <option value="quotesent" {{ request('status') === 'quotesent' || request('status') === 'quote_sent' ? 'selected' : '' }}>📄 Quote Sent</option>
-                    <option value="reject" {{ request('status') === 'reject' || request('status') === 'rejected' ? 'selected' : '' }}>❌ Rejected</option>
+                    <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>⚡ Active</option>
+                    <option value="completed" {{ request('status') === 'completed' ? 'selected' : '' }}>✅ Completed</option>
                 </select>
             </div>
 

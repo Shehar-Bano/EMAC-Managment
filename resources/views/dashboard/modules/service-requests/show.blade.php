@@ -384,10 +384,12 @@
                                     $videoUrl = $video->file_url ?? asset('storage/' . $video->file_path);
                                 @endphp
                                 <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/80 space-y-3 shadow-2xs">
-                                    <video controls class="w-full rounded-xl bg-black max-h-60 aspect-video shadow-inner">
-                                        <source src="{{ $videoUrl }}" type="{{ $video->mime_type ?? 'video/mp4' }}">
-                                        Your browser does not support the video tag.
-                                    </video>
+                                    <div class="w-full rounded-xl overflow-hidden bg-black aspect-video max-h-64 flex items-center justify-center border border-slate-800">
+                                        <video controls playsinline preload="metadata" class="w-full h-full object-contain bg-black">
+                                            <source src="{{ $videoUrl }}" type="{{ $video->mime_type ?? 'video/mp4' }}">
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    </div>
                                     <div class="flex items-center justify-between text-xs text-slate-600 pt-1">
                                         <span class="truncate font-semibold max-w-[200px]" title="{{ $video->file_name }}">
                                             {{ $video->file_name ?? 'Video Attachment' }}
@@ -552,8 +554,8 @@
                                         class="w-full px-3 py-2 text-xs bg-white border border-slate-300 rounded-xl focus:border-[#C5A059] focus:ring-1 focus:ring-[#C5A059] outline-none font-semibold text-slate-800 shadow-2xs"
                                     >
                                         <option value="pending" {{ $statusEnum->value === 'pending' ? 'selected' : '' }}>⏳ Pending</option>
-                                        <option value="quotesent" {{ $statusEnum->value === 'quotesent' ? 'selected' : '' }}>📄 Quote Sent</option>
-                                        <option value="reject" {{ $statusEnum->value === 'reject' ? 'selected' : '' }}>❌ Rejected</option>
+                                        <option value="active" {{ $statusEnum->value === 'active' ? 'selected' : '' }}>⚡ Active</option>
+                                        <option value="completed" {{ $statusEnum->value === 'completed' ? 'selected' : '' }}>✅ Completed</option>
                                     </select>
                                     <button
                                         type="submit"

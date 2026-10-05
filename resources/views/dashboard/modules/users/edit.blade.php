@@ -241,21 +241,24 @@
                 </div>
             </x-card>
 
-            {{-- Role Assignment Multi-Checkbox Grid --}}
-            <x-card title="Assigned Security Roles" subtitle="Select the roles that determine system-wide permission access">
+            {{-- Role Assignment Radio Selection --}}
+            <x-card title="Assigned Security Role" subtitle="Select the primary role that determines system-wide permission access">
                 @php
-                    $userRoleIds = old('roles', $user->roles->pluck('id')->toArray());
+                    $selectedRoleId = (int) old('role_id', old('roles.0', ($user->roles->first()?->id ?? 0)));
                 @endphp
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     @foreach ($roles as $role)
-                        <label class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 hover:border-[#C5A059] hover:bg-[#C5A059]/5 transition-colors cursor-pointer">
+                        @php
+                            $isChecked = ($role->id === $selectedRoleId);
+                        @endphp
+                        <label class="flex items-start gap-3 p-3.5 rounded-xl border transition-all cursor-pointer {{ $isChecked ? 'border-[#C5A059] bg-amber-50/50 ring-1 ring-[#C5A059]' : 'border-slate-200 hover:border-slate-300 bg-white' }}">
                             <input
-                                type="checkbox"
-                                name="roles[]"
+                                type="radio"
+                                name="role_id"
                                 value="{{ $role->id }}"
-                                {{ in_array($role->id, $userRoleIds) ? 'checked' : '' }}
-                                class="mt-0.5 rounded-sm border-slate-300 text-[#C5A059] focus:ring-[#C5A059] w-4 h-4 cursor-pointer"
+                                {{ $isChecked ? 'checked' : '' }}
+                                class="mt-0.5 border-slate-300 text-[#C5A059] focus:ring-[#C5A059] w-4 h-4 cursor-pointer"
                             >
                             <div class="text-xs">
                                 <span class="font-bold text-slate-900 block">{{ $role->name }}</span>
@@ -264,6 +267,9 @@
                         </label>
                     @endforeach
                 </div>
+                @error('role_id')
+                    <p class="mt-2 text-xs text-rose-600">{{ $message }}</p>
+                @enderror
                 @error('roles')
                     <p class="mt-2 text-xs text-rose-600">{{ $message }}</p>
                 @enderror

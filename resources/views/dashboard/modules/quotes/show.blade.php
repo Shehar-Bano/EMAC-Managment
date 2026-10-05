@@ -189,26 +189,27 @@
                             <option value="approved" {{ $quote->status->value === 'approved' ? 'selected' : '' }}>Approved</option>
                             <option value="declined" {{ $quote->status->value === 'declined' ? 'selected' : '' }}>Declined</option>
                             <option value="ask_for_question" {{ $quote->status->value === 'ask_for_question' ? 'selected' : '' }}>Customer Asked Question</option>
+                            <option value="review_requested" {{ $quote->status->value === 'review_requested' ? 'selected' : '' }}>Review Requested (Admin Replied)</option>
                         </select>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Customer / Response Notes</label>
-                        <textarea
-                            name="customer_notes"
-                            rows="2"
-                            class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs text-slate-800 focus:border-[#C5A059] focus:ring-1 focus:ring-[#C5A059]"
-                            placeholder="Reason for decline or specific customer question..."
-                        >{{ $quote->customer_notes }}</textarea>
+                        <div class="flex items-center justify-between mb-1">
+                            <label class="block text-xs font-semibold text-slate-700">Customer Response / Inquiry</label>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider bg-slate-100 px-1.5 py-0.5 rounded">Read-Only</span>
+                        </div>
+                        <div class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700 leading-relaxed font-mono whitespace-pre-wrap select-all">
+                            {{ $quote->customer_notes ?: 'No specific customer note or question submitted yet.' }}
+                        </div>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Internal Admin Notes</label>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Admin Response & Internal Notes</label>
                         <textarea
                             name="admin_notes"
-                            rows="2"
-                            class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs text-slate-800 focus:border-[#C5A059] focus:ring-1 focus:ring-[#C5A059]"
-                            placeholder="Private team notes..."
+                            rows="3"
+                            class="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs text-slate-800 focus:border-[#C5A059] focus:ring-1 focus:ring-[#C5A059]"
+                            placeholder="Type reply to customer question or record admin review notes..."
                         >{{ $quote->admin_notes }}</textarea>
                     </div>
 

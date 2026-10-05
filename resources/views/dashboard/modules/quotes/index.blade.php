@@ -50,6 +50,12 @@
             >
                 Customer Questions ({{ $statusCounts['ask_for_question'] }})
             </a>
+            <a
+                href="{{ route('dashboard.quotes.index', array_merge($filters, ['status' => 'review_requested'])) }}"
+                class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all {{ ($filters['status'] ?? '') === 'review_requested' ? 'bg-blue-600 text-white shadow-xs' : 'bg-blue-50 text-blue-800 border border-blue-200 hover:bg-blue-100' }}"
+            >
+                Review Requested ({{ $statusCounts['review_requested'] ?? 0 }})
+            </a>
         </div>
 
         {{-- Search Input --}}
