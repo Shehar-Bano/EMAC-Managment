@@ -146,21 +146,43 @@
 
                     {{-- Category --}}
                     <td class="px-3.5 py-2">
-                        <div class="flex items-center gap-1.5 text-xs text-slate-800 font-semibold">
-                            <span>{{ $item->category?->icon ?? '📁' }}</span>
-                            <span>{{ $item->category?->name ?? '—' }}</span>
+                        <div class="flex items-center gap-2">
+                            <div class="shrink-0 w-7 h-7 rounded-lg bg-slate-100 border border-slate-200/80 overflow-hidden flex items-center justify-center">
+                                @if ($item->category?->icon_url && (str_contains($item->category->icon_url, '/') || str_contains($item->category->icon_url, '.')))
+                                    <img src="{{ $item->category->icon_url }}" alt="{{ $item->category->name }}" class="w-full h-full object-cover">
+                                @elseif ($item->category?->image_url)
+                                    <img src="{{ $item->category->image_url }}" alt="{{ $item->category->name }}" class="w-full h-full object-cover">
+                                @elseif ($item->category?->icon)
+                                    <span class="text-xs">{{ $item->category->icon }}</span>
+                                @else
+                                    <svg class="w-3.5 h-3.5 text-[#8F6B20]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                                @endif
+                            </div>
+                            <span class="text-xs text-slate-800 font-semibold">{{ $item->category?->name ?? '—' }}</span>
                         </div>
                     </td>
 
                     {{-- Subcategory Service --}}
                     <td class="px-3.5 py-2">
-                        <div class="flex items-center gap-1.5 text-xs text-slate-700">
-                            <span>{{ $item->subcategory?->icon ?? '🛠️' }}</span>
-                            <span class="font-medium">{{ $item->subcategory?->name ?? '—' }}</span>
+                        <div class="flex items-center gap-2">
+                            <div class="shrink-0 w-7 h-7 rounded-lg bg-slate-100 border border-slate-200/80 overflow-hidden flex items-center justify-center">
+                                @if ($item->subcategory?->icon_url && (str_contains($item->subcategory->icon_url, '/') || str_contains($item->subcategory->icon_url, '.')))
+                                    <img src="{{ $item->subcategory->icon_url }}" alt="{{ $item->subcategory->name }}" class="w-full h-full object-cover">
+                                @elseif ($item->subcategory?->image_url)
+                                    <img src="{{ $item->subcategory->image_url }}" alt="{{ $item->subcategory->name }}" class="w-full h-full object-cover">
+                                @elseif ($item->subcategory?->icon)
+                                    <span class="text-xs">{{ $item->subcategory->icon }}</span>
+                                @else
+                                    <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                @endif
+                            </div>
+                            <div>
+                                <span class="text-xs text-slate-800 font-medium">{{ $item->subcategory?->name ?? '—' }}</span>
+                                @if ($item->notes)
+                                    <p class="text-[11px] text-slate-400 mt-0.5 line-clamp-1 max-w-xs">{{ $item->notes }}</p>
+                                @endif
+                            </div>
                         </div>
-                        @if ($item->notes)
-                            <p class="text-[11px] text-slate-400 mt-0.5 line-clamp-1 max-w-xs">{{ $item->notes }}</p>
-                        @endif
                     </td>
 
                     {{-- Base Price --}}

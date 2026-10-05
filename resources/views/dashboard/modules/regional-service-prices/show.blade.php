@@ -55,18 +55,44 @@
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                    <div class="p-3 bg-slate-50 rounded-lg border border-slate-100">
-                        <span class="text-slate-500 font-medium block">Parent Category</span>
-                        <span class="font-bold text-slate-900 text-sm mt-0.5 block">
-                            {{ $regionalServicePrice->category?->icon }} {{ $regionalServicePrice->category?->name ?? '—' }}
-                        </span>
+                    <div class="p-3 bg-slate-50 rounded-lg border border-slate-100 flex items-center gap-3">
+                        <div class="shrink-0 w-9 h-9 rounded-lg bg-white border border-slate-200/80 overflow-hidden flex items-center justify-center">
+                            @if ($regionalServicePrice->category?->icon_url && (str_contains($regionalServicePrice->category->icon_url, '/') || str_contains($regionalServicePrice->category->icon_url, '.')))
+                                <img src="{{ $regionalServicePrice->category->icon_url }}" alt="{{ $regionalServicePrice->category->name }}" class="w-full h-full object-cover">
+                            @elseif ($regionalServicePrice->category?->image_url)
+                                <img src="{{ $regionalServicePrice->category->image_url }}" alt="{{ $regionalServicePrice->category->name }}" class="w-full h-full object-cover">
+                            @elseif ($regionalServicePrice->category?->icon)
+                                <span class="text-sm">{{ $regionalServicePrice->category->icon }}</span>
+                            @else
+                                <svg class="w-4 h-4 text-[#8F6B20]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                            @endif
+                        </div>
+                        <div>
+                            <span class="text-slate-500 font-medium block">Parent Category</span>
+                            <span class="font-bold text-slate-900 text-sm mt-0.5 block">
+                                {{ $regionalServicePrice->category?->name ?? '—' }}
+                            </span>
+                        </div>
                     </div>
 
-                    <div class="p-3 bg-slate-50 rounded-lg border border-slate-100">
-                        <span class="text-slate-500 font-medium block">Subcategory Service</span>
-                        <span class="font-bold text-slate-900 text-sm mt-0.5 block">
-                            {{ $regionalServicePrice->subcategory?->icon }} {{ $regionalServicePrice->subcategory?->name ?? '—' }}
-                        </span>
+                    <div class="p-3 bg-slate-50 rounded-lg border border-slate-100 flex items-center gap-3">
+                        <div class="shrink-0 w-9 h-9 rounded-lg bg-white border border-slate-200/80 overflow-hidden flex items-center justify-center">
+                            @if ($regionalServicePrice->subcategory?->icon_url && (str_contains($regionalServicePrice->subcategory->icon_url, '/') || str_contains($regionalServicePrice->subcategory->icon_url, '.')))
+                                <img src="{{ $regionalServicePrice->subcategory->icon_url }}" alt="{{ $regionalServicePrice->subcategory->name }}" class="w-full h-full object-cover">
+                            @elseif ($regionalServicePrice->subcategory?->image_url)
+                                <img src="{{ $regionalServicePrice->subcategory->image_url }}" alt="{{ $regionalServicePrice->subcategory->name }}" class="w-full h-full object-cover">
+                            @elseif ($regionalServicePrice->subcategory?->icon)
+                                <span class="text-sm">{{ $regionalServicePrice->subcategory->icon }}</span>
+                            @else
+                                <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            @endif
+                        </div>
+                        <div>
+                            <span class="text-slate-500 font-medium block">Subcategory Service</span>
+                            <span class="font-bold text-slate-900 text-sm mt-0.5 block">
+                                {{ $regionalServicePrice->subcategory?->name ?? '—' }}
+                            </span>
+                        </div>
                     </div>
                 </div>
 
