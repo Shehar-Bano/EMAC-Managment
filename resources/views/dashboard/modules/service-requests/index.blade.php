@@ -93,9 +93,9 @@
                     class="w-full px-2.5 py-1.5 text-xs bg-slate-50/60 border border-slate-300 rounded-lg focus:bg-white focus:border-[#C5A059] focus:ring-1 focus:ring-[#C5A059] transition-colors text-slate-700 font-medium"
                 >
                     <option value="all">All Statuses</option>
-                    <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>⏳ Pending</option>
-                    <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>⚡ Active</option>
-                    <option value="completed" {{ request('status') === 'completed' ? 'selected' : '' }}>✅ Completed</option>
+                    <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Pending</option>
+                    <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Active</option>
+                    <option value="completed" {{ request('status') === 'completed' ? 'selected' : '' }}>Completed</option>
                 </select>
             </div>
 
@@ -107,8 +107,8 @@
                     class="w-full px-2.5 py-1.5 text-xs bg-slate-50/60 border border-slate-300 rounded-lg focus:bg-white focus:border-[#C5A059] focus:ring-1 focus:ring-[#C5A059] transition-colors text-slate-700 font-medium"
                 >
                     <option value="all">All Priorities</option>
-                    <option value="normal" {{ request('priority') === 'normal' ? 'selected' : '' }}>⚡ Normal</option>
-                    <option value="emergency" {{ request('priority') === 'emergency' ? 'selected' : '' }}>🚨 Emergency</option>
+                    <option value="normal" {{ request('priority') === 'normal' ? 'selected' : '' }}>Normal</option>
+                    <option value="emergency" {{ request('priority') === 'emergency' ? 'selected' : '' }}>Emergency</option>
                 </select>
             </div>
         </x-slot:extraFilters>
@@ -217,12 +217,12 @@
 
                             {{-- Property & Location --}}
                             <td class="py-3 px-3.5 max-w-xs">
-                                <div class="font-semibold text-slate-800 truncate" title="{{ $requestItem->property_information }}">
-                                    {{ $requestItem->property_information }}
+                                <div class="font-semibold text-slate-800 truncate" title="{{ $requestItem->property_information ?: ($requestItem->address?->address ?? 'N/A') }}">
+                                    {{ $requestItem->property_information ?: ($requestItem->address?->address ?? 'Location not specified') }}
                                 </div>
-                                <div class="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5 truncate" title="{{ $requestItem->address?->address }}">
+                                <div class="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5 truncate" title="{{ $requestItem->address?->address ?: $requestItem->property_information }}">
                                     <svg class="w-3 h-3 text-[#C5A059] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                                    <span class="truncate">{{ $requestItem->address?->address ?? 'Location not specified' }}</span>
+                                    <span class="truncate">{{ $requestItem->address?->address ?: ($requestItem->property_information ?: 'Location not specified') }}</span>
                                 </div>
                             </td>
 

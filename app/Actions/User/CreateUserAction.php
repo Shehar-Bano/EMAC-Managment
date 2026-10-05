@@ -2,6 +2,9 @@
 
 namespace App\Actions\User;
 
+use App\Enums\AccountStatus;
+use App\Enums\AuthSource;
+use App\Enums\ProfileStatus;
 use App\Models\Region;
 use App\Models\Role;
 use App\Models\User;
@@ -31,6 +34,10 @@ class CreateUserAction
                 'password' => Hash::make($data['password']),
                 'role' => $data['role'] ?? null,
                 'email_verified_at' => now(),
+                'phone_verified_at' => ! empty($data['phone']) ? now() : null,
+                'account_status' => AccountStatus::VERIFIED,
+                'profile_status' => ProfileStatus::COMPLETE,
+                'source' => AuthSource::EMAIL,
             ]);
 
             if (! empty($data['roles'])) {

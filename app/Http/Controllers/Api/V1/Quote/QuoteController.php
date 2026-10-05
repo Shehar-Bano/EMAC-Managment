@@ -182,8 +182,16 @@ class QuoteController extends Controller
             $message = 'Your question has been sent to our service team.';
         }
 
+        if (! empty($notes)) {
+            $quote->messages()->create([
+                'user_id' => $request->user()->id,
+                'sender_type' => 'customer',
+                'message' => $notes,
+            ]);
+        }
+
         return ApiResponse::success(
-            data: (new QuoteResource($quote->fresh(['sender'])))->resolve(),
+            data: (new QuoteResource($quote->fresh(['sender', 'messages.user'])))->resolve(),
             message: $message
         );
     }

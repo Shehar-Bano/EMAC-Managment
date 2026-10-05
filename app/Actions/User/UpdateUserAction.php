@@ -57,25 +57,52 @@ class UpdateUserAction
                 }
             }
 
-            // Sync Addresses
+            // Sync Addresses without breaking existing address IDs
             if (isset($data['addresses']) && is_array($data['addresses'])) {
-                $user->addresses()->delete();
+                $existingAddresses = $user->addresses()->get();
+                $retainedIds = [];
 
                 foreach ($data['addresses'] as $index => $addr) {
                     if (! empty($addr['address']) || ! empty($addr['city']) || ! empty($addr['country']) || ! empty($addr['state']) || ! empty($addr['zipcode']) || ! empty($addr['region_id'])) {
                         $regionId = ! empty($addr['region_id']) ? (int) $addr['region_id'] : null;
                         $region = $regionId ? Region::find($regionId) : null;
+                        $isPrimary = isset($addr['is_primary']) ? (bool) $addr['is_primary'] : ($index === 0);
 
-                        $user->addresses()->create([
+                        $addressAttributes = [
                             'region_id' => $regionId,
                             'country' => $addr['country'] ?? null,
                             'state' => $addr['state'] ?? $region?->name,
                             'city' => $addr['city'] ?? null,
                             'zipcode' => $addr['zipcode'] ?? null,
                             'address' => $addr['address'] ?? null,
-                            'is_primary' => $index === 0,
-                        ]);
+                            'is_primary' => $isPrimary,
+                        ];
+
+                        $targetAddress = null;
+                        if (! empty($addr['id'])) {
+                            $targetAddress = $existingAddresses->firstWhere('id', (int) $addr['id']);
+                        }
+
+                        if (! $targetAddress) {
+                            $targetAddress = $existingAddresses->first(fn ($a) => ! in_array($a->id, $retainedIds, true));
+                        }
+
+                        if ($targetAddress) {
+                            $targetAddress->update($addressAttributes);
+                            $retainedIds[] = $targetAddress->id;
+                        } else {
+                            $newAddress = $user->addresses()->create($addressAttributes);
+                            $retainedIds[] = $newAddress->id;
+                        }
+
+                        if ($isPrimary && ! empty($addr['address'])) {
+                            $user->address = $addr['address'];
+                        }
                     }
+                }
+
+                if (! empty($retainedIds)) {
+                    $user->addresses()->whereNotIn('id', $retainedIds)->delete();
                 }
             }
 

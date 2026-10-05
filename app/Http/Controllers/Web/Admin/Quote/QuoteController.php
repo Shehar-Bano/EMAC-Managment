@@ -60,7 +60,14 @@ class QuoteController extends Controller
     {
         $this->authorize('quotes.view');
 
-        $quote->load(['user.addresses', 'serviceRequest.address', 'serviceRequest.photographs', 'serviceRequest.videos', 'sender']);
+        $quote->load([
+            'user.addresses',
+            'serviceRequest.address',
+            'serviceRequest.photographs',
+            'serviceRequest.videos',
+            'sender',
+            'messages.user',
+        ]);
 
         return view('dashboard.modules.quotes.show', compact('quote'));
     }
@@ -95,7 +102,40 @@ class QuoteController extends Controller
 
         $quote->update($updateData);
 
+        if (! empty($validated['admin_notes'])) {
+            $quote->messages()->create([
+                'user_id' => $request->user()->id,
+                'sender_type' => 'admin',
+                'message' => $validated['admin_notes'],
+            ]);
+        }
+
         return back()->with('success', "Quote status updated to '{$quote->status->label()}'.");
+    }
+
+    /**
+     * Send a direct reply to the customer in the quote discussion history.
+     */
+    public function sendMessage(Request $request, Quote $quote): RedirectResponse
+    {
+        $this->authorize('quotes.status');
+
+        $validated = $request->validate([
+            'message' => ['required', 'string', 'max:5000'],
+        ]);
+
+        $quote->messages()->create([
+            'user_id' => $request->user()->id,
+            'sender_type' => 'admin',
+            'message' => $validated['message'],
+        ]);
+
+        $quote->update([
+            'admin_notes' => $validated['message'],
+            'status' => QuoteStatus::REVIEW_REQUESTED,
+        ]);
+
+        return back()->with('success', 'Reply sent to customer successfully and quote status updated to Review Requested.');
     }
 
     /**

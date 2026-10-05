@@ -180,6 +180,7 @@ Route::prefix('dashboard')->name('dashboard.')->middleware(['auth', 'active.user
 
     // Quotes & Estimates Module
     Route::get('quotes/{quote}/print', [QuoteController::class, 'print'])->name('quotes.print');
+    Route::post('quotes/{quote}/messages', [QuoteController::class, 'sendMessage'])->name('quotes.messages');
     Route::patch('quotes/{quote}/status', [QuoteController::class, 'updateStatus'])->name('quotes.status');
     Route::resource('quotes', QuoteController::class)->only(['index', 'store', 'show', 'destroy']);
 

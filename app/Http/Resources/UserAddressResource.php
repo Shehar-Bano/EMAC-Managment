@@ -14,15 +14,17 @@ class UserAddressResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $region = $this->relationLoaded('region') ? $this->region : null;
+
         return [
             'id' => $this->id,
             'region_id' => $this->region_id,
-            'region_name' => $this->region?->name ?? $this->state,
-            'region_code' => $this->region?->code,
-            'currency' => $this->region?->currency,
-            'region' => $this->whenLoaded('region', fn () => new RegionResource($this->region)),
+            'region_name' => $region?->name ?? $this->state,
+            'region_code' => $region?->code,
+            'currency' => $region?->currency,
+            'region' => $region ? new RegionResource($region) : null,
             'country' => $this->country,
-            'state' => $this->state ?? $this->region?->name,
+            'state' => $this->state ?? $region?->name,
             'city' => $this->city,
             'zipcode' => $this->zipcode,
             'address' => $this->address,

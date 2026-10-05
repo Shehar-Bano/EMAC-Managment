@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Quote extends Model
@@ -126,6 +127,14 @@ class Quote extends Model
     public function sender(): BelongsTo
     {
         return $this->belongsTo(User::class, 'sent_by');
+    }
+
+    /**
+     * Conversation and inquiry message history for this quote.
+     */
+    public function messages(): HasMany
+    {
+        return $this->hasMany(QuoteMessage::class, 'quote_id')->orderBy('created_at', 'asc');
     }
 
     /**

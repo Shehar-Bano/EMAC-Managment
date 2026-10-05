@@ -26,6 +26,7 @@ class UpdateProfileRequest extends BaseAuthRequest
             'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
             'profile_image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
             'addresses' => ['nullable', 'array'],
+            'addresses.*.id' => ['nullable', 'integer', 'exists:user_addresses,id'],
             'addresses.*.region_id' => ['nullable', 'integer', 'exists:regions,id'],
             'addresses.*.country' => ['nullable', 'string', 'max:100'],
             'addresses.*.state' => ['nullable', 'string', 'max:100'],

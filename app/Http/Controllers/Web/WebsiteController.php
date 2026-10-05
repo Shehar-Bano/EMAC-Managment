@@ -247,6 +247,10 @@ class WebsiteController extends Controller
             $region = Region::find($validated['region_id']);
             $userAddress = $user->addresses()->where('is_primary', true)->first() ?: $user->addresses()->first();
 
+            $addressText = ! empty($validated['property_information'])
+                ? trim($validated['property_information'])
+                : ($region ? "Property in {$region->name}" : 'Customer Service Address');
+
             if (! $userAddress) {
                 $userAddress = $user->addresses()->create([
                     'region_id' => $region?->id,
@@ -254,9 +258,16 @@ class WebsiteController extends Controller
                     'state' => $region?->name ?? 'Service Territory',
                     'city' => $region?->name ?? 'Local City',
                     'zipcode' => '00000',
-                    'address' => ! empty($validated['property_information']) ? $validated['property_information'] : ($region ? "Property in {$region->name}" : 'Customer Service Address'),
+                    'address' => $addressText,
                     'is_primary' => true,
                 ]);
+            } else {
+                if (! empty($validated['property_information'])) {
+                    $userAddress->update([
+                        'address' => $validated['property_information'],
+                        'region_id' => $region?->id ?? $userAddress->region_id,
+                    ]);
+                }
             }
 
             // 3. Resolve Category / Subcategory

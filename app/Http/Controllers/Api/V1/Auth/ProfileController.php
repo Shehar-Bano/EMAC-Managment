@@ -57,9 +57,10 @@ class ProfileController extends Controller
                 $user->avatar = $imageFile->store('avatars', 'public');
             }
 
-            // Handle Multiple Addresses in user_addresses table
+            // Handle Multiple Addresses in user_addresses table without deleting/orphaning existing records
             if (isset($validated['addresses']) && is_array($validated['addresses'])) {
-                $user->addresses()->delete();
+                $existingAddresses = $user->addresses()->get();
+                $retainedIds = [];
 
                 foreach ($validated['addresses'] as $index => $addr) {
                     $hasContent = ! empty($addr['address']) || ! empty($addr['city']) || ! empty($addr['country']) || ! empty($addr['state']) || ! empty($addr['zipcode']) || ! empty($addr['region_id']);
@@ -69,7 +70,7 @@ class ProfileController extends Controller
                         $region = $regionId ? Region::find($regionId) : null;
                         $stateName = $addr['state'] ?? $region?->name;
 
-                        $user->addresses()->create([
+                        $addressAttributes = [
                             'region_id' => $regionId,
                             'country' => $addr['country'] ?? null,
                             'state' => $stateName,
@@ -77,28 +78,55 @@ class ProfileController extends Controller
                             'zipcode' => $addr['zipcode'] ?? null,
                             'address' => $addr['address'] ?? null,
                             'is_primary' => $isPrimary,
-                        ]);
+                        ];
+
+                        $targetAddress = null;
+                        if (! empty($addr['id'])) {
+                            $targetAddress = $existingAddresses->firstWhere('id', (int) $addr['id']);
+                        }
+
+                        if (! $targetAddress) {
+                            $targetAddress = $existingAddresses->first(fn ($a) => ! in_array($a->id, $retainedIds, true));
+                        }
+
+                        if ($targetAddress) {
+                            $targetAddress->update($addressAttributes);
+                            $retainedIds[] = $targetAddress->id;
+                        } else {
+                            $newAddress = $user->addresses()->create($addressAttributes);
+                            $retainedIds[] = $newAddress->id;
+                        }
 
                         if ($isPrimary && ! empty($addr['address'])) {
                             $user->address = $addr['address'];
                         }
                     }
                 }
-            } elseif (! empty($validated['address']) || ! empty($validated['region_id']) || ! empty($validated['zipcode'])) {
+
+                if (! empty($retainedIds)) {
+                    $user->addresses()->whereNotIn('id', $retainedIds)->delete();
+                }
+            } elseif (! empty($validated['address']) || ! empty($validated['region_id']) || ! empty($validated['zipcode']) || ! empty($validated['city'])) {
                 $regionId = ! empty($validated['region_id']) ? (int) $validated['region_id'] : null;
                 $region = $regionId ? Region::find($regionId) : null;
                 $stateName = $validated['state'] ?? $region?->name;
 
-                if ($user->addresses()->count() === 0) {
-                    $user->addresses()->create([
-                        'region_id' => $regionId,
-                        'country' => $validated['country'] ?? null,
-                        'state' => $stateName,
-                        'city' => $validated['city'] ?? null,
-                        'zipcode' => $validated['zipcode'] ?? null,
-                        'address' => $validated['address'] ?? '',
-                        'is_primary' => true,
-                    ]);
+                $addressAttributes = [
+                    'region_id' => $regionId,
+                    'country' => $validated['country'] ?? null,
+                    'state' => $stateName,
+                    'city' => $validated['city'] ?? null,
+                    'zipcode' => $validated['zipcode'] ?? null,
+                    'address' => $validated['address'] ?? '',
+                    'is_primary' => true,
+                ];
+
+                $existingPrimary = $user->addresses()->where('is_primary', true)->first() ?? $user->addresses()->first();
+
+                if ($existingPrimary) {
+                    $existingPrimary->update($addressAttributes);
+                } else {
+                    $user->addresses()->create($addressAttributes);
                 }
             }
 

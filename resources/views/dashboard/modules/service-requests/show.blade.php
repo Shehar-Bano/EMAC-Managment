@@ -14,7 +14,13 @@
         $reqFormatted = '#REQ-' . str_pad($serviceRequest->id, 5, '0', STR_PAD_LEFT);
         $customerName = $serviceRequest->user?->name ?? 'Customer';
         $quotesCount = $serviceRequest->quotes->count();
-        $fullAddress = $serviceRequest->address ? trim($serviceRequest->address->address . ', ' . $serviceRequest->address->city . ', ' . ($serviceRequest->address->state ? $serviceRequest->address->state . ', ' : '') . $serviceRequest->address->country) : null;
+        
+        $primaryUserAddress = $serviceRequest->address ?: $serviceRequest->user?->addresses?->first();
+        $rawAddressText = $serviceRequest->address?->address 
+            ?: ($serviceRequest->property_information ?: ($serviceRequest->user?->addresses?->first()?->address ?? null));
+        $cityRegionText = $primaryUserAddress?->city ?? ($primaryUserAddress?->state ?? ($primaryUserAddress?->country ?? 'Service Territory'));
+        $fullAddress = $rawAddressText ? trim($rawAddressText . ', ' . ($primaryUserAddress?->city ?? '') . ', ' . ($primaryUserAddress?->country ?? '')) : null;
+
         $statusEnum = $serviceRequest->status instanceof \App\Enums\ServiceRequestStatus
             ? $serviceRequest->status
             : (\App\Enums\ServiceRequestStatus::tryFromLoose($serviceRequest->status) ?? \App\Enums\ServiceRequestStatus::PENDING);
@@ -171,9 +177,11 @@
                     <div class="min-w-0">
                         <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Service Location</div>
                         <div class="text-xs font-bold text-slate-900 truncate">
-                            {{ $serviceRequest->address?->city ?? 'Location' }}{{ $serviceRequest->address?->country ? ', ' . $serviceRequest->address->country : '' }}
+                            {{ $cityRegionText }}{{ $primaryUserAddress?->country && !str_contains($cityRegionText, $primaryUserAddress->country) ? ', ' . $primaryUserAddress->country : '' }}
                         </div>
-                        <div class="text-[10px] text-slate-500 truncate">{{ $serviceRequest->address?->address ?? 'No specific address' }}</div>
+                        <div class="text-[10px] text-slate-600 font-medium truncate" title="{{ $rawAddressText ?? 'No specific address' }}">
+                            {{ $rawAddressText ?? 'No specific address' }}
+                        </div>
                     </div>
                 </div>
                 <div class="pt-2 border-t border-slate-100">
@@ -553,9 +561,9 @@
                                         id="service-request-status-select"
                                         class="w-full px-3 py-2 text-xs bg-white border border-slate-300 rounded-xl focus:border-[#C5A059] focus:ring-1 focus:ring-[#C5A059] outline-none font-semibold text-slate-800 shadow-2xs"
                                     >
-                                        <option value="pending" {{ $statusEnum->value === 'pending' ? 'selected' : '' }}>⏳ Pending</option>
-                                        <option value="active" {{ $statusEnum->value === 'active' ? 'selected' : '' }}>⚡ Active</option>
-                                        <option value="completed" {{ $statusEnum->value === 'completed' ? 'selected' : '' }}>✅ Completed</option>
+                                        <option value="pending" {{ $statusEnum->value === 'pending' ? 'selected' : '' }}>Pending</option>
+                                        <option value="active" {{ $statusEnum->value === 'active' ? 'selected' : '' }}>Active</option>
+                                        <option value="completed" {{ $statusEnum->value === 'completed' ? 'selected' : '' }}>Completed</option>
                                     </select>
                                     <button
                                         type="submit"

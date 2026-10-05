@@ -50,6 +50,7 @@ class QuoteResource extends JsonResource
                 'id' => $this->sender->id,
                 'name' => $this->sender->name,
             ] : null,
+            'messages' => QuoteMessageResource::collection($this->relationLoaded('messages') ? $this->messages : $this->messages()->with('user')->get()),
         ];
     }
 }

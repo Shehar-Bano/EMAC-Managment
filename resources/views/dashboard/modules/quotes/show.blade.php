@@ -166,6 +166,67 @@
                     </div>
                 @endif
             </x-card>
+
+            {{-- Discussion & Questions History Card --}}
+            <x-card title="Discussion & Inquiry History" subtitle="Sequential record of customer questions and administrative replies">
+                <div class="space-y-3.5">
+                    @forelse($quote->messages as $msg)
+                        <div class="p-4 rounded-xl border {{ $msg->sender_type === 'admin' ? 'bg-amber-50/40 border-amber-200/70' : 'bg-slate-50 border-slate-200/80' }}">
+                            <div class="flex items-center justify-between mb-2 pb-2 border-b {{ $msg->sender_type === 'admin' ? 'border-amber-200/40' : 'border-slate-200/60' }}">
+                                <div class="flex items-center gap-2">
+                                    @if($msg->sender_type === 'admin')
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-[#C5A059]/20 text-[#8F6B20] border border-[#C5A059]/40 uppercase tracking-wider">
+                                            Admin / Support
+                                        </span>
+                                        <span class="text-xs font-bold text-slate-800">{{ $msg->user?->name ?? 'EMAC Support' }}</span>
+                                    @else
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-sky-100 text-sky-800 border border-sky-200 uppercase tracking-wider">
+                                            Customer
+                                        </span>
+                                        <span class="text-xs font-bold text-slate-800">{{ $quote->user?->name ?? 'Customer' }}</span>
+                                    @endif
+                                </div>
+                                <span class="text-[11px] font-medium text-slate-400">
+                                    {{ $msg->created_at->format('M d, Y · h:i A') }} ({{ $msg->created_at->diffForHumans() }})
+                                </span>
+                            </div>
+                            <div class="text-xs text-slate-800 leading-relaxed whitespace-pre-line font-normal">
+                                {{ $msg->message }}
+                            </div>
+                        </div>
+                    @empty
+                        <div class="text-center py-6 px-4 rounded-xl border border-dashed border-slate-200 bg-slate-50/50">
+                            <svg class="w-8 h-8 text-slate-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                            <p class="text-xs font-semibold text-slate-600">No message history yet</p>
+                            <p class="text-[11px] text-slate-400 mt-0.5">When the customer asks questions or you reply, the complete conversation history will be recorded and displayed here.</p>
+                        </div>
+                    @endforelse
+
+                    {{-- Quick Reply Box --}}
+                    <form method="POST" action="{{ route('dashboard.quotes.messages', $quote) }}" class="mt-4 pt-4 border-t border-slate-100 space-y-3">
+                        @csrf
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                            Reply to Customer / Send Message
+                        </label>
+                        <textarea
+                            name="message"
+                            rows="3"
+                            required
+                            class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:border-[#C5A059] focus:ring-2 focus:ring-[#C5A059]/20"
+                            placeholder="Type response to the customer... (Will be recorded in history and set quote status to Review Requested)"
+                        ></textarea>
+                        <div class="flex justify-end">
+                            <button
+                                type="submit"
+                                class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-xs hover:shadow transition-all cursor-pointer"
+                            >
+                                <svg class="w-4 h-4 text-[#C5A059]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                                <span>Send Reply to Customer</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </x-card>
         </div>
 
         {{-- Right 1 Column: Customer Details, Status Workflow & Notes --}}
@@ -241,11 +302,15 @@
                     </div>
                     <div class="flex items-start justify-between gap-2">
                         <span class="text-slate-400 shrink-0">Service Address:</span>
-                        <span class="font-semibold text-slate-800 text-right">{{ $quote->serviceRequest?->address?->address ?? 'N/A' }}</span>
+                        <span class="font-semibold text-slate-800 text-right">
+                            {{ $quote->serviceRequest?->address?->address ?: ($quote->serviceRequest?->property_information ?: ($quote->user?->addresses?->first()?->address ?? 'N/A')) }}
+                        </span>
                     </div>
                     <div class="flex items-start justify-between gap-2">
                         <span class="text-slate-400 shrink-0">Property Details:</span>
-                        <span class="font-semibold text-slate-800 text-right">{{ $quote->serviceRequest?->property_information ?? 'N/A' }}</span>
+                        <span class="font-semibold text-slate-800 text-right">
+                            {{ $quote->serviceRequest?->property_information ?: ($quote->serviceRequest?->address?->address ?? 'Standard Property') }}
+                        </span>
                     </div>
                 </div>
             </x-card>

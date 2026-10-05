@@ -2,8 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Enums\AccountStatus;
+use App\Enums\ProfileStatus;
 use App\Models\Region;
 use App\Models\Role;
+use App\Models\ServiceRequest;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
@@ -82,7 +85,7 @@ class RegionAndProfileAddressApiTest extends TestCase
 
     public function test_can_get_single_region_details_api(): void
     {
-        $region = Region::firstOrCreate(
+        $region = Region::updateOrCreate(
             ['slug' => 'jamaica'],
             [
                 'name' => 'Jamaica',
@@ -103,7 +106,7 @@ class RegionAndProfileAddressApiTest extends TestCase
 
     public function test_user_can_register_with_region_id_in_address(): void
     {
-        $region = Region::firstOrCreate(
+        $region = Region::updateOrCreate(
             ['slug' => 'grand-cayman'],
             [
                 'name' => 'Grand Cayman',
@@ -145,7 +148,7 @@ class RegionAndProfileAddressApiTest extends TestCase
 
     public function test_user_profile_edit_saves_region_id_and_returns_region_details(): void
     {
-        $region1 = Region::firstOrCreate(
+        $region1 = Region::updateOrCreate(
             ['slug' => 'grand-cayman'],
             [
                 'name' => 'Grand Cayman',
@@ -155,7 +158,7 @@ class RegionAndProfileAddressApiTest extends TestCase
             ]
         );
 
-        $region2 = Region::firstOrCreate(
+        $region2 = Region::updateOrCreate(
             ['slug' => 'florida'],
             [
                 'name' => 'Florida',
@@ -228,5 +231,91 @@ class RegionAndProfileAddressApiTest extends TestCase
         $getProfileResponse->assertStatus(200)
             ->assertJsonPath('data.addresses.0.region_id', $region1->id)
             ->assertJsonPath('data.addresses.0.region_name', 'Grand Cayman');
+    }
+
+    public function test_profile_update_preserves_existing_address_id_and_does_not_nullify_service_request(): void
+    {
+        $region = Region::updateOrCreate(
+            ['slug' => 'grand-cayman'],
+            [
+                'name' => 'Grand Cayman',
+                'code' => 'GCM',
+                'currency' => 'KYD',
+                'status' => 'active',
+            ]
+        );
+
+        $user = User::factory()->create([
+            'status' => 'active',
+        ]);
+
+        $originalAddress = $user->addresses()->create([
+            'region_id' => $region->id,
+            'address' => 'Initial Address 123',
+            'city' => 'George Town',
+            'is_primary' => true,
+        ]);
+
+        $originalAddressId = $originalAddress->id;
+
+        $serviceRequest = ServiceRequest::create([
+            'user_id' => $user->id,
+            'user_address_id' => $originalAddressId,
+            'status' => 'active',
+            'type' => 'app',
+            'description' => 'Test address preservation request',
+        ]);
+
+        // Customer updates profile with updated address text without specifying address ID
+        $response = $this->actingAs($user, 'sanctum')
+            ->patchJson('/api/v1/profile', [
+                'name' => 'Updated Name',
+                'addresses' => [
+                    [
+                        'region_id' => $region->id,
+                        'address' => 'New Renovated House 999',
+                        'city' => 'George Town',
+                        'is_primary' => true,
+                    ],
+                ],
+            ]);
+
+        $response->assertOk()
+            ->assertJsonPath('data.addresses.0.id', $originalAddressId)
+            ->assertJsonPath('data.addresses.0.address', 'New Renovated House 999');
+
+        // Verify that the existing address row in database was updated in-place (ID unchanged)
+        $this->assertEquals($originalAddressId, $user->fresh()->addresses->first()->id);
+        $this->assertEquals('New Renovated House 999', $user->fresh()->addresses->first()->address);
+
+        // Verify that the service request foreign key is still intact and not null!
+        $this->assertEquals($originalAddressId, $serviceRequest->fresh()->user_address_id);
+    }
+
+    public function test_dashboard_user_creation_is_email_verified_and_account_verified(): void
+    {
+        $admin = User::factory()->create(['status' => 'active']);
+        $adminRole = Role::firstOrCreate(['slug' => 'super-admin'], ['name' => 'Super Admin', 'description' => 'Super Administrator']);
+        $admin->roles()->syncWithoutDetaching([$adminRole->id]);
+
+        $email = 'dashboard.created.'.uniqid().'@emac.test';
+
+        $response = $this->actingAs($admin)
+            ->post(route('dashboard.users.store'), [
+                'type' => 'customers',
+                'name' => 'Dashboard Customer',
+                'email' => $email,
+                'phone' => '+13459491111',
+                'password' => 'Password123!',
+                'status' => 'active',
+            ]);
+
+        $response->assertRedirect();
+
+        $createdUser = User::where('email', $email)->first();
+        $this->assertNotNull($createdUser);
+        $this->assertNotNull($createdUser->email_verified_at);
+        $this->assertEquals(AccountStatus::VERIFIED, $createdUser->account_status);
+        $this->assertEquals(ProfileStatus::COMPLETE, $createdUser->profile_status);
     }
 }
