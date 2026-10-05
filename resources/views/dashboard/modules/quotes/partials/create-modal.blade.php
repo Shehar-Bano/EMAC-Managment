@@ -27,7 +27,7 @@
                     </div>
                     <div>
                         <div class="flex items-center gap-2.5">
-                            <h3 class="text-lg font-extrabold text-slate-900 tracking-tight">Issue Price Quotation</h3>
+                            <h3 id="quote-modal-title" class="text-lg font-extrabold text-slate-900 tracking-tight">Issue Price Quotation</h3>
                             <span id="quote-modal-request-badge" class="text-xs font-mono font-bold bg-[#C5A059]/15 text-[#8F6B20] px-2.5 py-0.5 rounded-lg border border-[#C5A059]/30 shadow-2xs">#REQ-00000</span>
                         </div>
                         <p class="text-xs text-slate-500 mt-1 flex items-center gap-1.5">
@@ -50,6 +50,7 @@
             <form id="create-quote-form" method="POST" action="{{ route('dashboard.quotes.store') }}">
                 @csrf
                 <input type="hidden" name="service_request_id" id="quote-modal-request-id" value="">
+                <input type="hidden" name="quote_id" id="quote-modal-quote-id" value="">
 
                 <div style="padding: 28px 36px 36px 36px;" class="space-y-6">
                     {{-- Scope of Work / Service Description --}}
@@ -275,7 +276,7 @@
                             class="px-6 py-2.5 rounded-xl text-white text-xs font-bold shadow-md hover:shadow-lg hover:brightness-110 transition-all cursor-pointer flex items-center gap-2"
                         >
                             <svg class="w-4 h-4 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
-                            <span class="text-white font-bold">Generate & Send Quote</span>
+                            <span id="quote-modal-submit-text" class="text-white font-bold">Generate & Send Quote</span>
                         </button>
                     </div>
                 </div>
@@ -290,18 +291,63 @@
         const reqFormatted = btn.getAttribute('data-request-number');
         const customerName = btn.getAttribute('data-customer-name');
         const defaultDescription = btn.getAttribute('data-description');
-        openQuoteModal(requestId, reqFormatted, customerName, defaultDescription);
+        const quoteId = btn.getAttribute('data-quote-id') || '';
+        const isEdit = btn.getAttribute('data-is-edit') === 'true' || !!quoteId;
+
+        const quoteData = {
+            quoteId: quoteId,
+            isEdit: isEdit,
+            serviceDescription: btn.getAttribute('data-service-description') || '',
+            laborCost: btn.getAttribute('data-labor-cost') || '0.00',
+            materialsCost: btn.getAttribute('data-materials-cost') || '0.00',
+            equipmentCost: btn.getAttribute('data-equipment-cost') || '0.00',
+            tripCharge: btn.getAttribute('data-trip-charge') || '0.00',
+            additionalCharges: btn.getAttribute('data-additional-charges') || '0.00',
+            discount: btn.getAttribute('data-discount') || '0.00',
+            taxRate: btn.getAttribute('data-tax-rate') || '0',
+            expiresAt: btn.getAttribute('data-expires-at') || '',
+            terms: btn.getAttribute('data-terms') || '',
+            adminNotes: btn.getAttribute('data-admin-notes') || '',
+        };
+
+        openQuoteModal(requestId, reqFormatted, customerName, defaultDescription, quoteData);
     }
 
-    function openQuoteModal(requestId, reqFormatted, customerName, defaultDescription) {
+    function openQuoteModal(requestId, reqFormatted, customerName, defaultDescription, quoteData = {}) {
         document.getElementById('quote-modal-request-id').value = requestId;
         document.getElementById('quote-modal-request-badge').innerText = reqFormatted || ('#REQ-' + String(requestId).padStart(5, '0'));
         document.getElementById('quote-modal-customer-name').innerText = customerName || 'Valued Customer';
         
+        const quoteIdElem = document.getElementById('quote-modal-quote-id');
+        if (quoteIdElem) {
+            quoteIdElem.value = quoteData.quoteId || '';
+        }
+
+        const titleElem = document.getElementById('quote-modal-title');
+        const submitTextElem = document.getElementById('quote-modal-submit-text');
+
+        if (quoteData.isEdit) {
+            if (titleElem) titleElem.innerText = 'Edit Price Quotation';
+            if (submitTextElem) submitTextElem.innerText = 'Save & Update Quote';
+        } else {
+            if (titleElem) titleElem.innerText = 'Issue Price Quotation';
+            if (submitTextElem) submitTextElem.innerText = 'Generate & Send Quote';
+        }
+
         const descElem = document.getElementById('quote-service-description');
         if (descElem) {
-            descElem.value = '';
+            descElem.value = quoteData.serviceDescription || (quoteData.isEdit ? '' : (defaultDescription || ''));
         }
+
+        if (document.getElementById('quote-labor-cost')) document.getElementById('quote-labor-cost').value = quoteData.laborCost || '0.00';
+        if (document.getElementById('quote-materials-cost')) document.getElementById('quote-materials-cost').value = quoteData.materialsCost || '0.00';
+        if (document.getElementById('quote-equipment-cost')) document.getElementById('quote-equipment-cost').value = quoteData.equipmentCost || '0.00';
+        if (document.getElementById('quote-trip-charge')) document.getElementById('quote-trip-charge').value = quoteData.tripCharge || '0.00';
+        if (document.getElementById('quote-additional-charges')) document.getElementById('quote-additional-charges').value = quoteData.additionalCharges || '0.00';
+        if (document.getElementById('quote-discount')) document.getElementById('quote-discount').value = quoteData.discount || '0.00';
+        if (document.getElementById('quote-tax-rate')) document.getElementById('quote-tax-rate').value = quoteData.taxRate || '0';
+        if (document.getElementById('quote-expires-at') && quoteData.expiresAt) document.getElementById('quote-expires-at').value = quoteData.expiresAt;
+        if (document.getElementById('quote-terms') && quoteData.terms) document.getElementById('quote-terms').value = quoteData.terms;
 
         const modal = document.getElementById('create-quote-modal');
         const backdrop = document.getElementById('quote-modal-backdrop');

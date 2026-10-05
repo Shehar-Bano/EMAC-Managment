@@ -145,7 +145,7 @@ class QuoteController extends Controller
     protected function processResponse(Quote $quote, Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'action' => ['required', 'string', 'in:approve,decline,ask_question,review_requested'],
+            'action' => ['required', 'string', 'in:approve,decline,ask_question,review_requested,request_review'],
             'customer_notes' => ['nullable', 'string', 'max:2000'],
         ]);
 
@@ -168,18 +168,13 @@ class QuoteController extends Controller
                 'approved_at' => null,
             ]);
             $message = 'Quote declined.';
-        } elseif ($action === 'review_requested') {
+        } else {
+            // Customer question or review request -> status becomes review_requested
             $quote->update([
                 'status' => QuoteStatus::REVIEW_REQUESTED,
                 'customer_notes' => $notes,
             ]);
             $message = 'Review request sent to service team.';
-        } else {
-            $quote->update([
-                'status' => QuoteStatus::ASK_FOR_QUESTION,
-                'customer_notes' => $notes,
-            ]);
-            $message = 'Your question has been sent to our service team.';
         }
 
         if (! empty($notes)) {

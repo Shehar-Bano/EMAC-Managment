@@ -33,7 +33,7 @@ class CreateQuoteAction
             $taxAmount = round($netBeforeTax * ($taxRate / 100), 2);
             $totalPrice = round($netBeforeTax + $taxAmount, 2);
 
-            $quote = Quote::create([
+            $quoteAttributes = [
                 'service_request_id' => $serviceRequest->id,
                 'user_id' => $serviceRequest->user_id,
                 'sent_by' => $sender->id,
@@ -51,7 +51,18 @@ class CreateQuoteAction
                 'expires_at' => $data['expires_at'],
                 'status' => QuoteStatus::PENDING,
                 'admin_notes' => $data['admin_notes'] ?? null,
-            ]);
+            ];
+
+            $quote = null;
+            if (! empty($data['quote_id'])) {
+                $quote = Quote::find($data['quote_id']);
+            }
+
+            if ($quote) {
+                $quote->update($quoteAttributes);
+            } else {
+                $quote = Quote::create($quoteAttributes);
+            }
 
             return $quote->load(['serviceRequest', 'user', 'sender']);
         });

@@ -47,7 +47,7 @@ class QuoteMessageHistoryTest extends TestCase
         ]);
 
         $response->assertOk();
-        $response->assertJsonPath('data.status', QuoteStatus::ASK_FOR_QUESTION->value);
+        $response->assertJsonPath('data.status', QuoteStatus::REVIEW_REQUESTED->value);
         $response->assertJsonPath('data.customer_notes', 'Can you please clarify if permits are included in this total?');
         $response->assertJsonCount(1, 'data.messages');
         $response->assertJsonPath('data.messages.0.sender_type', 'customer');
@@ -83,7 +83,7 @@ class QuoteMessageHistoryTest extends TestCase
             'service_description' => 'Sample initial scope',
             'labor_cost' => 150,
             'total_price' => 150,
-            'status' => QuoteStatus::ASK_FOR_QUESTION,
+            'status' => QuoteStatus::REVIEW_REQUESTED,
         ]);
 
         // Customer message already logged

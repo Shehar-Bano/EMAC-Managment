@@ -482,11 +482,37 @@
                                             ${{ number_format($q->total_price, 2) }}
                                         </div>
                                         <div class="flex items-center gap-2">
+                                            @can('quotes.create')
+                                                <button
+                                                    type="button"
+                                                    data-request-id="{{ $serviceRequest->id }}"
+                                                    data-request-number="{{ $reqFormatted }}"
+                                                    data-customer-name="{{ $customerName }}"
+                                                    data-quote-id="{{ $q->id }}"
+                                                    data-is-edit="true"
+                                                    data-service-description="{{ $q->service_description }}"
+                                                    data-labor-cost="{{ $q->labor_cost }}"
+                                                    data-materials-cost="{{ $q->materials_cost }}"
+                                                    data-equipment-cost="{{ $q->equipment_cost }}"
+                                                    data-trip-charge="{{ $q->trip_charge }}"
+                                                    data-additional-charges="{{ $q->additional_charges }}"
+                                                    data-discount="{{ $q->discount }}"
+                                                    data-tax-rate="{{ $q->tax_rate }}"
+                                                    data-expires-at="{{ $q->expires_at?->format('Y-m-d') }}"
+                                                    data-terms="{{ $q->terms_and_conditions }}"
+                                                    data-admin-notes="{{ $q->admin_notes }}"
+                                                    onclick="openQuoteModalFromButton(this)"
+                                                    class="px-3 py-1.5 text-xs font-bold text-[#8F6B20] bg-amber-50 hover:bg-[#C5A059]/20 border border-[#C5A059]/30 rounded-xl transition-colors cursor-pointer flex items-center gap-1"
+                                                >
+                                                    <svg class="w-3.5 h-3.5 text-[#C5A059]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                                    <span>Edit</span>
+                                                </button>
+                                            @endcan
                                             <a
                                                 href="{{ route('dashboard.quotes.show', $q) }}"
                                                 class="px-3 py-1.5 text-xs font-bold bg-white hover:bg-slate-100 text-slate-800 rounded-xl border border-slate-200/90 shadow-2xs transition-colors"
                                             >
-                                                View Quote &rarr;
+                                                View &rarr;
                                             </a>
                                             <a
                                                 href="{{ route('dashboard.quotes.print', $q) }}"
@@ -600,12 +626,27 @@
                             data-request-number="{{ $reqFormatted }}"
                             data-customer-name="{{ $customerName }}"
                             data-description="{{ $serviceRequest->description }}"
+                            @if ($serviceRequest->latestQuote)
+                                data-quote-id="{{ $serviceRequest->latestQuote->id }}"
+                                data-is-edit="true"
+                                data-service-description="{{ $serviceRequest->latestQuote->service_description }}"
+                                data-labor-cost="{{ $serviceRequest->latestQuote->labor_cost }}"
+                                data-materials-cost="{{ $serviceRequest->latestQuote->materials_cost }}"
+                                data-equipment-cost="{{ $serviceRequest->latestQuote->equipment_cost }}"
+                                data-trip-charge="{{ $serviceRequest->latestQuote->trip_charge }}"
+                                data-additional-charges="{{ $serviceRequest->latestQuote->additional_charges }}"
+                                data-discount="{{ $serviceRequest->latestQuote->discount }}"
+                                data-tax-rate="{{ $serviceRequest->latestQuote->tax_rate }}"
+                                data-expires-at="{{ $serviceRequest->latestQuote->expires_at?->format('Y-m-d') }}"
+                                data-terms="{{ $serviceRequest->latestQuote->terms_and_conditions }}"
+                                data-admin-notes="{{ $serviceRequest->latestQuote->admin_notes }}"
+                            @endif
                             onclick="openQuoteModalFromButton(this)"
                             style="background: linear-gradient(135deg, #D4AF37 0%, #B8903B 50%, #8F6B20 100%);"
                             class="w-full py-3 px-4 rounded-xl text-xs font-black text-white hover:brightness-110 shadow-md hover:shadow-lg transition-all cursor-pointer flex items-center justify-center gap-2"
                         >
-                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                            <span>Issue Price Quote</span>
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                            <span>{{ $serviceRequest->latestQuote ? 'Edit Quotation' : 'Issue Price Quote' }}</span>
                         </button>
                     @endcan
 

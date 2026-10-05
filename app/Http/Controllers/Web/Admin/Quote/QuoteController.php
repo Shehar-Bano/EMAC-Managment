@@ -26,7 +26,6 @@ class QuoteController extends Controller
             'pending' => Quote::where('status', QuoteStatus::PENDING)->count(),
             'approved' => Quote::where('status', QuoteStatus::APPROVED)->count(),
             'declined' => Quote::where('status', QuoteStatus::DECLINED)->count(),
-            'ask_for_question' => Quote::where('status', QuoteStatus::ASK_FOR_QUESTION)->count(),
             'review_requested' => Quote::where('status', QuoteStatus::REVIEW_REQUESTED)->count(),
         ];
 
@@ -73,14 +72,14 @@ class QuoteController extends Controller
     }
 
     /**
-     * Update status of the quote (Approved / Declined / Ask for question / Review Requested).
+     * Update status of the quote (Approved / Declined / Review Requested).
      */
     public function updateStatus(Request $request, Quote $quote): RedirectResponse
     {
         $this->authorize('quotes.status');
 
         $validated = $request->validate([
-            'status' => ['required', 'string', 'in:pending,approved,declined,ask_for_question,review_requested'],
+            'status' => ['required', 'string', 'in:pending,approved,declined,review_requested'],
             'admin_notes' => ['nullable', 'string', 'max:2000'],
         ]);
 

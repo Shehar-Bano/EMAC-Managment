@@ -199,7 +199,7 @@ class ServiceRequestStatusWorkflowTest extends TestCase
         ]);
         $response->assertOk();
         $quote->refresh();
-        $this->assertEquals(QuoteStatus::ASK_FOR_QUESTION, $quote->status);
+        $this->assertEquals(QuoteStatus::REVIEW_REQUESTED, $quote->status);
 
         // Admin updates status to review_requested and replies
         $response = $this->actingAs($admin)->patch("/dashboard/quotes/{$quote->id}/status", [

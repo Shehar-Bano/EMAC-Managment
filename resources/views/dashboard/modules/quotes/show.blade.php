@@ -22,6 +22,33 @@
 
         {{-- Actions --}}
         <div class="flex items-center gap-2">
+            @can('quotes.create')
+                <button
+                    type="button"
+                    data-request-id="{{ $quote->service_request_id }}"
+                    data-request-number="#REQ-{{ str_pad($quote->service_request_id, 5, '0', STR_PAD_LEFT) }}"
+                    data-customer-name="{{ $quote->user?->name ?? 'Customer' }}"
+                    data-quote-id="{{ $quote->id }}"
+                    data-is-edit="true"
+                    data-service-description="{{ $quote->service_description }}"
+                    data-labor-cost="{{ $quote->labor_cost }}"
+                    data-materials-cost="{{ $quote->materials_cost }}"
+                    data-equipment-cost="{{ $quote->equipment_cost }}"
+                    data-trip-charge="{{ $quote->trip_charge }}"
+                    data-additional-charges="{{ $quote->additional_charges }}"
+                    data-discount="{{ $quote->discount }}"
+                    data-tax-rate="{{ $quote->tax_rate }}"
+                    data-expires-at="{{ $quote->expires_at?->format('Y-m-d') }}"
+                    data-terms="{{ $quote->terms_and_conditions }}"
+                    data-admin-notes="{{ $quote->admin_notes }}"
+                    onclick="openQuoteModalFromButton(this)"
+                    class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#C5A059] hover:bg-[#B8903B] text-slate-950 text-xs font-bold shadow-xs hover:shadow transition-all cursor-pointer"
+                >
+                    <svg class="w-4 h-4 text-slate-950" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                    <span>Edit Quotation</span>
+                </button>
+            @endcan
+
             <a
                 href="{{ route('dashboard.quotes.print', $quote) }}"
                 target="_blank"
@@ -244,13 +271,14 @@
                         </label>
                         <select
                             name="status"
+                            id="quote-status-select"
+                            onchange="const notesElem = document.getElementById('admin-response-notes'); if(notesElem) { notesElem.value = ''; notesElem.focus(); }"
                             class="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs font-bold text-slate-800 focus:border-[#C5A059] focus:ring-1 focus:ring-[#C5A059]"
                         >
                             <option value="pending" {{ $quote->status->value === 'pending' ? 'selected' : '' }}>Pending Review</option>
                             <option value="approved" {{ $quote->status->value === 'approved' ? 'selected' : '' }}>Approved</option>
                             <option value="declined" {{ $quote->status->value === 'declined' ? 'selected' : '' }}>Declined</option>
-                            <option value="ask_for_question" {{ $quote->status->value === 'ask_for_question' ? 'selected' : '' }}>Customer Asked Question</option>
-                            <option value="review_requested" {{ $quote->status->value === 'review_requested' ? 'selected' : '' }}>Review Requested (Admin Replied)</option>
+                            <option value="review_requested" {{ $quote->status->value === 'review_requested' ? 'selected' : '' }}>Review Requested</option>
                         </select>
                     </div>
 
@@ -268,10 +296,11 @@
                         <label class="block text-xs font-semibold text-slate-700 mb-1">Admin Response & Internal Notes</label>
                         <textarea
                             name="admin_notes"
+                            id="admin-response-notes"
                             rows="3"
                             class="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs text-slate-800 focus:border-[#C5A059] focus:ring-1 focus:ring-[#C5A059]"
-                            placeholder="Type reply to customer question or record admin review notes..."
-                        >{{ $quote->admin_notes }}</textarea>
+                            placeholder="Type reply to customer or record internal notes for this status update..."
+                        ></textarea>
                     </div>
 
                     <button
@@ -337,4 +366,7 @@
 
         </div>
     </div>
+
+    {{-- Include Quote Modal for Editing --}}
+    @include('dashboard.modules.quotes.partials.create-modal')
 </x-dashboard.layout>
