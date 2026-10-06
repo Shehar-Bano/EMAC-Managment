@@ -32,7 +32,7 @@
     </x-slot:header>
 
     <div class="max-w-4xl">
-        <form method="POST" action="{{ route('dashboard.users.update', $user) }}" enctype="multipart/form-data" class="space-y-6" x-data="{
+        <form method="POST" action="{{ route('dashboard.users.update', $user) }}" enctype="multipart/form-data" autocomplete="off" class="space-y-6" x-data="{
             photoPreview: null,
             removeAvatar: false,
             addresses: {{ json_encode(old('addresses', $user->addresses->count() > 0 ? $user->addresses->map(fn($a) => ['region_id' => $a->region_id, 'country' => $a->country, 'state' => $a->state, 'city' => $a->city, 'zipcode' => $a->zipcode, 'address' => $a->address])->values()->toArray() : [['region_id' => '', 'country' => '', 'state' => '', 'city' => '', 'zipcode' => '', 'address' => '']])) }},
@@ -49,6 +49,10 @@
         }">
             @csrf
             @method('PUT')
+            {{-- Trap inputs to prevent aggressive browser autofill of admin credentials --}}
+            <input type="text" style="display:none" aria-hidden="true" tabindex="-1" autocomplete="false">
+            <input type="password" style="display:none" aria-hidden="true" tabindex="-1" autocomplete="false">
+
             <input type="hidden" name="type" value="{{ $activeType }}">
 
             {{-- Account Information & Profile Photo Card --}}
@@ -117,6 +121,7 @@
                         :value="$user->email"
                         placeholder="e.g. eleanor.vance@emac.test"
                         required
+                        autocomplete="off"
                     />
                 </div>
 
@@ -143,6 +148,7 @@
                         name="password"
                         type="password"
                         placeholder="Leave blank to keep existing password..."
+                        autocomplete="new-password"
                         hint="Only enter a value if you wish to reset this user's password."
                     />
                 </div>

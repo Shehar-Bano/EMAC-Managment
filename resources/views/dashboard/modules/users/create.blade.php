@@ -33,7 +33,7 @@
     </x-slot:header>
 
     <div class="max-w-4xl">
-        <form method="POST" action="{{ route('dashboard.users.store') }}" enctype="multipart/form-data" class="space-y-6" x-data="{
+        <form method="POST" action="{{ route('dashboard.users.store') }}" enctype="multipart/form-data" autocomplete="off" class="space-y-6" x-data="{
             photoPreview: null,
             addresses: {{ json_encode(old('addresses', [['region_id' => '', 'country' => '', 'state' => '', 'city' => '', 'zipcode' => '', 'address' => '']])) }},
             addAddress() {
@@ -48,6 +48,10 @@
             }
         }">
             @csrf
+            {{-- Trap inputs to prevent aggressive browser autofill of admin credentials --}}
+            <input type="text" style="display:none" aria-hidden="true" tabindex="-1" autocomplete="false">
+            <input type="password" style="display:none" aria-hidden="true" tabindex="-1" autocomplete="false">
+
             <input type="hidden" name="type" value="{{ $activeType }}">
 
             {{-- Account Identity & Photo Card --}}
@@ -105,6 +109,7 @@
                         type="email"
                         placeholder="e.g. user@emac.test"
                         required
+                        autocomplete="off"
                     />
                 </div>
 
@@ -131,6 +136,7 @@
                         type="password"
                         placeholder="Minimum 8 characters..."
                         required
+                        autocomplete="new-password"
                         hint="User can use these credentials to log in."
                     />
                 </div>
