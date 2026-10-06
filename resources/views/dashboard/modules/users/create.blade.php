@@ -136,6 +136,227 @@
                 </div>
             </x-card>
 
+            @if ($activeType === 'technicians')
+                {{-- Technician Skills & Specialization Card --}}
+                <div x-data="{
+                    categories: {{ json_encode($categories->map(fn($c) => [
+                        'id' => $c->id,
+                        'name' => $c->name,
+                        'slug' => $c->slug,
+                        'subcategories' => $c->subcategories->map(fn($s) => [
+                            'id' => $s->id,
+                            'name' => $s->name,
+                            'slug' => $s->slug,
+                            'icon' => $s->icon,
+                        ]),
+                    ])) }},
+                    selectedCategoryId: '{{ old('category_id', '') }}',
+                    selectedSubcategories: {{ json_encode(array_map('intval', old('subcategories', []))) }},
+                    get availableSubcategories() {
+                        if (!this.selectedCategoryId) return [];
+                        const found = this.categories.find(c => String(c.id) === String(this.selectedCategoryId));
+                        return found ? found.subcategories : [];
+                    },
+                    onCategoryChange() {
+                        const availableIds = this.availableSubcategories.map(s => Number(s.id));
+                        this.selectedSubcategories = this.selectedSubcategories.filter(id => availableIds.includes(Number(id)));
+                    },
+                    toggleSubcategory(id) {
+                        id = Number(id);
+                        const index = this.selectedSubcategories.indexOf(id);
+                        if (index > -1) {
+                            this.selectedSubcategories.splice(index, 1);
+                        } else {
+                            this.selectedSubcategories.push(id);
+                        }
+                    },
+                    selectAllSubcategories() {
+                        this.selectedSubcategories = this.availableSubcategories.map(s => Number(s.id));
+                    },
+                    clearSubcategories() {
+                        this.selectedSubcategories = [];
+                    }
+                }">
+                    <x-card title="Technician Skills & Operational Specialization" subtitle="Assign primary trade skill and authorized field service sub-skills">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-6">
+                            {{-- Skill (Main Category Single Select) --}}
+                            <div>
+                                <label for="category_id" class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
+                                    Skill <span class="text-rose-600">*</span>
+                                </label>
+                                <select
+                                    name="category_id"
+                                    id="category_id"
+                                    x-model="selectedCategoryId"
+                                    @change="onCategoryChange()"
+                                    required
+                                    class="block w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-xs text-slate-900 bg-white shadow-sm focus:border-[#C5A059] focus:ring-[#C5A059] transition-colors"
+                                >
+                                    <option value="">-- Select Primary Skill (Category) --</option>
+                                    @foreach ($categories as $category)
+                                        <option value="{{ $category->id }}" {{ (string) old('category_id') === (string) $category->id ? 'selected' : '' }}>
+                                            {{ $category->name }} ({{ $category->subcategories->count() }} Sub Skills)
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <p class="text-[11px] text-slate-500 mt-1">Select the technician's core trade expertise.</p>
+                                @error('category_id')
+                                    <p class="mt-1 text-xs text-rose-600 font-medium">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            {{-- Duty Status --}}
+                            <div>
+                                <label for="duty_status" class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
+                                    Duty Status
+                                </label>
+                                <select
+                                    name="duty_status"
+                                    id="duty_status"
+                                    class="block w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-xs text-slate-900 bg-white shadow-sm focus:border-[#C5A059] focus:ring-[#C5A059] transition-colors"
+                                >
+                                    <option value="on_duty" {{ old('duty_status', 'on_duty') === 'on_duty' ? 'selected' : '' }}>🟢 On Duty (Available for jobs)</option>
+                                    <option value="off_duty" {{ old('duty_status') === 'off_duty' ? 'selected' : '' }}>⚪ Off Duty (Unavailable)</option>
+                                    <option value="break" {{ old('duty_status') === 'break' ? 'selected' : '' }}>🟡 On Break</option>
+                                </select>
+                                <p class="text-[11px] text-slate-500 mt-1">Current operational dispatch availability.</p>
+                                @error('duty_status')
+                                    <p class="mt-1 text-xs text-rose-600 font-medium">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+
+                        {{-- Sub Skills (Subcategories Multi-Select) --}}
+                        <div class="mb-6 p-4 rounded-2xl bg-slate-50/80 border border-slate-200">
+                            <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-200">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider">
+                                        Sub Skills <span class="text-rose-600">*</span>
+                                    </label>
+                                    <p class="text-[11px] text-slate-500 mt-0.5">Select one or multiple authorized services (minimum 1 required)</p>
+                                </div>
+                                <div class="flex items-center gap-2" x-show="availableSubcategories.length > 0">
+                                    <button
+                                        type="button"
+                                        @click="selectAllSubcategories()"
+                                        class="text-[11px] font-semibold text-[#8F6B20] hover:text-[#735518] hover:underline cursor-pointer"
+                                    >Select All</button>
+                                    <span class="text-slate-300">|</span>
+                                    <button
+                                        type="button"
+                                        @click="clearSubcategories()"
+                                        class="text-[11px] font-semibold text-slate-500 hover:text-slate-700 hover:underline cursor-pointer"
+                                    >Clear</button>
+                                </div>
+                            </div>
+
+                            <template x-if="!selectedCategoryId">
+                                <div class="py-6 text-center text-xs text-slate-400">
+                                    <svg class="w-8 h-8 mx-auto mb-2 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                    Please select a <strong>Skill</strong> above to see available Sub Skills.
+                                </div>
+                            </template>
+
+                            <template x-if="selectedCategoryId && availableSubcategories.length === 0">
+                                <div class="py-6 text-center text-xs text-slate-500">
+                                    No active sub-skills found for this category.
+                                </div>
+                            </template>
+
+                            <div x-show="selectedCategoryId && availableSubcategories.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                                <template x-for="sub in availableSubcategories" :key="sub.id">
+                                    <label
+                                        @click="toggleSubcategory(sub.id)"
+                                        class="flex items-center gap-2.5 p-2.5 rounded-xl border text-xs cursor-pointer transition-all select-none"
+                                        :class="selectedSubcategories.includes(Number(sub.id))
+                                            ? 'bg-amber-50/80 border-[#C5A059] text-slate-900 font-semibold shadow-xs ring-1 ring-[#C5A059]/40'
+                                            : 'bg-white border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50'"
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            name="subcategories[]"
+                                            :value="sub.id"
+                                            :checked="selectedSubcategories.includes(Number(sub.id))"
+                                            class="rounded border-slate-300 text-[#C5A059] focus:ring-[#C5A059] w-4 h-4 pointer-events-none"
+                                        >
+                                        <span class="truncate" x-text="sub.name"></span>
+                                    </label>
+                                </template>
+                            </div>
+
+                            @error('subcategories')
+                                <p class="mt-2 text-xs text-rose-600 font-medium">{{ $message }}</p>
+                            @enderror
+                            @error('subcategories.*')
+                                <p class="mt-1 text-xs text-rose-600 font-medium">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        {{-- Professional Credentials & Experience --}}
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-5">
+                            <div>
+                                <x-input
+                                    label="Years of Experience"
+                                    name="experience_years"
+                                    type="number"
+                                    min="0"
+                                    max="60"
+                                    placeholder="e.g. 8"
+                                    :value="old('experience_years', 0)"
+                                />
+                            </div>
+                            <div>
+                                <x-input
+                                    label="Certification ID"
+                                    name="certification_id"
+                                    placeholder="e.g. EMAC-TECH-CERT-0024"
+                                />
+                            </div>
+                            <div>
+                                <x-input
+                                    label="Certification Body"
+                                    name="certification_body"
+                                    placeholder="e.g. Cayman Islands Trade Guild"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
+                            <div>
+                                <x-input
+                                    label="Emergency Contact Name"
+                                    name="emergency_contact_name"
+                                    placeholder="e.g. Sarah Davis"
+                                />
+                            </div>
+                            <div>
+                                <x-input
+                                    label="Emergency Contact Phone"
+                                    name="emergency_contact_phone"
+                                    placeholder="e.g. +1 345 925 1102"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="bio" class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
+                                Technician Bio / Professional Summary
+                            </label>
+                            <textarea
+                                name="bio"
+                                id="bio"
+                                rows="3"
+                                placeholder="Lead Master Technician specializing in luxury residential hydraulics, high-pressure line diagnostics..."
+                                class="block w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-xs text-slate-900 bg-white shadow-sm focus:border-[#C5A059] focus:ring-[#C5A059] transition-colors"
+                            >{{ old('bio') }}</textarea>
+                            @error('bio')
+                                <p class="mt-1 text-xs text-rose-600 font-medium">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </x-card>
+                </div>
+            @endif
+
             {{-- Multiple User Addresses Card --}}
             <x-card title="Registered Addresses" subtitle="Store physical, service, and mailing addresses">
                 <x-slot:actions>

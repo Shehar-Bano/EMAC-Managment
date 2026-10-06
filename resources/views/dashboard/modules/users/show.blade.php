@@ -125,8 +125,87 @@
             </x-card>
         </div>
 
-        {{-- Roles & Service Activity --}}
-        <div class="lg:col-span-8 space-y-6">
+            {{-- Technician Skills & Operational Specialization Card --}}
+            @if ($user->category || $user->subcategories->count() > 0 || $user->role === 'technician' || $user->hasRole('technician'))
+                <x-card title="Technician Operational Profile & Skills" subtitle="Core expertise, sub-skills authorization, and credentials">
+                    <div class="space-y-4 text-xs">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 p-3.5 rounded-xl bg-slate-50/70 border border-slate-200">
+                            <div>
+                                <span class="text-slate-400 block text-[11px] uppercase font-bold">Primary Skill</span>
+                                <span class="font-bold text-slate-900 text-sm mt-0.5 block">
+                                    {{ $user->category?->name ?? 'None Assigned' }}
+                                </span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block text-[11px] uppercase font-bold">Duty Status</span>
+                                <span class="font-semibold text-slate-800 mt-0.5 inline-flex items-center gap-1.5">
+                                    @if($user->duty_status === 'on_duty')
+                                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span> On Duty
+                                    @elseif($user->duty_status === 'off_duty')
+                                        <span class="w-2 h-2 rounded-full bg-slate-400"></span> Off Duty
+                                    @elseif($user->duty_status === 'break')
+                                        <span class="w-2 h-2 rounded-full bg-amber-500"></span> On Break
+                                    @else
+                                        {{ ucfirst(str_replace('_', ' ', $user->duty_status ?? 'on_duty')) }}
+                                    @endif
+                                </span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block text-[11px] uppercase font-bold">Experience</span>
+                                <span class="font-bold text-slate-900 mt-0.5 block">
+                                    {{ $user->experience_years ? $user->experience_years . ' Years' : 'Not specified' }}
+                                </span>
+                            </div>
+                        </div>
+
+                        {{-- Sub Skills --}}
+                        <div>
+                            <span class="text-slate-500 block text-xs font-bold uppercase mb-2">Authorized Sub Skills ({{ $user->subcategories->count() }})</span>
+                            <div class="flex flex-wrap gap-2">
+                                @forelse ($user->subcategories as $sub)
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-[#C5A059]/15 text-[#8F6B20] border border-[#C5A059]/30">
+                                        <span>🔧</span>
+                                        <span>{{ $sub->name }}</span>
+                                    </span>
+                                @empty
+                                    <span class="text-slate-400 text-xs italic">No sub-skills assigned.</span>
+                                @endforelse
+                            </div>
+                        </div>
+
+                        {{-- Credentials & Emergency Contact --}}
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
+                            <div>
+                                <span class="text-slate-400 block text-[11px] uppercase font-bold">Certification</span>
+                                <p class="text-slate-800 font-medium mt-0.5">
+                                    {{ $user->certification_id ?? 'No Certificate ID' }}
+                                    @if ($user->certification_body)
+                                        <span class="text-slate-500 block text-[11px]">({{ $user->certification_body }})</span>
+                                    @endif
+                                </p>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block text-[11px] uppercase font-bold">Emergency Contact</span>
+                                <p class="text-slate-800 font-medium mt-0.5">
+                                    {{ $user->emergency_contact_name ?? 'Not provided' }}
+                                    @if ($user->emergency_contact_phone)
+                                        <span class="text-slate-500 font-mono block text-[11px]">{{ $user->emergency_contact_phone }}</span>
+                                    @endif
+                                </p>
+                            </div>
+                        </div>
+
+                        @if ($user->bio)
+                            <div class="pt-2 border-t border-slate-100">
+                                <span class="text-slate-400 block text-[11px] uppercase font-bold mb-1">Technician Bio</span>
+                                <p class="text-slate-700 leading-relaxed bg-slate-50 p-3 rounded-xl border border-slate-200/80">{{ $user->bio }}</p>
+                            </div>
+                        @endif
+                    </div>
+                </x-card>
+            @endif
+
+            {{-- Assigned Security Roles --}}
             <x-card title="Assigned Security Roles" subtitle="Roles governing this account's access and privileges">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     @forelse ($user->roles as $role)

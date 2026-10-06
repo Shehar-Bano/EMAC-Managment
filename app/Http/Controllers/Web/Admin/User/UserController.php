@@ -11,6 +11,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\User\BulkDeleteUserRequest;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
+use App\Models\Category;
 use App\Models\Region;
 use App\Models\Role;
 use App\Models\User;
@@ -53,7 +54,7 @@ class UserController extends Controller
         ];
 
         $perPageParam = strtolower($request->get('per_page', '10'));
-        $query = User::with(['roles', 'addresses'])
+        $query = User::with(['roles', 'addresses', 'category', 'subcategories'])
             ->filter($request->only(['search', 'status', 'role_id', 'from_date', 'to_date']))
             ->when($activeType !== 'all', function (Builder $q) use ($activeType) {
                 if ($activeType === 'customers') {
@@ -109,9 +110,14 @@ class UserController extends Controller
 
         $roles = Role::orderBy('name')->get();
         $regions = Region::where('status', 'active')->orderBy('name')->get();
+        $categories = Category::with(['subcategories' => fn ($q) => $q->where('status', 'active')->orderBy('sort_order')->orderBy('name')])
+            ->where('status', 'active')
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
         $defaultRole = $roles->firstWhere('slug', $targetRoleSlug) ?? $roles->first();
 
-        return view('dashboard.modules.users.create', compact('roles', 'regions', 'activeType', 'defaultRole'));
+        return view('dashboard.modules.users.create', compact('roles', 'regions', 'categories', 'activeType', 'defaultRole'));
     }
 
     /**
@@ -159,7 +165,7 @@ class UserController extends Controller
     {
         $this->authorize('users.view');
 
-        $user->load(['roles.permissions', 'addresses.region', 'serviceRequests.latestQuote', 'quotes']);
+        $user->load(['roles.permissions', 'addresses.region', 'category', 'subcategories', 'serviceRequests.latestQuote', 'quotes']);
 
         $activeType = $request->get('type', $this->resolveUserType($user));
 
@@ -173,12 +179,17 @@ class UserController extends Controller
     {
         $this->authorize('users.edit');
 
-        $user->load(['roles', 'addresses.region']);
+        $user->load(['roles', 'addresses.region', 'category', 'subcategories']);
         $roles = Role::orderBy('name')->get();
         $regions = Region::where('status', 'active')->orderBy('name')->get();
+        $categories = Category::with(['subcategories' => fn ($q) => $q->where('status', 'active')->orderBy('sort_order')->orderBy('name')])
+            ->where('status', 'active')
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
         $activeType = $request->get('type', $this->resolveUserType($user));
 
-        return view('dashboard.modules.users.edit', compact('user', 'roles', 'regions', 'activeType'));
+        return view('dashboard.modules.users.edit', compact('user', 'roles', 'regions', 'categories', 'activeType'));
     }
 
     /**

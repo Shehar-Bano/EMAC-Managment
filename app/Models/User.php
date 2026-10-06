@@ -9,6 +9,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -33,6 +34,16 @@ class User extends Authenticatable
         'address',
         'password',
         'role',
+        'category_id',
+        'duty_status',
+        'experience_years',
+        'bio',
+        'emergency_contact_name',
+        'emergency_contact_phone',
+        'certification_id',
+        'certification_body',
+        'is_verified',
+        'verified_at',
         'source',
         'status',
         'account_status',
@@ -61,6 +72,9 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
+            'experience_years' => 'integer',
+            'is_verified' => 'boolean',
+            'verified_at' => 'datetime',
             'email_verified_at' => 'datetime',
             'phone_verified_at' => 'datetime',
             'last_login_at' => 'datetime',
@@ -69,6 +83,39 @@ class User extends Authenticatable
             'profile_status' => ProfileStatus::class,
             'source' => AuthSource::class,
         ];
+    }
+
+    /**
+     * Main category / skill assigned to technician.
+     */
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class, 'category_id');
+    }
+
+    /**
+     * Subcategories / sub skills assigned to technician.
+     */
+    public function subcategories(): BelongsToMany
+    {
+        return $this->belongsToMany(Subcategory::class, 'usersubskills', 'user_id', 'subcategory_id')
+            ->withTimestamps();
+    }
+
+    /**
+     * Alias for subcategories (subSkills).
+     */
+    public function subSkills(): BelongsToMany
+    {
+        return $this->subcategories();
+    }
+
+    /**
+     * Raw UserSubskill records.
+     */
+    public function userSubskills(): HasMany
+    {
+        return $this->hasMany(UserSubskill::class, 'user_id');
     }
 
     /**

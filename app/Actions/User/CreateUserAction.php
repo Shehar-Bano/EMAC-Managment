@@ -33,6 +33,16 @@ class CreateUserAction
                 'status' => $data['status'] ?? 'active',
                 'password' => Hash::make($data['password']),
                 'role' => $data['role'] ?? null,
+                'category_id' => $data['category_id'] ?? null,
+                'duty_status' => $data['duty_status'] ?? 'on_duty',
+                'experience_years' => isset($data['experience_years']) ? (int) $data['experience_years'] : null,
+                'bio' => $data['bio'] ?? null,
+                'emergency_contact_name' => $data['emergency_contact_name'] ?? null,
+                'emergency_contact_phone' => $data['emergency_contact_phone'] ?? null,
+                'certification_id' => $data['certification_id'] ?? null,
+                'certification_body' => $data['certification_body'] ?? null,
+                'is_verified' => $data['is_verified'] ?? true,
+                'verified_at' => ! empty($data['is_verified']) ? now() : ($data['verified_at'] ?? null),
                 'email_verified_at' => now(),
                 'phone_verified_at' => ! empty($data['phone']) ? now() : null,
                 'account_status' => AccountStatus::VERIFIED,
@@ -47,6 +57,12 @@ class CreateUserAction
                 if ($roleModel) {
                     $user->roles()->sync([$roleModel->id]);
                 }
+            }
+
+            if (isset($data['subcategories']) && is_array($data['subcategories'])) {
+                $user->subcategories()->sync($data['subcategories']);
+            } elseif (isset($data['subcategory_ids']) && is_array($data['subcategory_ids'])) {
+                $user->subcategories()->sync($data['subcategory_ids']);
             }
 
             if (! empty($data['addresses']) && is_array($data['addresses'])) {

@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\V1\Quote\QuoteController;
 use App\Http\Controllers\Api\V1\Region\RegionController;
 use App\Http\Controllers\Api\V1\Role\RoleController;
 use App\Http\Controllers\Api\V1\ServiceRequest\ServiceRequestController;
+use App\Http\Controllers\Api\V1\Technician\TechnicianProfileController;
 use App\Http\Controllers\Api\V1\User\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -66,6 +67,23 @@ Route::prefix('v1')->group(function () {
         Route::get('quotes', [QuoteController::class, 'index']);
         Route::get('quotes/{id}', [QuoteController::class, 'show']);
         Route::post('quotes/{id}/respond', [QuoteController::class, 'respond']);
+
+        // Technician Profile & Operations Endpoints
+        Route::prefix('technician')->group(function () {
+            // Profile Details & General Updates
+            Route::get('profile', [TechnicianProfileController::class, 'show']);
+            Route::match(['post', 'put', 'patch'], 'profile', [TechnicianProfileController::class, 'update']);
+
+            // Real-time Duty Status Toggle
+            Route::patch('duty-status', [TechnicianProfileController::class, 'updateDutyStatus']);
+
+            // Services & Sub-skills Catalogue & Assignment
+            Route::get('services', [TechnicianProfileController::class, 'getServices']);
+            Route::match(['put', 'patch', 'post'], 'services', [TechnicianProfileController::class, 'updateServices']);
+
+            // Dedicated Avatar Upload
+            Route::post('avatar', [TechnicianProfileController::class, 'uploadAvatar']);
+        });
     });
 
     // ---------------------------------------------------------
