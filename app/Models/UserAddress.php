@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class UserAddress extends Model
 {
@@ -24,9 +25,11 @@ class UserAddress extends Model
      */
     protected $fillable = [
         'user_id',
+        'region_id',
         'country',
         'state',
         'city',
+        'zipcode',
         'address',
         'is_primary',
     ];
@@ -39,6 +42,7 @@ class UserAddress extends Model
     protected function casts(): array
     {
         return [
+            'region_id' => 'integer',
             'is_primary' => 'boolean',
         ];
     }
@@ -49,5 +53,21 @@ class UserAddress extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Region / Territory this address is located in.
+     */
+    public function region(): BelongsTo
+    {
+        return $this->belongsTo(Region::class, 'region_id');
+    }
+
+    /**
+     * Service requests associated with this address location.
+     */
+    public function serviceRequests(): HasMany
+    {
+        return $this->hasMany(ServiceRequest::class, 'user_address_id');
     }
 }

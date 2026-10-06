@@ -22,10 +22,29 @@ class ContactInquiry extends Model
         'email',
         'phone',
         'market',
+        'region_id',
         'category_id',
+        'subcategory_id',
+        'estimated_price',
+        'currency',
         'message',
+        'photographs',
+        'video',
         'status',
     ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'photographs' => 'array',
+            'estimated_price' => 'decimal:2',
+        ];
+    }
 
     /**
      * Category related to this inquiry.
@@ -33,6 +52,22 @@ class ContactInquiry extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class, 'category_id');
+    }
+
+    /**
+     * Subcategory related to this inquiry.
+     */
+    public function subcategory(): BelongsTo
+    {
+        return $this->belongsTo(Subcategory::class, 'subcategory_id');
+    }
+
+    /**
+     * Region related to this inquiry.
+     */
+    public function region(): BelongsTo
+    {
+        return $this->belongsTo(Region::class, 'region_id');
     }
 
     /**
@@ -58,6 +93,8 @@ class ContactInquiry extends Model
                 if ($market !== 'all') {
                     $q->where('market', $market);
                 }
-            });
+            })
+            ->when($filters['from_date'] ?? null, fn (Builder $q, $from) => $q->whereDate('created_at', '>=', $from))
+            ->when($filters['to_date'] ?? null, fn (Builder $q, $to) => $q->whereDate('created_at', '<=', $to));
     }
 }

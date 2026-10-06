@@ -2,10 +2,12 @@
 
 namespace App\Providers;
 
+use App\Models\Region;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -15,7 +17,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        if (file_exists(app_path('Helpers/helpers.php'))) {
+            require_once app_path('Helpers/helpers.php');
+        }
     }
 
     /**
@@ -42,6 +46,11 @@ class AppServiceProvider extends ServiceProvider
             }
 
             return $user->hasPermission($ability);
+        });
+
+        // Share active regions with website views
+        View::composer(['website.*', 'components.website.*'], function ($view) {
+            $view->with('websiteRegions', Region::whereNull('deleted_at')->where('status', 'active')->orderBy('name')->get());
         });
     }
 }

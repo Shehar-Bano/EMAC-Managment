@@ -1,46 +1,62 @@
-<x-dashboard.layout :title="'Edit Staff Account — EMAC Development ERP'">
+<x-dashboard.layout :title="'Edit Profile — ' . $user->name . ' — EMAC Development ERP'">
+
+    @php
+        $typeNames = [
+            'customers' => ['singular' => 'Customer', 'plural' => 'Customers Directory'],
+            'technicians' => ['singular' => 'Technician', 'plural' => 'Technicians & Field Staff'],
+            'admins' => ['singular' => 'Administrator', 'plural' => 'Administrator Users'],
+        ];
+        $typeInfo = $typeNames[$activeType] ?? $typeNames['customers'];
+    @endphp
 
     <x-slot:breadcrumbs>
         <span class="text-slate-400">/</span>
-        <a href="{{ route('dashboard.users.index') }}" class="hover:text-[#C5A059]">Users Directory</a>
+        <a href="{{ route('dashboard.users.index') }}" class="hover:text-[#8F6B20]">User Management</a>
+        <span class="text-slate-400">/</span>
+        <a href="{{ route('dashboard.users.index', ['type' => $activeType]) }}" class="hover:text-[#8F6B20]">User Directory</a>
         <span class="text-slate-400">/</span>
         <span class="font-semibold text-slate-800">Edit {{ $user->name }}</span>
     </x-slot:breadcrumbs>
 
     <x-slot:header>
         <div>
-            <h1 class="text-2xl font-bold tracking-tight text-slate-900">Edit Staff Account</h1>
+            <h1 class="text-2xl font-bold tracking-tight text-slate-900">Edit {{ $typeInfo['singular'] }} Account</h1>
             <p class="text-xs text-slate-500 mt-1">Update profile information, contact channels, physical addresses, and security role permissions</p>
         </div>
 
         <div>
-            <x-button href="{{ route('dashboard.users.index') }}" variant="secondary" size="sm">
-                &larr; Back to Directory
+            <x-button href="{{ route('dashboard.users.index', ['type' => $activeType]) }}" variant="secondary" size="sm">
+                &larr; Back to {{ $typeInfo['plural'] }}
             </x-button>
         </div>
     </x-slot:header>
 
     <div class="max-w-4xl">
-        <form method="POST" action="{{ route('dashboard.users.update', $user) }}" enctype="multipart/form-data" class="space-y-6" x-data="{
+        <form method="POST" action="{{ route('dashboard.users.update', $user) }}" enctype="multipart/form-data" autocomplete="off" class="space-y-6" x-data="{
             photoPreview: null,
             removeAvatar: false,
-            addresses: {{ json_encode(old('addresses', $user->addresses->count() > 0 ? $user->addresses->map(fn($a) => ['country' => $a->country, 'state' => $a->state, 'city' => $a->city, 'address' => $a->address])->values()->toArray() : [['country' => '', 'state' => '', 'city' => '', 'address' => '']])) }},
+            addresses: {{ json_encode(old('addresses', $user->addresses->count() > 0 ? $user->addresses->map(fn($a) => ['region_id' => $a->region_id, 'country' => $a->country, 'state' => $a->state, 'city' => $a->city, 'zipcode' => $a->zipcode, 'address' => $a->address])->values()->toArray() : [['region_id' => '', 'country' => '', 'state' => '', 'city' => '', 'zipcode' => '', 'address' => '']])) }},
             addAddress() {
-                this.addresses.push({ country: '', state: '', city: '', address: '' });
+                this.addresses.push({ region_id: '', country: '', state: '', city: '', zipcode: '', address: '' });
             },
             removeAddress(index) {
                 if (this.addresses.length > 1) {
                     this.addresses.splice(index, 1);
                 } else {
-                    this.addresses = [{ country: '', state: '', city: '', address: '' }];
+                    this.addresses = [{ region_id: '', country: '', state: '', city: '', zipcode: '', address: '' }];
                 }
             }
         }">
             @csrf
             @method('PUT')
+            {{-- Trap inputs to prevent aggressive browser autofill of admin credentials --}}
+            <input type="text" style="display:none" aria-hidden="true" tabindex="-1" autocomplete="false">
+            <input type="password" style="display:none" aria-hidden="true" tabindex="-1" autocomplete="false">
+
+            <input type="hidden" name="type" value="{{ $activeType }}">
 
             {{-- Account Information & Profile Photo Card --}}
-            <x-card title="Account Identity & Profile Photo" subtitle="Staff profile ID: #{{ $user->id }}">
+            <x-card title="Account Identity & Profile Photo" subtitle="User ID: #{{ $user->id }}">
                 {{-- Avatar Upload & Current Display Section --}}
                 <div class="mb-6 p-4 rounded-2xl bg-[#FAF8F4] border border-[#C5A059]/25 flex flex-col sm:flex-row items-center gap-5">
                     <div class="relative shrink-0">
@@ -99,12 +115,13 @@
 
                     {{-- Email --}}
                     <x-input
-                        label="Corporate Email Address"
+                        label="Email Address"
                         name="email"
                         type="email"
                         :value="$user->email"
                         placeholder="e.g. eleanor.vance@emac.test"
                         required
+                        autocomplete="off"
                     />
                 </div>
 
@@ -131,13 +148,239 @@
                         name="password"
                         type="password"
                         placeholder="Leave blank to keep existing password..."
+                        autocomplete="new-password"
                         hint="Only enter a value if you wish to reset this user's password."
                     />
                 </div>
             </x-card>
 
+            @if ($activeType === 'technicians' || $user->category_id || $user->role === 'technician' || $user->hasRole('technician'))
+                {{-- Technician Skills & Specialization Card --}}
+                <div x-data="{
+                    categories: {{ json_encode($categories->map(fn($c) => [
+                        'id' => $c->id,
+                        'name' => $c->name,
+                        'slug' => $c->slug,
+                        'subcategories' => $c->subcategories->map(fn($s) => [
+                            'id' => $s->id,
+                            'name' => $s->name,
+                            'slug' => $s->slug,
+                            'icon' => $s->icon,
+                        ]),
+                    ])) }},
+                    selectedCategoryId: '{{ old('category_id', $user->category_id ?? '') }}',
+                    selectedSubcategories: {{ json_encode(array_map('intval', old('subcategories', $user->subcategories->pluck('id')->toArray()))) }},
+                    get availableSubcategories() {
+                        if (!this.selectedCategoryId) return [];
+                        const found = this.categories.find(c => String(c.id) === String(this.selectedCategoryId));
+                        return found ? found.subcategories : [];
+                    },
+                    onCategoryChange() {
+                        const availableIds = this.availableSubcategories.map(s => Number(s.id));
+                        this.selectedSubcategories = this.selectedSubcategories.filter(id => availableIds.includes(Number(id)));
+                    },
+                    toggleSubcategory(id) {
+                        id = Number(id);
+                        const index = this.selectedSubcategories.indexOf(id);
+                        if (index > -1) {
+                            this.selectedSubcategories.splice(index, 1);
+                        } else {
+                            this.selectedSubcategories.push(id);
+                        }
+                    },
+                    selectAllSubcategories() {
+                        this.selectedSubcategories = this.availableSubcategories.map(s => Number(s.id));
+                    },
+                    clearSubcategories() {
+                        this.selectedSubcategories = [];
+                    }
+                }">
+                    <x-card title="Technician Skills & Operational Specialization" subtitle="Assign primary trade skill and authorized field service sub-skills">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-6">
+                            {{-- Skill (Main Category Single Select) --}}
+                            <div>
+                                <label for="category_id" class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
+                                    Skill <span class="text-rose-600">*</span>
+                                </label>
+                                <select
+                                    name="category_id"
+                                    id="category_id"
+                                    x-model="selectedCategoryId"
+                                    @change="onCategoryChange()"
+                                    required
+                                    class="block w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-xs text-slate-900 bg-white shadow-sm focus:border-[#C5A059] focus:ring-[#C5A059] transition-colors"
+                                >
+                                    <option value="">-- Select Primary Skill (Category) --</option>
+                                    @foreach ($categories as $category)
+                                        <option value="{{ $category->id }}" {{ (string) old('category_id', $user->category_id) === (string) $category->id ? 'selected' : '' }}>
+                                            {{ $category->name }} ({{ $category->subcategories->count() }} Sub Skills)
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <p class="text-[11px] text-slate-500 mt-1">Select the technician's core trade expertise.</p>
+                                @error('category_id')
+                                    <p class="mt-1 text-xs text-rose-600 font-medium">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            {{-- Duty Status --}}
+                            <div>
+                                <label for="duty_status" class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
+                                    Duty Status
+                                </label>
+                                <select
+                                    name="duty_status"
+                                    id="duty_status"
+                                    class="block w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-xs text-slate-900 bg-white shadow-sm focus:border-[#C5A059] focus:ring-[#C5A059] transition-colors"
+                                >
+                                    <option value="on_duty" {{ old('duty_status', $user->duty_status ?? 'on_duty') === 'on_duty' ? 'selected' : '' }}>🟢 On Duty (Available for jobs)</option>
+                                    <option value="off_duty" {{ old('duty_status', $user->duty_status) === 'off_duty' ? 'selected' : '' }}>⚪ Off Duty (Unavailable)</option>
+                                    <option value="break" {{ old('duty_status', $user->duty_status) === 'break' ? 'selected' : '' }}>🟡 On Break</option>
+                                </select>
+                                <p class="text-[11px] text-slate-500 mt-1">Current operational dispatch availability.</p>
+                                @error('duty_status')
+                                    <p class="mt-1 text-xs text-rose-600 font-medium">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+
+                        {{-- Sub Skills (Subcategories Multi-Select) --}}
+                        <div class="mb-6 p-4 rounded-2xl bg-slate-50/80 border border-slate-200">
+                            <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-200">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider">
+                                        Sub Skills <span class="text-rose-600">*</span>
+                                    </label>
+                                    <p class="text-[11px] text-slate-500 mt-0.5">Select one or multiple authorized services (minimum 1 required)</p>
+                                </div>
+                                <div class="flex items-center gap-2" x-show="availableSubcategories.length > 0">
+                                    <button
+                                        type="button"
+                                        @click="selectAllSubcategories()"
+                                        class="text-[11px] font-semibold text-[#8F6B20] hover:text-[#735518] hover:underline cursor-pointer"
+                                    >Select All</button>
+                                    <span class="text-slate-300">|</span>
+                                    <button
+                                        type="button"
+                                        @click="clearSubcategories()"
+                                        class="text-[11px] font-semibold text-slate-500 hover:text-slate-700 hover:underline cursor-pointer"
+                                    >Clear</button>
+                                </div>
+                            </div>
+
+                            <template x-if="!selectedCategoryId">
+                                <div class="py-6 text-center text-xs text-slate-400">
+                                    <svg class="w-8 h-8 mx-auto mb-2 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                    Please select a <strong>Skill</strong> above to see available Sub Skills.
+                                </div>
+                            </template>
+
+                            <template x-if="selectedCategoryId && availableSubcategories.length === 0">
+                                <div class="py-6 text-center text-xs text-slate-500">
+                                    No active sub-skills found for this category.
+                                </div>
+                            </template>
+
+                            <div x-show="selectedCategoryId && availableSubcategories.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                                <template x-for="sub in availableSubcategories" :key="sub.id">
+                                    <label
+                                        @click="toggleSubcategory(sub.id)"
+                                        class="flex items-center gap-2.5 p-2.5 rounded-xl border text-xs cursor-pointer transition-all select-none"
+                                        :class="selectedSubcategories.includes(Number(sub.id))
+                                            ? 'bg-amber-50/80 border-[#C5A059] text-slate-900 font-semibold shadow-xs ring-1 ring-[#C5A059]/40'
+                                            : 'bg-white border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50'"
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            name="subcategories[]"
+                                            :value="sub.id"
+                                            :checked="selectedSubcategories.includes(Number(sub.id))"
+                                            class="rounded border-slate-300 text-[#C5A059] focus:ring-[#C5A059] w-4 h-4 pointer-events-none"
+                                        >
+                                        <span class="truncate" x-text="sub.name"></span>
+                                    </label>
+                                </template>
+                            </div>
+
+                            @error('subcategories')
+                                <p class="mt-2 text-xs text-rose-600 font-medium">{{ $message }}</p>
+                            @enderror
+                            @error('subcategories.*')
+                                <p class="mt-1 text-xs text-rose-600 font-medium">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        {{-- Professional Credentials & Experience --}}
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-5">
+                            <div>
+                                <x-input
+                                    label="Years of Experience"
+                                    name="experience_years"
+                                    type="number"
+                                    min="0"
+                                    max="60"
+                                    placeholder="e.g. 8"
+                                    :value="old('experience_years', $user->experience_years ?? 0)"
+                                />
+                            </div>
+                            <div>
+                                <x-input
+                                    label="Certification ID"
+                                    name="certification_id"
+                                    :value="old('certification_id', $user->certification_id)"
+                                    placeholder="e.g. EMAC-TECH-CERT-0024"
+                                />
+                            </div>
+                            <div>
+                                <x-input
+                                    label="Certification Body"
+                                    name="certification_body"
+                                    :value="old('certification_body', $user->certification_body)"
+                                    placeholder="e.g. Cayman Islands Trade Guild"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
+                            <div>
+                                <x-input
+                                    label="Emergency Contact Name"
+                                    name="emergency_contact_name"
+                                    :value="old('emergency_contact_name', $user->emergency_contact_name)"
+                                    placeholder="e.g. Sarah Davis"
+                                />
+                            </div>
+                            <div>
+                                <x-input
+                                    label="Emergency Contact Phone"
+                                    name="emergency_contact_phone"
+                                    :value="old('emergency_contact_phone', $user->emergency_contact_phone)"
+                                    placeholder="e.g. +1 345 925 1102"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="bio" class="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
+                                Technician Bio / Professional Summary
+                            </label>
+                            <textarea
+                                name="bio"
+                                id="bio"
+                                rows="3"
+                                placeholder="Lead Master Technician specializing in luxury residential hydraulics, high-pressure line diagnostics..."
+                                class="block w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-xs text-slate-900 bg-white shadow-sm focus:border-[#C5A059] focus:ring-[#C5A059] transition-colors"
+                            >{{ old('bio', $user->bio) }}</textarea>
+                            @error('bio')
+                                <p class="mt-1 text-xs text-rose-600 font-medium">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </x-card>
+                </div>
+            @endif
+
             {{-- Multiple User Addresses Card --}}
-            <x-card title="Registered User Addresses" subtitle="Store multiple physical and mailing addresses for this user">
+            <x-card title="Registered User Addresses" subtitle="Store multiple physical, service, and mailing addresses">
                 <x-slot:actions>
                     <button
                         type="button"
@@ -168,34 +411,47 @@
                                 </button>
                             </div>
 
-                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-3">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-3">
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-700 uppercase mb-1">State / Region</label>
+                                    <select
+                                        :name="`addresses[${index}][region_id]`"
+                                        x-model="addr.region_id"
+                                        class="block w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs text-slate-900 bg-white focus:border-[#C5A059] focus:ring-[#C5A059]"
+                                    >
+                                        <option value="">Select Territory / Region...</option>
+                                        @foreach ($regions as $region)
+                                            <option value="{{ $region->id }}">{{ $region->name }} ({{ $region->code ?: $region->currency }})</option>
+                                        @endforeach
+                                    </select>
+                                </div>
                                 <div>
                                     <label class="block text-[11px] font-semibold text-slate-700 uppercase mb-1">Country</label>
                                     <input
                                         type="text"
                                         :name="`addresses[${index}][country]`"
                                         x-model="addr.country"
-                                        placeholder="e.g. United States"
+                                        placeholder="e.g. Cayman Islands / US"
                                         class="block w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs text-slate-900 bg-white focus:border-[#C5A059] focus:ring-[#C5A059]"
                                     >
                                 </div>
                                 <div>
-                                    <label class="block text-[11px] font-semibold text-slate-700 uppercase mb-1">State / Province</label>
-                                    <input
-                                        type="text"
-                                        :name="`addresses[${index}][state]`"
-                                        x-model="addr.state"
-                                        placeholder="e.g. California"
-                                        class="block w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs text-slate-900 bg-white focus:border-[#C5A059] focus:ring-[#C5A059]"
-                                    >
-                                </div>
-                                <div>
-                                    <label class="block text-[11px] font-semibold text-slate-700 uppercase mb-1">City</label>
+                                    <label class="block text-[11px] font-semibold text-slate-700 uppercase mb-1">City / District</label>
                                     <input
                                         type="text"
                                         :name="`addresses[${index}][city]`"
                                         x-model="addr.city"
-                                        placeholder="e.g. Los Angeles"
+                                        placeholder="e.g. George Town / Miami"
+                                        class="block w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs text-slate-900 bg-white focus:border-[#C5A059] focus:ring-[#C5A059]"
+                                    >
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-700 uppercase mb-1">Zipcode / Postal Code</label>
+                                    <input
+                                        type="text"
+                                        :name="`addresses[${index}][zipcode]`"
+                                        x-model="addr.zipcode"
+                                        placeholder="e.g. KY1-1102 / 33101"
                                         class="block w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs text-slate-900 bg-white focus:border-[#C5A059] focus:ring-[#C5A059]"
                                     >
                                 </div>
@@ -216,21 +472,24 @@
                 </div>
             </x-card>
 
-            {{-- Role Assignment Multi-Checkbox Grid --}}
-            <x-card title="Assigned Security Roles" subtitle="Select the roles that determine system-wide permission access">
+            {{-- Role Assignment Radio Selection --}}
+            <x-card title="Assigned Security Role" subtitle="Select the primary role that determines system-wide permission access">
                 @php
-                    $userRoleIds = old('roles', $user->roles->pluck('id')->toArray());
+                    $selectedRoleId = (int) old('role_id', old('roles.0', ($user->roles->first()?->id ?? 0)));
                 @endphp
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     @foreach ($roles as $role)
-                        <label class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 hover:border-[#C5A059] hover:bg-[#C5A059]/5 transition-colors cursor-pointer">
+                        @php
+                            $isChecked = ($role->id === $selectedRoleId);
+                        @endphp
+                        <label class="flex items-start gap-3 p-3.5 rounded-xl border transition-all cursor-pointer {{ $isChecked ? 'border-[#C5A059] bg-amber-50/50 ring-1 ring-[#C5A059]' : 'border-slate-200 hover:border-slate-300 bg-white' }}">
                             <input
-                                type="checkbox"
-                                name="roles[]"
+                                type="radio"
+                                name="role_id"
                                 value="{{ $role->id }}"
-                                {{ in_array($role->id, $userRoleIds) ? 'checked' : '' }}
-                                class="mt-0.5 rounded-sm border-slate-300 text-[#C5A059] focus:ring-[#C5A059] w-4 h-4 cursor-pointer"
+                                {{ $isChecked ? 'checked' : '' }}
+                                class="mt-0.5 border-slate-300 text-[#C5A059] focus:ring-[#C5A059] w-4 h-4 cursor-pointer"
                             >
                             <div class="text-xs">
                                 <span class="font-bold text-slate-900 block">{{ $role->name }}</span>
@@ -239,13 +498,16 @@
                         </label>
                     @endforeach
                 </div>
+                @error('role_id')
+                    <p class="mt-2 text-xs text-rose-600">{{ $message }}</p>
+                @enderror
                 @error('roles')
                     <p class="mt-2 text-xs text-rose-600">{{ $message }}</p>
                 @enderror
 
                 <x-slot:footer>
                     <div class="flex items-center justify-end gap-3 w-full">
-                        <x-button href="{{ route('dashboard.users.index') }}" variant="secondary">
+                        <x-button href="{{ route('dashboard.users.index', ['type' => $activeType]) }}" variant="secondary">
                             Cancel
                         </x-button>
                         <x-button type="submit" variant="primary">

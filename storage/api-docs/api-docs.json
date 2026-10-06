@@ -1,0 +1,3405 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "EMAC ERP & Customer Authentication API",
+        "description": "Complete REST API documentation for the EMAC platform including Customer Authentication, OTP verification, Password Management, Social Login, and User Profiles.",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "/public",
+            "description": "Server with /public prefix (Live / Shared Hosting)"
+        },
+        {
+            "url": "/",
+            "description": "Direct / Root Server (Localhost / Custom Domain)"
+        }
+    ],
+    "paths": {
+        "/api/v1/terms": {
+            "get": {
+                "tags": [
+                    "Legal & Compliance"
+                ],
+                "summary": "Get Terms and Conditions",
+                "description": "Get the active Terms & Conditions.",
+                "operationId": "1643dc06ee79d97ef73902b4185375f7",
+                "responses": {
+                    "200": {
+                        "description": "Active Terms and Conditions retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "status_code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Terms and Conditions retrieved successfully."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "type": {
+                                                    "type": "string",
+                                                    "example": "terms"
+                                                },
+                                                "title": {
+                                                    "type": "string",
+                                                    "example": "Terms and Conditions"
+                                                },
+                                                "version": {
+                                                    "type": "string",
+                                                    "example": "1.0"
+                                                },
+                                                "effective_date": {
+                                                    "type": "string",
+                                                    "example": "2026-09-01"
+                                                },
+                                                "content": {
+                                                    "type": "string",
+                                                    "example": "<h3>1. Agreement to Terms</h3>..."
+                                                },
+                                                "updated_at": {
+                                                    "type": "string",
+                                                    "example": "2026-09-22T06:00:00.000000Z"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Terms and conditions document not found"
+                    }
+                }
+            }
+        },
+        "/api/v1/privacy": {
+            "get": {
+                "tags": [
+                    "Legal & Compliance"
+                ],
+                "summary": "Get Privacy Policy",
+                "description": "Get the active Privacy Policy.",
+                "operationId": "24d265a551fa983de6ea618955d8e59c",
+                "responses": {
+                    "200": {
+                        "description": "Active Privacy Policy retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "status_code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Privacy Policy retrieved successfully."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 2
+                                                },
+                                                "type": {
+                                                    "type": "string",
+                                                    "example": "privacy"
+                                                },
+                                                "title": {
+                                                    "type": "string",
+                                                    "example": "Privacy Policy"
+                                                },
+                                                "version": {
+                                                    "type": "string",
+                                                    "example": "1.0"
+                                                },
+                                                "effective_date": {
+                                                    "type": "string",
+                                                    "example": "2026-09-01"
+                                                },
+                                                "content": {
+                                                    "type": "string",
+                                                    "example": "<h3>1. Information We Collect</h3>..."
+                                                },
+                                                "updated_at": {
+                                                    "type": "string",
+                                                    "example": "2026-09-22T06:00:00.000000Z"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Privacy policy document not found"
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/register": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Register a new customer",
+                "operationId": "df6a1334cb93919048c13dacd9483371",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "phone",
+                                    "address",
+                                    "password",
+                                    "confirm_password",
+                                    "terms_accepted",
+                                    "privacy_policy_accepted",
+                                    "role"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john@example.com"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "+1234567890"
+                                    },
+                                    "address": {
+                                        "description": "Primary address line (stored in user_addresses table)",
+                                        "type": "string",
+                                        "example": "123 Example Street"
+                                    },
+                                    "region_id": {
+                                        "description": "ID of operating territory region (from /api/v1/regions)",
+                                        "type": "integer",
+                                        "example": 1,
+                                        "nullable": true
+                                    },
+                                    "country": {
+                                        "type": "string",
+                                        "example": "Cayman Islands",
+                                        "nullable": true
+                                    },
+                                    "state": {
+                                        "type": "string",
+                                        "example": "Grand Cayman",
+                                        "nullable": true
+                                    },
+                                    "city": {
+                                        "type": "string",
+                                        "example": "George Town",
+                                        "nullable": true
+                                    },
+                                    "zipcode": {
+                                        "type": "string",
+                                        "example": "KY1-1102",
+                                        "nullable": true
+                                    },
+                                    "addresses": {
+                                        "description": "Optional list of user addresses",
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "region_id": {
+                                                    "type": "integer",
+                                                    "example": 1,
+                                                    "nullable": true
+                                                },
+                                                "country": {
+                                                    "type": "string",
+                                                    "example": "Cayman Islands"
+                                                },
+                                                "state": {
+                                                    "type": "string",
+                                                    "example": "Grand Cayman"
+                                                },
+                                                "city": {
+                                                    "type": "string",
+                                                    "example": "George Town"
+                                                },
+                                                "zipcode": {
+                                                    "type": "string",
+                                                    "example": "KY1-1102",
+                                                    "nullable": true
+                                                },
+                                                "address": {
+                                                    "type": "string",
+                                                    "example": "123 Example Street, Apt 4B"
+                                                },
+                                                "is_primary": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "nullable": true
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "StrongPassword123!"
+                                    },
+                                    "confirm_password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "StrongPassword123!"
+                                    },
+                                    "terms_accepted": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "privacy_policy_accepted": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "role": {
+                                        "type": "string",
+                                        "example": "customer",
+                                        "enum": [
+                                            "customer"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Registration successful. OTP sent.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "status_code": {
+                                            "type": "integer",
+                                            "example": 201
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Registration successful. Please verify your account using the OTP sent to your registered contact."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "user_id": {
+                                                    "type": "integer",
+                                                    "example": 101
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "example": "john@example.com"
+                                                },
+                                                "phone": {
+                                                    "type": "string",
+                                                    "example": "+1234567890"
+                                                },
+                                                "role": {
+                                                    "type": "string",
+                                                    "example": "customer"
+                                                },
+                                                "account_status": {
+                                                    "type": "string",
+                                                    "example": "pending"
+                                                },
+                                                "profile_status": {
+                                                    "type": "string",
+                                                    "example": "incomplete"
+                                                },
+                                                "otp_required": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "otp_purpose": {
+                                                    "type": "string",
+                                                    "example": "registration"
+                                                },
+                                                "otp": {
+                                                    "description": "Generated 6-digit OTP",
+                                                    "type": "string",
+                                                    "example": "123456"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "meta": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "status_code": {
+                                            "type": "integer",
+                                            "example": 422
+                                        },
+                                        "error_code": {
+                                            "type": "string",
+                                            "example": "ERR_VALIDATION_FAILED"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The email field must be a valid email address."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/login": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Customer login",
+                "operationId": "a813263619cdab2bd300098d70772d98",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "StrongPassword123!"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login successful with Bearer access token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "status_code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Login successful."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "user": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 101
+                                                        },
+                                                        "name": {
+                                                            "type": "string",
+                                                            "example": "John Doe"
+                                                        },
+                                                        "email": {
+                                                            "type": "string",
+                                                            "example": "john@example.com"
+                                                        },
+                                                        "phone": {
+                                                            "type": "string",
+                                                            "example": "+1234567890"
+                                                        },
+                                                        "role": {
+                                                            "type": "string",
+                                                            "example": "customer"
+                                                        },
+                                                        "account_status": {
+                                                            "type": "string",
+                                                            "example": "verified"
+                                                        },
+                                                        "profile_status": {
+                                                            "type": "string",
+                                                            "example": "incomplete"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "access_token": {
+                                                    "type": "string",
+                                                    "example": "1|239a0fa02..."
+                                                },
+                                                "token_type": {
+                                                    "type": "string",
+                                                    "example": "Bearer"
+                                                },
+                                                "expires_in": {
+                                                    "type": "integer",
+                                                    "example": 86400
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid credentials"
+                    },
+                    "403": {
+                        "description": "Account not verified or restricted"
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/social": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Social Authentication (Google)",
+                "operationId": "cc58c535813b38ff95a47b5c4e55cdda",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "provider",
+                                    "id_token",
+                                    "role"
+                                ],
+                                "properties": {
+                                    "provider": {
+                                        "type": "string",
+                                        "example": "google",
+                                        "enum": [
+                                            "google"
+                                        ]
+                                    },
+                                    "id_token": {
+                                        "type": "string",
+                                        "example": "eyJhbGciOi..."
+                                    },
+                                    "role": {
+                                        "type": "string",
+                                        "example": "customer",
+                                        "enum": [
+                                            "customer"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Google authentication successful"
+                    },
+                    "401": {
+                        "description": "Invalid provider token"
+                    },
+                    "409": {
+                        "description": "Secure account linking required"
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/otp/send": {
+            "post": {
+                "tags": [
+                    "OTP"
+                ],
+                "summary": "Send / Resend OTP",
+                "operationId": "36df4ee193ba841dda67e2089b6a552c",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "identifier",
+                                    "purpose"
+                                ],
+                                "properties": {
+                                    "identifier": {
+                                        "type": "string",
+                                        "example": "john@example.com"
+                                    },
+                                    "purpose": {
+                                        "type": "string",
+                                        "example": "registration",
+                                        "enum": [
+                                            "registration",
+                                            "forgot_password",
+                                            "reset_password"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OTP sent successfully"
+                    },
+                    "429": {
+                        "description": "Resend cooldown limit (60s) reached"
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/otp/verify": {
+            "post": {
+                "tags": [
+                    "OTP"
+                ],
+                "summary": "Verify OTP (Registration issues access_token and logs user in directly)",
+                "operationId": "6beb1693c3e92612d9f24de6f3241c40",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "identifier",
+                                    "otp",
+                                    "purpose"
+                                ],
+                                "properties": {
+                                    "identifier": {
+                                        "type": "string",
+                                        "example": "john@example.com"
+                                    },
+                                    "otp": {
+                                        "type": "string",
+                                        "example": "123456"
+                                    },
+                                    "purpose": {
+                                        "type": "string",
+                                        "example": "registration",
+                                        "enum": [
+                                            "registration",
+                                            "forgot_password",
+                                            "reset_password"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OTP verified successfully. If purpose is registration, returns access_token and user object.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "status_code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Account verified successfully. You are now logged in."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "user_id": {
+                                                    "type": "integer",
+                                                    "example": 101,
+                                                    "nullable": true
+                                                },
+                                                "access_token": {
+                                                    "type": "string",
+                                                    "example": "1|239a0fa02...",
+                                                    "nullable": true
+                                                },
+                                                "token_type": {
+                                                    "type": "string",
+                                                    "example": "Bearer",
+                                                    "nullable": true
+                                                },
+                                                "account_status": {
+                                                    "type": "string",
+                                                    "example": "verified",
+                                                    "nullable": true
+                                                },
+                                                "profile_status": {
+                                                    "type": "string",
+                                                    "example": "incomplete",
+                                                    "nullable": true
+                                                },
+                                                "otp_purpose": {
+                                                    "type": "string",
+                                                    "example": "registration",
+                                                    "nullable": true
+                                                },
+                                                "login_required": {
+                                                    "type": "boolean",
+                                                    "example": false,
+                                                    "nullable": true
+                                                },
+                                                "reset_token": {
+                                                    "type": "string",
+                                                    "example": "a9f4c3...",
+                                                    "nullable": true
+                                                },
+                                                "password_change_token": {
+                                                    "type": "string",
+                                                    "example": "b8e2...",
+                                                    "nullable": true
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid or expired OTP"
+                    },
+                    "429": {
+                        "description": "Too many OTP attempts (max 5)"
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/password/forgot": {
+            "post": {
+                "tags": [
+                    "Password Management"
+                ],
+                "summary": "Request forgot password OTP",
+                "operationId": "2d79c633b117f90ede1bdaf6c8043521",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john@example.com"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "If an account exists, OTP has been sent"
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/password/reset": {
+            "post": {
+                "tags": [
+                    "Password Management"
+                ],
+                "summary": "Reset forgotten password",
+                "operationId": "8dff5c9d32db137130b87224a03899da",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "reset_token",
+                                    "new_password",
+                                    "confirm_password"
+                                ],
+                                "properties": {
+                                    "reset_token": {
+                                        "type": "string",
+                                        "example": "a9f4c3..."
+                                    },
+                                    "new_password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "NewStrongPassword123!"
+                                    },
+                                    "confirm_password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "NewStrongPassword123!"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Password reset successfully"
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/password/change/request-otp": {
+            "post": {
+                "tags": [
+                    "Password Management"
+                ],
+                "summary": "Request OTP for authenticated password change",
+                "operationId": "d857f846d0300774732f9f8004bb5ae6",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "current_password"
+                                ],
+                                "properties": {
+                                    "current_password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "CurrentPassword123!"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OTP sent for password change"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/auth/password/change": {
+            "post": {
+                "tags": [
+                    "Password Management"
+                ],
+                "summary": "Change password using short-lived change token (renews user access_token)",
+                "operationId": "5735723c4871f19f7341ef73f1c6702f",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "password_change_token",
+                                    "new_password",
+                                    "confirm_password"
+                                ],
+                                "properties": {
+                                    "password_change_token": {
+                                        "type": "string",
+                                        "example": "b8e2..."
+                                    },
+                                    "new_password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "BrandNewPassword123!"
+                                    },
+                                    "confirm_password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "BrandNewPassword123!"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Password changed successfully with renewed access_token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "status_code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Password changed successfully. Your session has been renewed."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "access_token": {
+                                                    "type": "string",
+                                                    "example": "1|239a0fa02..."
+                                                },
+                                                "token_type": {
+                                                    "type": "string",
+                                                    "example": "Bearer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/auth/refresh": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Refresh access token",
+                "operationId": "22c559befdc6cfd78d5ec9e2e8d93a3c",
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "refresh_token": {
+                                        "type": "string",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Access token refreshed successfully"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/auth/logout": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Logout user",
+                "operationId": "1d7f82f6722988b35b13b7735f1ec374",
+                "responses": {
+                    "200": {
+                        "description": "Logout successful"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/auth/profile": {
+            "get": {
+                "tags": [
+                    "User Profile"
+                ],
+                "summary": "Get customer profile",
+                "operationId": "cf2c8215d1c6da148786d7eb9fa1c15b",
+                "responses": {
+                    "200": {
+                        "description": "Profile retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "status_code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 101
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "John Doe"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "example": "john@example.com"
+                                                },
+                                                "phone": {
+                                                    "type": "string",
+                                                    "example": "+1234567890"
+                                                },
+                                                "address": {
+                                                    "type": "string",
+                                                    "example": "123 Example Street"
+                                                },
+                                                "addresses": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "region_id": {
+                                                                "type": "integer",
+                                                                "example": 1,
+                                                                "nullable": true
+                                                            },
+                                                            "region_name": {
+                                                                "type": "string",
+                                                                "example": "Grand Cayman"
+                                                            },
+                                                            "region_code": {
+                                                                "type": "string",
+                                                                "example": "GC"
+                                                            },
+                                                            "currency": {
+                                                                "type": "string",
+                                                                "example": "KYD"
+                                                            },
+                                                            "country": {
+                                                                "type": "string",
+                                                                "example": "Cayman Islands"
+                                                            },
+                                                            "state": {
+                                                                "type": "string",
+                                                                "example": "Grand Cayman"
+                                                            },
+                                                            "city": {
+                                                                "type": "string",
+                                                                "example": "George Town"
+                                                            },
+                                                            "zipcode": {
+                                                                "type": "string",
+                                                                "example": "KY1-1102"
+                                                            },
+                                                            "address": {
+                                                                "type": "string",
+                                                                "example": "123 Example Street, Apt 4B"
+                                                            },
+                                                            "is_primary": {
+                                                                "type": "boolean",
+                                                                "example": true
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "avatar_url": {
+                                                    "type": "string",
+                                                    "example": "https://midnightblue-deer-551084.hostingersite.com/public/storage/avatars/user.jpg"
+                                                },
+                                                "role": {
+                                                    "type": "string",
+                                                    "example": "customer"
+                                                },
+                                                "source": {
+                                                    "type": "string",
+                                                    "example": "email"
+                                                },
+                                                "account_status": {
+                                                    "type": "string",
+                                                    "example": "verified"
+                                                },
+                                                "profile_status": {
+                                                    "type": "string",
+                                                    "example": "complete"
+                                                },
+                                                "email_verified_at": {
+                                                    "type": "string",
+                                                    "example": "2026-09-21T10:15:00Z"
+                                                },
+                                                "phone_verified_at": {
+                                                    "type": "string",
+                                                    "nullable": true
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/profile": {
+            "patch": {
+                "tags": [
+                    "User Profile"
+                ],
+                "summary": "Update or complete profile (supports JSON or multipart form-data with image upload)",
+                "operationId": "818d29e6abeb4859728e4305eeb01c52",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "+1234567890"
+                                    },
+                                    "address": {
+                                        "type": "string",
+                                        "example": "Updated 456 Avenue"
+                                    },
+                                    "region_id": {
+                                        "type": "integer",
+                                        "example": 1,
+                                        "nullable": true
+                                    },
+                                    "country": {
+                                        "type": "string",
+                                        "example": "Cayman Islands",
+                                        "nullable": true
+                                    },
+                                    "state": {
+                                        "type": "string",
+                                        "example": "Grand Cayman",
+                                        "nullable": true
+                                    },
+                                    "city": {
+                                        "type": "string",
+                                        "example": "George Town",
+                                        "nullable": true
+                                    },
+                                    "zipcode": {
+                                        "type": "string",
+                                        "example": "KY1-1102",
+                                        "nullable": true
+                                    },
+                                    "image": {
+                                        "description": "Profile picture / image (JPEG, PNG, JPG, WEBP, max 5MB)",
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "avatar": {
+                                        "description": "Profile picture alias (JPEG, PNG, JPG, WEBP, max 5MB)",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Profile updated successfully"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/service-requests": {
+            "get": {
+                "tags": [
+                    "Service Requests"
+                ],
+                "summary": "List customer service requests",
+                "description": "Get a paginated list of service requests submitted by the authenticated customer (or all requests if admin/staff). Supports filtering by category_id, subcategory_id, status, priority, and pagination.",
+                "operationId": "4f37ed85bbce70a25b1dc19a323829cb",
+                "parameters": [
+                    {
+                        "name": "category_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "subcategory_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 2
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "pending",
+                                "active",
+                                "completed"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "priority",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "normal",
+                                "emergency"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 15
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of service requests retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "status_code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Service requests retrieved successfully."
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "category_id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "subcategory_id": {
+                                                        "type": "integer",
+                                                        "example": 2,
+                                                        "nullable": true
+                                                    },
+                                                    "description": {
+                                                        "type": "string",
+                                                        "example": "Central AC issue"
+                                                    },
+                                                    "priority": {
+                                                        "type": "string",
+                                                        "example": "normal"
+                                                    },
+                                                    "status": {
+                                                        "type": "string",
+                                                        "example": "pending"
+                                                    },
+                                                    "preferred_service_date": {
+                                                        "type": "string",
+                                                        "example": "2026-10-05"
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string",
+                                                        "example": "2026-09-24T16:30:00+05:00"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "meta": {
+                                            "properties": {
+                                                "current_page": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "per_page": {
+                                                    "type": "integer",
+                                                    "example": 15
+                                                },
+                                                "total": {
+                                                    "type": "integer",
+                                                    "example": 5
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Service Requests"
+                ],
+                "summary": "Submit a new customer service request",
+                "description": "Allows authenticated customers to submit a service request with category ID, optional subcategory ID, description, property details, location address ID, schedule preferences, priority, optional notes, photographs (jpg/png/webp max 10MB), and videos (mp4/mov/avi max 50MB).",
+                "operationId": "a1d7feeea93bbb6c65d8e14b4149b99c",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "category_id",
+                                    "description",
+                                    "property_information",
+                                    "user_address_id",
+                                    "preferred_service_date",
+                                    "preferred_service_time"
+                                ],
+                                "properties": {
+                                    "category_id": {
+                                        "description": "ID of the selected service category (from /api/v1/categories/catalog)",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "subcategory_id": {
+                                        "description": "ID of specific task/subcategory (from /api/v1/categories/catalog)",
+                                        "type": "integer",
+                                        "example": 2,
+                                        "nullable": true
+                                    },
+                                    "description": {
+                                        "description": "Detailed written description of the issue",
+                                        "type": "string",
+                                        "example": "Central AC is making a loud rattling noise and not blowing cold air."
+                                    },
+                                    "property_information": {
+                                        "description": "Property details and access instructions",
+                                        "type": "string",
+                                        "example": "2-storey residential villa, Unit 4B, rooftop AC compressor access via exterior ladder."
+                                    },
+                                    "user_address_id": {
+                                        "description": "ID of existing user address record from user_addresses table",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "preferred_service_date": {
+                                        "description": "Requested service date (YYYY-MM-DD)",
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2026-10-05"
+                                    },
+                                    "preferred_service_time": {
+                                        "description": "Requested time slot or hour",
+                                        "type": "string",
+                                        "example": "10:00 AM - 12:00 PM"
+                                    },
+                                    "is_emergency": {
+                                        "description": "Set true if this is an urgent/emergency repair request (defaults to false)",
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "priority": {
+                                        "description": "Priority of service: normal (default) or emergency",
+                                        "type": "string",
+                                        "example": "normal",
+                                        "enum": [
+                                            "normal",
+                                            "emergency"
+                                        ]
+                                    },
+                                    "additional_notes": {
+                                        "type": "string",
+                                        "example": "Gate code is 4321. Please call 15 minutes before arrival.",
+                                        "nullable": true
+                                    },
+                                    "photographs[]": {
+                                        "description": "Up to 10 image files (JPEG, PNG, WEBP, max 10MB each)",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "binary"
+                                        }
+                                    },
+                                    "videos[]": {
+                                        "description": "Up to 3 video files (MP4, MOV, AVI, WEBM, max 50MB each)",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "binary"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Service request created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "status_code": {
+                                            "type": "integer",
+                                            "example": 201
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Service request submitted successfully."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "category_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "subcategory_id": {
+                                                    "type": "integer",
+                                                    "example": 2,
+                                                    "nullable": true
+                                                },
+                                                "category": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "name": {
+                                                            "type": "string",
+                                                            "example": "Handyman Services"
+                                                        },
+                                                        "slug": {
+                                                            "type": "string",
+                                                            "example": "handyman-services"
+                                                        },
+                                                        "icon": {
+                                                            "type": "string",
+                                                            "example": "🔧"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "subcategory": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 2
+                                                        },
+                                                        "name": {
+                                                            "type": "string",
+                                                            "example": "General repairs"
+                                                        },
+                                                        "slug": {
+                                                            "type": "string",
+                                                            "example": "general-repairs"
+                                                        },
+                                                        "icon": {
+                                                            "type": "string",
+                                                            "example": "🔧"
+                                                        }
+                                                    },
+                                                    "type": "object",
+                                                    "nullable": true
+                                                },
+                                                "description": {
+                                                    "type": "string",
+                                                    "example": "Central AC is making a loud rattling noise."
+                                                },
+                                                "property_information": {
+                                                    "type": "string",
+                                                    "example": "2-storey residential villa, Unit 4B."
+                                                },
+                                                "preferred_service_date": {
+                                                    "type": "string",
+                                                    "example": "2026-10-05"
+                                                },
+                                                "preferred_service_time": {
+                                                    "type": "string",
+                                                    "example": "10:00 AM - 12:00 PM"
+                                                },
+                                                "priority": {
+                                                    "type": "string",
+                                                    "example": "normal"
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "pending"
+                                                },
+                                                "additional_notes": {
+                                                    "type": "string",
+                                                    "example": "Gate code is 4321."
+                                                },
+                                                "location": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "address": {
+                                                            "type": "string",
+                                                            "example": "123 Example Street"
+                                                        },
+                                                        "city": {
+                                                            "type": "string",
+                                                            "example": "George Town"
+                                                        },
+                                                        "state": {
+                                                            "type": "string",
+                                                            "example": "Grand Cayman"
+                                                        },
+                                                        "country": {
+                                                            "type": "string",
+                                                            "example": "Cayman Islands"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "photographs": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "file_url": {
+                                                                "type": "string",
+                                                                "example": "http://localhost:8000/storage/service_requests/photos/abc123.jpg"
+                                                            },
+                                                            "file_name": {
+                                                                "type": "string",
+                                                                "example": "ac_unit.jpg"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "videos": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "file_url": {
+                                                                "type": "string",
+                                                                "example": "http://localhost:8000/storage/service_requests/videos/xyz789.mp4"
+                                                            },
+                                                            "file_name": {
+                                                                "type": "string",
+                                                                "example": "ac_noise.mp4"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "created_at": {
+                                                    "type": "string",
+                                                    "example": "2026-09-24T16:30:00+05:00"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/service-requests/{id}": {
+            "get": {
+                "tags": [
+                    "Service Requests"
+                ],
+                "summary": "Get details of a specific service request",
+                "operationId": "b1d17d820bc9754c2b51e1a6f3ca418e",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Service request details retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "status_code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Service request details retrieved successfully."
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Service request not found"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/quotes/{id}": {
+            "get": {
+                "tags": [
+                    "Quotes"
+                ],
+                "summary": "Get details of a price quote",
+                "description": "Allows customer to view itemized pricing, labor, materials, trip charges, discounts, taxes, and terms for an issued quote.",
+                "operationId": "d020764db086edf02ed9434ee3161625",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Quote details retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "status_code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Quote retrieved successfully."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "quote_number": {
+                                                    "type": "string",
+                                                    "example": "QUO-2026-00001"
+                                                },
+                                                "service_request_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "service_description": {
+                                                    "type": "string",
+                                                    "example": "Compressor replacement & AC system recharge."
+                                                },
+                                                "costs": {
+                                                    "properties": {
+                                                        "labor": {
+                                                            "type": "number",
+                                                            "example": 150
+                                                        },
+                                                        "materials": {
+                                                            "type": "number",
+                                                            "example": 320
+                                                        },
+                                                        "equipment": {
+                                                            "type": "number",
+                                                            "example": 50
+                                                        },
+                                                        "trip_charge": {
+                                                            "type": "number",
+                                                            "example": 25
+                                                        },
+                                                        "additional_charges": {
+                                                            "type": "number",
+                                                            "example": 0
+                                                        },
+                                                        "subtotal": {
+                                                            "type": "number",
+                                                            "example": 545
+                                                        },
+                                                        "discount": {
+                                                            "type": "number",
+                                                            "example": 25
+                                                        },
+                                                        "tax_rate": {
+                                                            "type": "number",
+                                                            "example": 5
+                                                        },
+                                                        "tax_amount": {
+                                                            "type": "number",
+                                                            "example": 26
+                                                        },
+                                                        "total_price": {
+                                                            "type": "number",
+                                                            "example": 546
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "pending"
+                                                },
+                                                "status_label": {
+                                                    "type": "string",
+                                                    "example": "Pending Review"
+                                                },
+                                                "expires_at": {
+                                                    "type": "string",
+                                                    "example": "2026-10-15"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Quote not found"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/quotes/{id}/respond": {
+            "post": {
+                "tags": [
+                    "Quotes"
+                ],
+                "summary": "Customer responds to a quote",
+                "description": "Customer can approve, decline, or ask a question regarding an issued price quote.",
+                "operationId": "a5d3c9c03513b3ec44d15734c82a14bc",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "action"
+                                ],
+                                "properties": {
+                                    "action": {
+                                        "type": "string",
+                                        "example": "approve",
+                                        "enum": [
+                                            "approve",
+                                            "decline",
+                                            "ask_question"
+                                        ]
+                                    },
+                                    "customer_notes": {
+                                        "type": "string",
+                                        "example": "Can we schedule this for Friday morning?",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Response recorded successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "status_code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Quote approved successfully."
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid action or validation error"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/categories/catalog": {
+            "get": {
+                "tags": [
+                    "Services & Catalog"
+                ],
+                "summary": "Get complete service catalog (categories with subcategories & prices)",
+                "description": "Retrieves all active categories hierarchically along with subcategories and regional service prices. Pass region_id or region (ID, slug, code e.g. \"grand-cayman\", \"GCM\", 1) to filter pricing for a specific territory. Pass only_with_prices=1 to only return categories with pricing in that region.",
+                "operationId": "d07c2e4b1170243e09b794bfdd46d8c8",
+                "parameters": [
+                    {
+                        "name": "region_id",
+                        "in": "query",
+                        "description": "Filter pricing to a specific region ID (e.g. 1 for Grand Cayman, 2 for Florida)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "region",
+                        "in": "query",
+                        "description": "Filter by region ID, slug, code, or name (e.g. \"grand-cayman\", \"GCM\", \"florida\", 1)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "grand-cayman"
+                        }
+                    },
+                    {
+                        "name": "only_with_prices",
+                        "in": "query",
+                        "description": "Pass 1 to only return items that have configured prices in the selected region",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "example": false
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Search query for category/subcategory name or description",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "plumbing"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Catalog retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Categories with subcategories and pricing retrieved successfully."
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "Plumbing Services"
+                                                    },
+                                                    "slug": {
+                                                        "type": "string",
+                                                        "example": "plumbing-services"
+                                                    },
+                                                    "description": {
+                                                        "type": "string",
+                                                        "example": "Certified plumbing repairs and installations"
+                                                    },
+                                                    "icon": {
+                                                        "type": "string",
+                                                        "example": "🚰"
+                                                    },
+                                                    "image_url": {
+                                                        "type": "string",
+                                                        "example": "http://example.com/storage/categories/plumbing.jpg",
+                                                        "nullable": true
+                                                    },
+                                                    "status": {
+                                                        "type": "string",
+                                                        "example": "active"
+                                                    },
+                                                    "sort_order": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "subcategories": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "integer",
+                                                                    "example": 10
+                                                                },
+                                                                "category_id": {
+                                                                    "type": "integer",
+                                                                    "example": 1
+                                                                },
+                                                                "name": {
+                                                                    "type": "string",
+                                                                    "example": "Faucet Replacement"
+                                                                },
+                                                                "slug": {
+                                                                    "type": "string",
+                                                                    "example": "faucet-replacement"
+                                                                },
+                                                                "description": {
+                                                                    "type": "string",
+                                                                    "example": "Kitchen and bath faucet replacement"
+                                                                },
+                                                                "icon": {
+                                                                    "type": "string",
+                                                                    "example": "🚰"
+                                                                },
+                                                                "price": {
+                                                                    "type": "number",
+                                                                    "format": "float",
+                                                                    "example": 143.75
+                                                                },
+                                                                "formatted_price": {
+                                                                    "type": "string",
+                                                                    "example": "KYD 143.75"
+                                                                },
+                                                                "currency": {
+                                                                    "type": "string",
+                                                                    "example": "KYD"
+                                                                },
+                                                                "region_id": {
+                                                                    "type": "integer",
+                                                                    "example": 1
+                                                                },
+                                                                "region_name": {
+                                                                    "type": "string",
+                                                                    "example": "Grand Cayman"
+                                                                },
+                                                                "region_code": {
+                                                                    "type": "string",
+                                                                    "example": "GC"
+                                                                },
+                                                                "regional_prices": {
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "type": "object"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "meta": {
+                                            "properties": {
+                                                "total_categories": {
+                                                    "type": "integer",
+                                                    "example": 2
+                                                },
+                                                "region_id": {
+                                                    "type": "integer",
+                                                    "example": 1,
+                                                    "nullable": true
+                                                },
+                                                "region_name": {
+                                                    "type": "string",
+                                                    "example": "Grand Cayman",
+                                                    "nullable": true
+                                                },
+                                                "region_code": {
+                                                    "type": "string",
+                                                    "example": "GC",
+                                                    "nullable": true
+                                                },
+                                                "currency": {
+                                                    "type": "string",
+                                                    "example": "KYD",
+                                                    "nullable": true
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/categories": {
+            "get": {
+                "tags": [
+                    "Services & Catalog"
+                ],
+                "summary": "List categories (with optional subcategories and pricing)",
+                "description": "Returns categories list. Pass with_subcategories=1 or with_prices=1 to load subcategories and pricing. Pass region_id or region to filter pricing.",
+                "operationId": "a04418d33db28e6d5cd8d54b4d3b827f",
+                "parameters": [
+                    {
+                        "name": "with_subcategories",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "example": true
+                        }
+                    },
+                    {
+                        "name": "with_prices",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "example": true
+                        }
+                    },
+                    {
+                        "name": "region_id",
+                        "in": "query",
+                        "description": "Region ID (e.g. 1)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "region",
+                        "in": "query",
+                        "description": "Region ID, slug, or code (e.g. \"grand-cayman\", \"GCM\", 1)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "grand-cayman"
+                        }
+                    },
+                    {
+                        "name": "only_with_prices",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "example": false
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 15
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Categories list"
+                    }
+                }
+            }
+        },
+        "/api/v1/subcategories": {
+            "get": {
+                "tags": [
+                    "Services & Catalog"
+                ],
+                "summary": "List subcategories with pricing",
+                "description": "Returns subcategories with category details and regional pricing. Filter by category_id, region_id, or region.",
+                "operationId": "6262b11deb8196631d9383822139d193",
+                "parameters": [
+                    {
+                        "name": "category_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 10
+                        }
+                    },
+                    {
+                        "name": "region_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "region",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "grand-cayman"
+                        }
+                    },
+                    {
+                        "name": "only_with_prices",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "example": false
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 15
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Subcategories list with pricing"
+                    }
+                }
+            }
+        },
+        "/api/v1/regions": {
+            "get": {
+                "tags": [
+                    "Regions"
+                ],
+                "summary": "List active operating regions & territories",
+                "description": "Retrieves all operational service regions (e.g. Grand Cayman, Florida, Jamaica) with their currency, short codes, and active status. Pass all=1 or per_page=all to get the full list for dropdown selectors.",
+                "operationId": "19f57bae7a4b980b6793c3f02d606c7b",
+                "parameters": [
+                    {
+                        "name": "all",
+                        "in": "query",
+                        "description": "Pass 1 or true to return all regions without pagination",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "example": true
+                        }
+                    },
+                    {
+                        "name": "active_only",
+                        "in": "query",
+                        "description": "Filter only active regions",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "example": true
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Cayman"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 15
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Regions list retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "Grand Cayman"
+                                                    },
+                                                    "slug": {
+                                                        "type": "string",
+                                                        "example": "grand-cayman"
+                                                    },
+                                                    "code": {
+                                                        "type": "string",
+                                                        "example": "GC"
+                                                    },
+                                                    "currency": {
+                                                        "type": "string",
+                                                        "example": "KYD"
+                                                    },
+                                                    "description": {
+                                                        "type": "string",
+                                                        "example": "Grand Cayman Island territory coverage",
+                                                        "nullable": true
+                                                    },
+                                                    "status": {
+                                                        "type": "string",
+                                                        "example": "active"
+                                                    },
+                                                    "service_prices_count": {
+                                                        "type": "integer",
+                                                        "example": 12
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string",
+                                                        "example": "2026-09-25T10:00:00Z"
+                                                    },
+                                                    "updated_at": {
+                                                        "type": "string",
+                                                        "example": "2026-09-25T10:00:00Z"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/regions/{id}": {
+            "get": {
+                "tags": [
+                    "Regions"
+                ],
+                "summary": "Get single region details with service prices",
+                "description": "Retrieves details for a specific region by its ID along with regional pricing matrix.",
+                "operationId": "15df58e5fe8784525e4a621cfc846625",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Region ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Region details retrieved successfully"
+                    },
+                    "404": {
+                        "description": "Region not found"
+                    }
+                }
+            }
+        },
+        "/api/v1/quotes": {
+            "get": {
+                "tags": [
+                    "Quotes"
+                ],
+                "summary": "List all quotes for authenticated customer",
+                "description": "Retrieves all quotes issued to the currently authenticated customer without needing quote ID. Can be filtered by status or service_request_id.",
+                "operationId": "f609ef4be7eb205dee5adb5dfae2ee97",
+                "parameters": [
+                    {
+                        "name": "service_request_id",
+                        "in": "query",
+                        "description": "Filter by specific Service Request ID",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Filter by quote status: pending, approved, declined, ask_for_question",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "pending"
+                        }
+                    },
+                    {
+                        "name": "all",
+                        "in": "query",
+                        "description": "Pass 1 to get all without pagination",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "example": false
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 10
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Quotes list retrieved successfully"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/service-requests/{id}/quote": {
+            "get": {
+                "tags": [
+                    "Quotes"
+                ],
+                "summary": "Get quote by Service Request ID",
+                "description": "Retrieves the latest quote for a specific service request using the service_request_id. Customer does not need the quote ID.",
+                "operationId": "971663faa12a806c82eb3059a93ce7a9",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Service Request ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Quote details retrieved successfully"
+                    },
+                    "404": {
+                        "description": "No quote found for this service request"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/service-requests/{id}/quote/respond": {
+            "post": {
+                "tags": [
+                    "Quotes"
+                ],
+                "summary": "Respond to a quote by Service Request ID",
+                "description": "Customer can approve, decline, or ask questions on a quote directly using the service request ID.",
+                "operationId": "71d37b1087296b753aaaff8d32c9fc4e",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Service Request ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "action"
+                                ],
+                                "properties": {
+                                    "action": {
+                                        "type": "string",
+                                        "example": "approve",
+                                        "enum": [
+                                            "approve",
+                                            "decline",
+                                            "ask_question"
+                                        ]
+                                    },
+                                    "customer_notes": {
+                                        "type": "string",
+                                        "example": "Approved, please proceed with the service.",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Response submitted successfully"
+                    },
+                    "404": {
+                        "description": "No quote found for this service request"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/technician/profile": {
+            "get": {
+                "tags": [
+                    "Technician Operations"
+                ],
+                "summary": "Retrieve authenticated technician profile",
+                "description": "Retrieves complete profile for the logged-in technician, including skills, sub-skills, operating region, and job performance statistics.",
+                "operationId": "702854ff89d5ebdeecbaacbe92435fe8",
+                "responses": {
+                    "200": {
+                        "description": "Technician profile retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "status_code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Technician profile retrieved successfully."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 14
+                                                },
+                                                "user_id": {
+                                                    "type": "integer",
+                                                    "example": 14
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "Noah Davis"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "example": "noah.davis@emac.ky"
+                                                },
+                                                "phone": {
+                                                    "type": "string",
+                                                    "example": "+1 345 924 8831"
+                                                },
+                                                "avatar": {
+                                                    "type": "string",
+                                                    "example": "https://midnightblue-deer-551084.hostingersite.com/storage/avatars/tech_14.jpg"
+                                                },
+                                                "role": {
+                                                    "type": "string",
+                                                    "example": "technician"
+                                                },
+                                                "certification_id": {
+                                                    "type": "string",
+                                                    "example": "EMAC-TECH-CERT-0024"
+                                                },
+                                                "certification_body": {
+                                                    "type": "string",
+                                                    "example": "Cayman Islands Building & Trade Guild"
+                                                },
+                                                "is_verified": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "verified_at": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "2026-08-15T09:30:00+00:00"
+                                                },
+                                                "duty_status": {
+                                                    "type": "string",
+                                                    "example": "on_duty",
+                                                    "enum": [
+                                                        "on_duty",
+                                                        "off_duty",
+                                                        "break"
+                                                    ]
+                                                },
+                                                "experience_years": {
+                                                    "type": "integer",
+                                                    "example": 8
+                                                },
+                                                "bio": {
+                                                    "type": "string",
+                                                    "example": "Lead Master Technician specializing in luxury residential hydraulics, high-pressure line diagnostics, and bespoke hardware repair."
+                                                },
+                                                "emergency_contact_name": {
+                                                    "type": "string",
+                                                    "example": "Sarah Davis"
+                                                },
+                                                "emergency_contact_phone": {
+                                                    "type": "string",
+                                                    "example": "+1 345 925 1102"
+                                                },
+                                                "statistics": {
+                                                    "properties": {
+                                                        "rating": {
+                                                            "type": "number",
+                                                            "format": "float",
+                                                            "example": 4.92
+                                                        },
+                                                        "total_reviews": {
+                                                            "type": "integer",
+                                                            "example": 86
+                                                        },
+                                                        "total_jobs_completed": {
+                                                            "type": "integer",
+                                                            "example": 142
+                                                        },
+                                                        "active_jobs_count": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "completion_rate": {
+                                                            "type": "number",
+                                                            "format": "float",
+                                                            "example": 98.6
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "operating_region": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "name": {
+                                                            "type": "string",
+                                                            "example": "Grand Cayman - Western District"
+                                                        },
+                                                        "code": {
+                                                            "type": "string",
+                                                            "example": "GCM-WEST"
+                                                        },
+                                                        "city": {
+                                                            "type": "string",
+                                                            "example": "George Town"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "specializations": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 10
+                                                            },
+                                                            "name": {
+                                                                "type": "string",
+                                                                "example": "Plumbing Services"
+                                                            },
+                                                            "slug": {
+                                                                "type": "string",
+                                                                "example": "plumbing-services"
+                                                            },
+                                                            "icon": {
+                                                                "type": "string",
+                                                                "example": "wrench"
+                                                            },
+                                                            "is_primary": {
+                                                                "type": "boolean",
+                                                                "example": true
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "services_provided": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 31
+                                                            },
+                                                            "category_id": {
+                                                                "type": "integer",
+                                                                "example": 10
+                                                            },
+                                                            "category_name": {
+                                                                "type": "string",
+                                                                "example": "Plumbing Services"
+                                                            },
+                                                            "name": {
+                                                                "type": "string",
+                                                                "example": "Pipe Leak Repair & Diagnostic"
+                                                            },
+                                                            "slug": {
+                                                                "type": "string",
+                                                                "example": "pipe-leak-repair"
+                                                            },
+                                                            "icon": {
+                                                                "type": "string",
+                                                                "example": "🔧"
+                                                            },
+                                                            "is_active": {
+                                                                "type": "boolean",
+                                                                "example": true
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Technician Operations"
+                ],
+                "summary": "Update technician profile",
+                "description": "Updates contact info, bio, experience years, emergency contact, operating territory, and active sub-skills.",
+                "operationId": "ca55c1bc242b775450995963f8c67bfa",
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Noah Davis Updated"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "+1 345 924 8831"
+                                    },
+                                    "bio": {
+                                        "type": "string",
+                                        "example": "Lead Master Technician specializing in luxury residential hydraulics..."
+                                    },
+                                    "experience_years": {
+                                        "type": "integer",
+                                        "example": 8
+                                    },
+                                    "duty_status": {
+                                        "type": "string",
+                                        "example": "on_duty",
+                                        "enum": [
+                                            "on_duty",
+                                            "off_duty",
+                                            "break"
+                                        ]
+                                    },
+                                    "emergency_contact_name": {
+                                        "type": "string",
+                                        "example": "Sarah Davis"
+                                    },
+                                    "emergency_contact_phone": {
+                                        "type": "string",
+                                        "example": "+1 345 925 1102"
+                                    },
+                                    "operating_territory_id": {
+                                        "description": "Region ID from /api/v1/regions",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "city": {
+                                        "type": "string",
+                                        "example": "George Town"
+                                    },
+                                    "address": {
+                                        "type": "string",
+                                        "example": "42 Seven Mile Beach Rd"
+                                    },
+                                    "zipcode": {
+                                        "type": "string",
+                                        "example": "KY1-1102"
+                                    },
+                                    "certification_id": {
+                                        "type": "string",
+                                        "example": "EMAC-TECH-CERT-0024"
+                                    },
+                                    "certification_body": {
+                                        "type": "string",
+                                        "example": "Cayman Islands Building & Trade Guild"
+                                    },
+                                    "subcategories": {
+                                        "description": "Array of Subcategory IDs assigned to technician",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        },
+                                        "example": [
+                                            31,
+                                            32
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Technician profile updated successfully"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/technician/duty-status": {
+            "patch": {
+                "tags": [
+                    "Technician Operations"
+                ],
+                "summary": "Real-time duty toggle switch",
+                "description": "Toggles technician availability between on_duty, off_duty, and break.",
+                "operationId": "a846f10ad2277a939cbec413a95cd618",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "duty_status"
+                                ],
+                                "properties": {
+                                    "duty_status": {
+                                        "type": "string",
+                                        "example": "on_duty",
+                                        "enum": [
+                                            "on_duty",
+                                            "off_duty",
+                                            "break"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Duty status updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "status_code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Duty status changed to on_duty."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "technician_id": {
+                                                    "type": "integer",
+                                                    "example": 14
+                                                },
+                                                "duty_status": {
+                                                    "type": "string",
+                                                    "example": "on_duty"
+                                                },
+                                                "updated_at": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "2026-10-05T19:16:10.000000Z"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "422": {
+                        "description": "Invalid duty status value"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/technician/services": {
+            "get": {
+                "tags": [
+                    "Technician Operations"
+                ],
+                "summary": "Retrieve services catalogue with is_assigned status",
+                "description": "Lists all available categories and subcategories, highlighting which sub-services are assigned to the authenticated technician.",
+                "operationId": "ab728a4cf9513beb316c44028eeaff3e",
+                "responses": {
+                    "200": {
+                        "description": "Services catalogue retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "status_code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Services catalogue retrieved successfully."
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "category_id": {
+                                                        "type": "integer",
+                                                        "example": 10
+                                                    },
+                                                    "category_name": {
+                                                        "type": "string",
+                                                        "example": "Plumbing Services"
+                                                    },
+                                                    "subcategories": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "integer",
+                                                                    "example": 31
+                                                                },
+                                                                "name": {
+                                                                    "type": "string",
+                                                                    "example": "Pipe Leak Repair & Diagnostic"
+                                                                },
+                                                                "slug": {
+                                                                    "type": "string",
+                                                                    "example": "pipe-leak-repair"
+                                                                },
+                                                                "icon": {
+                                                                    "type": "string",
+                                                                    "example": "🔧"
+                                                                },
+                                                                "is_assigned": {
+                                                                    "type": "boolean",
+                                                                    "example": true
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Technician Operations"
+                ],
+                "summary": "Update technician assigned sub-services",
+                "description": "Updates active sub-skills / subcategories assigned to the technician.",
+                "operationId": "8322370abd5e8d44423f84f291eba2d4",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "subcategories"
+                                ],
+                                "properties": {
+                                    "subcategories": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        },
+                                        "example": [
+                                            31,
+                                            32
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Sub-services updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "status_code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Technician sub-services updated successfully."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "technician_id": {
+                                                    "type": "integer",
+                                                    "example": 14
+                                                },
+                                                "assigned_count": {
+                                                    "type": "integer",
+                                                    "example": 2
+                                                },
+                                                "services": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/technician/avatar": {
+            "post": {
+                "tags": [
+                    "Technician Operations"
+                ],
+                "summary": "Upload technician avatar photo",
+                "description": "Multipart profile photo upload for technician (JPEG, PNG, WEBP, max 5MB).",
+                "operationId": "3e1c1b80f2ce23d34899f04fbb1acca1",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "avatar"
+                                ],
+                                "properties": {
+                                    "avatar": {
+                                        "description": "Avatar image file (JPEG, PNG, WEBP, max 5MB)",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Avatar uploaded successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "status_code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Avatar uploaded successfully."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "avatar_url": {
+                                                    "type": "string",
+                                                    "example": "https://midnightblue-deer-551084.hostingersite.com/storage/avatars/tech_14.jpg"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "422": {
+                        "description": "Validation error / File required"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "description": "Enter your Bearer token in the format: Bearer <token>",
+                "bearerFormat": "JWT/Sanctum",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Authentication",
+            "description": "Customer Authentication & Registration APIs"
+        },
+        {
+            "name": "OTP",
+            "description": "Centralized One-Time Password lifecycle and verification"
+        },
+        {
+            "name": "Password Management",
+            "description": "Forgot password, reset authorization, and authenticated password change"
+        },
+        {
+            "name": "User Profile",
+            "description": "Customer profile retrieval and completion"
+        },
+        {
+            "name": "Legal & Compliance",
+            "description": "Terms and Conditions & Privacy Policy public documentation endpoints"
+        },
+        {
+            "name": "Service Requests",
+            "description": "Customer service request submission and tracking APIs"
+        },
+        {
+            "name": "Quotes",
+            "description": "Price quotation review and customer response (approve, decline, ask question) APIs"
+        },
+        {
+            "name": "Services & Catalog",
+            "description": "Category hierarchy, subcategories, service catalog, and regional pricing APIs"
+        },
+        {
+            "name": "Regions",
+            "description": "Operating regions, service coverage territories, and local currency APIs"
+        },
+        {
+            "name": "Technician Operations",
+            "description": "Technician Profile, Duty Status, Services/Skills Catalogue, and Avatar APIs"
+        }
+    ]
+}

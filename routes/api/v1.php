@@ -1,27 +1,128 @@
 <?php
 
+use App\Http\Controllers\Api\V1\Auth\AuthController;
+use App\Http\Controllers\Api\V1\Auth\OtpController;
+use App\Http\Controllers\Api\V1\Auth\PasswordController;
+use App\Http\Controllers\Api\V1\Auth\ProfileController;
 use App\Http\Controllers\Api\V1\Category\CategoryController;
 use App\Http\Controllers\Api\V1\Category\SubcategoryController;
+use App\Http\Controllers\Api\V1\Legal\LegalDocumentController;
+use App\Http\Controllers\Api\V1\Pricing\RegionalServicePriceController;
+use App\Http\Controllers\Api\V1\Quote\QuoteController;
+use App\Http\Controllers\Api\V1\Region\RegionController;
 use App\Http\Controllers\Api\V1\Role\RoleController;
+use App\Http\Controllers\Api\V1\ServiceRequest\ServiceRequestController;
+use App\Http\Controllers\Api\V1\Technician\TechnicianProfileController;
 use App\Http\Controllers\Api\V1\User\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| API V1 Routes — EMAC ERP
+| API V1 Routes — EMAC ERP & Customer Application
 |--------------------------------------------------------------------------
 */
 
 Route::prefix('v1')->group(function () {
-    // Category Endpoints
+    // ---------------------------------------------------------
+    // Customer Authentication & User Profile Endpoints
+    // ---------------------------------------------------------
+    Route::prefix('auth')->group(function () {
+        // Public Auth Endpoints
+        Route::post('register', [AuthController::class, 'register']);
+        Route::post('login', [AuthController::class, 'login']);
+        Route::post('social', [AuthController::class, 'social']);
+
+        // OTP Endpoints
+        Route::post('otp/send', [OtpController::class, 'send']);
+        Route::post('otp/verify', [OtpController::class, 'verify']);
+
+        // Password Reset Endpoints
+        Route::post('password/forgot', [PasswordController::class, 'forgotPassword']);
+        Route::post('password/reset', [PasswordController::class, 'resetPassword']);
+
+        // Authenticated Auth & Password Endpoints
+        Route::middleware(['auth:sanctum', 'active.user'])->group(function () {
+            Route::post('password/change/request-otp', [PasswordController::class, 'requestChangeOtp']);
+            Route::post('password/change', [PasswordController::class, 'changePassword']);
+            Route::post('refresh', [AuthController::class, 'refresh']);
+            Route::post('logout', [AuthController::class, 'logout']);
+            Route::get('profile', [ProfileController::class, 'show']);
+            Route::match(['post', 'put', 'patch'], 'profile', [ProfileController::class, 'update']);
+        });
+    });
+
+    // Profile Management Endpoints (GET/POST/PUT/PATCH /api/v1/profile)
+    Route::middleware(['auth:sanctum', 'active.user'])->group(function () {
+        Route::get('profile', [ProfileController::class, 'show']);
+        Route::match(['post', 'put', 'patch'], 'profile', [ProfileController::class, 'update']);
+
+        // Customer Service Request Endpoints
+        Route::get('service-requests', [ServiceRequestController::class, 'index']);
+        Route::post('service-requests', [ServiceRequestController::class, 'store']);
+        Route::get('service-requests/{id}', [ServiceRequestController::class, 'show']);
+        Route::get('service-requests/{id}/quote', [QuoteController::class, 'getByServiceRequest']);
+        Route::post('service-requests/{id}/quote/respond', [QuoteController::class, 'respondByServiceRequest']);
+
+        // Customer Quote Endpoints
+        Route::get('quotes', [QuoteController::class, 'index']);
+        Route::get('quotes/{id}', [QuoteController::class, 'show']);
+        Route::post('quotes/{id}/respond', [QuoteController::class, 'respond']);
+
+        // Technician Profile & Operations Endpoints
+        Route::prefix('technician')->group(function () {
+            // Profile Details & General Updates
+            Route::get('profile', [TechnicianProfileController::class, 'show']);
+            Route::match(['post', 'put', 'patch'], 'profile', [TechnicianProfileController::class, 'update']);
+
+            // Real-time Duty Status Toggle
+            Route::patch('duty-status', [TechnicianProfileController::class, 'updateDutyStatus']);
+
+            // Services & Sub-skills Catalogue & Assignment
+            Route::get('services', [TechnicianProfileController::class, 'getServices']);
+            Route::match(['put', 'patch', 'post'], 'services', [TechnicianProfileController::class, 'updateServices']);
+
+            // Dedicated Avatar Upload
+            Route::post('avatar', [TechnicianProfileController::class, 'uploadAvatar']);
+        });
+    });
+
+    // ---------------------------------------------------------
+    // Public Legal & Compliance Endpoints
+    // ---------------------------------------------------------
+    Route::get('terms', [LegalDocumentController::class, 'getTerms']);
+    Route::get('privacy', [LegalDocumentController::class, 'getPrivacy']);
+    Route::get('legal/terms', [LegalDocumentController::class, 'getTerms']);
+    Route::get('legal/privacy', [LegalDocumentController::class, 'getPrivacy']);
+
+    // ---------------------------------------------------------
+    // Services, Categories & Regional Pricing Endpoints
+    // ---------------------------------------------------------
+    // Category Catalog & Tree Endpoints (Categories with Subcategories & Pricing)
+    Route::get('categories/catalog', [CategoryController::class, 'catalog']);
+    Route::get('categories-with-prices', [CategoryController::class, 'catalog']);
+    Route::get('catalog', [CategoryController::class, 'catalog']);
+
+    // Category Endpoints (Supports POST for multipart image uploads & PUT/PATCH)
     Route::delete('categories/bulk-delete', [CategoryController::class, 'bulkDelete']);
     Route::patch('categories/{category}/status', [CategoryController::class, 'toggleStatus']);
+    Route::post('categories/{category}', [CategoryController::class, 'update']);
     Route::apiResource('categories', CategoryController::class);
 
-    // Subcategory Endpoints
+    // Subcategory Endpoints (Supports POST for multipart image uploads & PUT/PATCH)
     Route::delete('subcategories/bulk-delete', [SubcategoryController::class, 'bulkDelete']);
     Route::patch('subcategories/{subcategory}/status', [SubcategoryController::class, 'toggleStatus']);
+    Route::post('subcategories/{subcategory}', [SubcategoryController::class, 'update']);
     Route::apiResource('subcategories', SubcategoryController::class);
+
+    // Region Endpoints
+    Route::delete('regions/bulk-delete', [RegionController::class, 'bulkDelete']);
+    Route::patch('regions/{region}/status', [RegionController::class, 'toggleStatus']);
+    Route::apiResource('regions', RegionController::class);
+
+    // Regional Service Pricing Endpoints
+    Route::delete('regional-service-prices/bulk-delete', [RegionalServicePriceController::class, 'bulkDelete']);
+    Route::patch('regional-service-prices/{regional_service_price}/status', [RegionalServicePriceController::class, 'toggleStatus']);
+    Route::apiResource('regional-service-prices', RegionalServicePriceController::class);
 
     // User Management Endpoints
     Route::delete('users/bulk-delete', [UserController::class, 'bulkDelete']);

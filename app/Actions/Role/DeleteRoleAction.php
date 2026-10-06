@@ -21,7 +21,7 @@ class DeleteRoleAction
 
         if ($role->users()->exists()) {
             $userCount = $role->users()->count();
-            throw new Exception("Cannot delete role '{$role->name}' because it is assigned to {$userCount} staff member(s). Reassign them first.");
+            throw new Exception("Cannot delete role '{$role->name}' because it is assigned to {$userCount} employee(s). Reassign them first.");
         }
 
         return DB::transaction(function () use ($role) {

@@ -20,11 +20,11 @@ class UpdateCategoryAction
                 'name' => $data['name'],
                 'slug' => ! empty($data['slug']) ? Str::slug($data['slug']) : Str::slug($data['name']),
                 'description' => $data['description'] ?? null,
-                'icon' => $data['icon'] ?? null,
                 'status' => $data['status'] ?? $category->status,
                 'sort_order' => $data['sort_order'] ?? $category->sort_order,
             ];
 
+            // 1. Handle Image Upload & Removal
             if (isset($data['image']) && $data['image'] instanceof UploadedFile) {
                 if ($category->image && Storage::disk('public')->exists($category->image)) {
                     Storage::disk('public')->delete($category->image);
@@ -35,6 +35,21 @@ class UpdateCategoryAction
                     Storage::disk('public')->delete($category->image);
                 }
                 $updateData['image'] = null;
+            }
+
+            // 2. Handle Icon Upload, Update, & Removal
+            if (isset($data['icon']) && $data['icon'] instanceof UploadedFile) {
+                if ($category->icon && Storage::disk('public')->exists($category->icon)) {
+                    Storage::disk('public')->delete($category->icon);
+                }
+                $updateData['icon'] = $data['icon']->store('categories/icons', 'public');
+            } elseif (! empty($data['remove_icon'])) {
+                if ($category->icon && Storage::disk('public')->exists($category->icon)) {
+                    Storage::disk('public')->delete($category->icon);
+                }
+                $updateData['icon'] = null;
+            } elseif (array_key_exists('icon', $data) && is_string($data['icon'])) {
+                $updateData['icon'] = $data['icon'];
             }
 
             $category->update($updateData);

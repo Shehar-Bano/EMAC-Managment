@@ -17,7 +17,7 @@
 
 <div class="w-full">
     @if ($label)
-        <label for="{{ $name }}" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+        <label for="{{ $name }}" class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
             {{ $label }}
             @if ($required)
                 <span class="text-rose-500 font-bold ml-0.5">*</span>
@@ -27,7 +27,7 @@
 
     <div class="relative rounded-lg shadow-2xs">
         @if ($icon)
-            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2.5 text-slate-400">
                 {!! $icon !!}
             </div>
         @endif
@@ -41,9 +41,9 @@
             {{ $required ? 'required' : '' }}
             {{ $disabled ? 'disabled' : '' }}
             {{ $attributes->merge([
-                'class' => 'block w-full rounded-lg border text-sm transition-all duration-150 ' .
-                    ($icon ? 'pl-9 ' : 'pl-3.5 ') .
-                    'pr-3.5 py-2 ' .
+                'class' => 'block w-full rounded-lg border text-xs transition-all duration-150 ' .
+                    ($icon ? 'pl-8 ' : 'pl-3 ') .
+                    'pr-3 py-1.5 ' .
                     ($hasError
                         ? 'border-rose-300 text-rose-900 placeholder-rose-300 focus:border-rose-500 focus:ring-rose-500 bg-rose-50/20'
                         : 'border-slate-300 text-slate-900 placeholder-slate-400 focus:border-[#C5A059] focus:ring-[#C5A059] bg-white hover:border-slate-400') .

@@ -1,125 +1,211 @@
-<x-website.layout :title="'Services & Solutions — EMAC Development, LLC.'">
+
+<x-website.layout :title="'Services, Capabilities & Regional Pricing — EMAC Development, LLC.'">
 
     {{-- Services Hero Header --}}
-    <section class="relative overflow-hidden py-14 lg:py-20 bg-gradient-to-b from-[#FAF8F4] via-white to-[#F5F1E8] border-b border-slate-200/80">
-        <div class="absolute inset-0 bg-[linear-gradient(to_right,#C5A05912_1px,transparent_1px),linear-gradient(to_bottom,#C5A05912_1px,transparent_1px)] bg-[size:3.5rem_3.5rem] pointer-events-none"></div>
-        <div class="absolute top-10 right-1/4 w-80 h-80 bg-[#C5A059]/10 rounded-full blur-3xl pointer-events-none animate-pulse-glow"></div>
-
-        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center reveal-init">
-            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#C5A059]/15 border border-[#C5A059]/35 text-[#8F6B20] text-xs font-bold mb-4 backdrop-blur-md shadow-2xs">
-                <x-gold-icon name="tools" size="xs" class="text-[#C5A059]" />
-                <span>COMPLETE TRADES & CAPABILITIES</span>
+    <section class="bg-gradient-to-b from-white to-slate-50 border-b border-slate-200 py-14 lg:py-18">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 border border-[#C5A059]/40 text-[#8F6B20] text-xs font-semibold mb-3">
+                <span>Certified Trades & Transparent Pricing</span>
             </div>
 
-            <h1 class="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight">
-                Our Services & Specialized Solutions
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+                Our Services & Capabilities
             </h1>
 
-            <p class="mt-4 text-sm sm:text-base text-slate-600 max-w-2xl mx-auto leading-relaxed">
-                From licensed general contracting and custom architectural blueprints to certified plumbing and property maintenance subscriptions across Florida, Jamaica, and the Cayman Islands.
+            <p class="mt-3 text-sm sm:text-base text-slate-600 max-w-2xl mx-auto leading-relaxed">
+                Explore our full range of professional handyman repairs, preventative property maintenance, and certified plumbing solutions with transparent regional pricing.
             </p>
+
+            {{-- Dynamic Region Selector Bar --}}
+            @if ($regions->isNotEmpty())
+                <div class="mt-8 max-w-xl mx-auto bg-white p-2 rounded-2xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-center gap-2">
+                    <span class="text-xs font-bold text-slate-600 px-3 uppercase tracking-wider">Region / Market:</span>
+                    @foreach ($regions as $r)
+                        <a
+                            href="{{ route('services', ['region_id' => $r->id]) }}"
+                            class="px-4 py-2 text-xs font-bold rounded-xl transition-all {{ ($selectedRegion && $selectedRegion->id === $r->id) ? 'bg-[#C5A059] text-slate-950 shadow-xs' : 'bg-slate-50 text-slate-700 hover:bg-slate-100' }}"
+                        >
+                            {{ $r->name }} ({{ $r->currency }})
+                        </a>
+                    @endforeach
+                </div>
+            @endif
         </div>
     </section>
 
-    {{-- Interactive Dynamic Categories Grid from Database --}}
-    <section class="py-16 bg-white perspective-container" x-data="{ activeTab: 'all' }">
+    {{-- Categories & Subcategories List --}}
+    <section class="py-14 bg-slate-50/50" x-data="{ activeTab: 'all' }">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {{-- Category Filter Navigation Pills --}}
-            <div class="flex flex-wrap items-center justify-center gap-2 mb-12 reveal-init">
+            {{-- Category Filter Pills --}}
+            <div class="flex flex-wrap items-center justify-center gap-2 mb-12">
                 <button
                     type="button"
                     @click="activeTab = 'all'"
-                    :class="activeTab === 'all' ? 'bg-[#C5A059] text-slate-950 font-bold shadow-xs scale-105' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'"
-                    class="px-4 py-2 text-xs font-semibold rounded-xl transition-all cursor-pointer"
+                    :class="activeTab === 'all' ? 'bg-[#C5A059] text-slate-950 font-extrabold shadow-md' : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'"
+                    class="px-5 py-2.5 text-xs font-bold rounded-xl transition-all cursor-pointer"
                 >
-                    All Divisions ({{ $categories->count() }})
+                    All Services ({{ $categories->sum(fn($c) => $c->activeSubcategories->count()) }})
                 </button>
 
                 @foreach ($categories as $cat)
                     <button
                         type="button"
                         @click="activeTab = 'cat-{{ $cat->id }}'"
-                        :class="activeTab === 'cat-{{ $cat->id }}' ? 'bg-[#C5A059] text-slate-950 font-bold shadow-xs scale-105' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'"
-                        class="px-4 py-2 text-xs font-semibold rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
+                        :class="activeTab === 'cat-{{ $cat->id }}' ? 'bg-[#C5A059] text-slate-950 font-extrabold shadow-md' : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'"
+                        class="px-5 py-2.5 text-xs font-bold rounded-xl transition-all cursor-pointer"
                     >
-                        <span class="w-2 h-2 rounded-full bg-[#C5A059]"></span>
-                        <span>{{ $cat->name }}</span>
+                        {{ $cat->name }} ({{ $cat->activeSubcategories->count() }})
                     </button>
                 @endforeach
             </div>
 
-            {{-- Categories List with 3D Tilt Panels --}}
-            <div class="space-y-12">
+            {{-- Categories Section --}}
+            <div class="space-y-16">
                 @foreach ($categories as $category)
                     <div
                         x-show="activeTab === 'all' || activeTab === 'cat-{{ $category->id }}'"
-                        x-transition:enter="transition ease-out duration-300"
-                        x-transition:enter-start="opacity-0 translate-y-3"
-                        x-transition:enter-end="opacity-100 translate-y-0"
-                        class="tilt-card group p-8 sm:p-10 rounded-3xl bg-[#FAF8F4] border border-slate-200/90 shadow-luxury hover:border-[#C5A059]/60 transition-all preserve-3d"
-                        data-tilt
+                        class="space-y-6"
                     >
-                        <div class="card-glare"></div>
+                        {{-- 1. Category Luxury Banner Card (Light on Top-Right) --}}
+                        <div class="relative rounded-3xl overflow-hidden bg-slate-950 border border-slate-800 shadow-xl group">
+                            {{-- Background Image with Gradient Overlays (Light on Top-Right) --}}
+                            @if ($category->image_url)
+                                <img
+                                    src="{{ $category->image_url }}"
+                                    alt="{{ $category->name }} Cover"
+                                    class="absolute inset-0 w-full h-full object-cover object-center transform scale-100 group-hover:scale-105 transition-transform duration-1000 ease-out"
+                                >
+                                {{-- Left gradient for crisp text readability, fading to transparent on the right --}}
+                                <div class="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/40 to-transparent"></div>
+                                {{-- Soft bottom gradient, leaving top-right fully bright and clear --}}
+                                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
+                            @else
+                                <div class="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-950 to-[#1f1a10]"></div>
+                                <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#C5A059]/20 via-transparent to-transparent"></div>
+                            @endif
 
-                        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-slate-200/80 tilt-card-subtle">
-                            <div class="flex items-start gap-4">
-                                <div class="w-12 h-12 rounded-2xl bg-white border border-[#C5A059]/40 text-[#C5A059] flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform overflow-hidden">
-                                    @if ($category->image_url)
-                                        <img src="{{ $category->image_url }}" alt="{{ $category->name }}" class="w-full h-full object-cover">
-                                    @elseif (str_contains(strtolower($category->name), 'architect'))
-                                        <x-gold-icon name="architecture" size="lg" />
-                                    @elseif(str_contains(strtolower($category->name), 'house plan') || str_contains(strtolower($category->name), 'cayman'))
-                                        <x-gold-icon name="blueprint" size="lg" />
-                                    @elseif(str_contains(strtolower($category->name), 'construction') || str_contains(strtolower($category->name), 'contract'))
-                                        <x-gold-icon name="hammer" size="lg" />
-                                    @elseif(str_contains(strtolower($category->name), 'plumb'))
-                                        <x-gold-icon name="wrench" size="lg" />
-                                    @elseif(str_contains(strtolower($category->name), 'handyman') || str_contains(strtolower($category->name), 'maintenance'))
-                                        <x-gold-icon name="tools" size="lg" />
-                                    @else
-                                        <x-gold-icon name="star" size="lg" />
-                                    @endif
-                                </div>
-                                <div>
-                                    <div class="flex items-center gap-3">
-                                        <h2 class="text-xl sm:text-2xl font-bold text-slate-900">{{ $category->name }}</h2>
-                                        <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#C5A059]/20 text-[#8F6B20]">
-                                            {{ $category->activeSubcategories->count() }} Trades
-                                        </span>
-                                    </div>
-                                    <p class="text-xs sm:text-sm text-slate-600 mt-1 max-w-3xl leading-relaxed">
-                                        {{ $category->description }}
-                                    </p>
-                                </div>
-                            </div>
-
-                            <a
-                                href="{{ route('contact', ['category_id' => $category->id]) }}"
-                                class="btn-premium px-5 py-2.5 text-xs font-bold text-slate-950 bg-gradient-to-r from-[#D4AF37] to-[#C5A059] rounded-xl shadow-sm shadow-[#C5A059]/20 shrink-0 self-start lg:self-auto"
-                            >
-                                Request Quote for {{ $category->name }} &rarr;
-                            </a>
-                        </div>
-
-                        {{-- Subcategories Grid with Image / Gold Icons --}}
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6 tilt-card-inner">
-                            @forelse ($category->activeSubcategories as $sub)
-                                <div class="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-[#C5A059]/50 hover:shadow-xs transition-all hover:-translate-y-1 group">
-                                    <div class="w-9 h-9 rounded-xl bg-[#FAF8F4] border border-[#C5A059]/30 text-[#C5A059] flex items-center justify-center mb-2.5 group-hover:scale-110 group-hover:rotate-3 transition-transform overflow-hidden font-bold">
-                                        @if ($sub->image_url)
-                                            <img src="{{ $sub->image_url }}" alt="{{ $sub->name }}" class="w-full h-full object-cover">
-                                        @elseif ($sub->icon)
-                                            <span class="text-sm">{{ $sub->icon }}</span>
+                            {{-- Card Foreground Content --}}
+                            <div class="relative z-10 p-6 sm:p-8 lg:p-10 flex flex-col md:flex-row md:items-end justify-between gap-6 min-h-[200px] sm:min-h-[220px]">
+                                <div class="flex items-start sm:items-center gap-4 sm:gap-6">
+                                    {{-- Category Icon Container --}}
+                                    <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 p-3 shadow-2xl flex items-center justify-center shrink-0 ring-1 ring-[#C5A059]/40 group-hover:border-[#C5A059]/70 transition-colors">
+                                        @if ($category->icon_url && (str_contains($category->icon_url, '/') || str_contains($category->icon_url, '.')))
+                                            <img src="{{ $category->icon_url }}" alt="{{ $category->name }} Icon" class="w-full h-full object-contain">
+                                        @elseif ($category->icon)
+                                            <span class="text-3xl sm:text-4xl">{{ $category->icon }}</span>
                                         @else
-                                            <x-gold-icon name="check" size="xs" />
+                                            <svg class="w-9 h-9 sm:w-11 sm:h-11 text-[#E5C158]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                                         @endif
                                     </div>
-                                    <h3 class="text-xs font-bold text-slate-900 mb-1 group-hover:text-[#8F6B20] transition-colors">{{ $sub->name }}</h3>
-                                    <p class="text-[11px] text-slate-500 leading-relaxed">{{ $sub->description }}</p>
+
+                                    <div>
+                                        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-[#C5A059]/20 text-[#E5C158] border border-[#C5A059]/40 backdrop-blur-xs mb-2 shadow-xs">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                            <span>{{ $category->activeSubcategories->count() }} Available Services</span>
+                                        </div>
+                                        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight drop-shadow-sm">{{ $category->name }}</h2>
+                                        @if ($category->description)
+                                            <p class="text-xs sm:text-sm text-slate-200 max-w-2xl mt-1.5 leading-relaxed line-clamp-2 drop-shadow-xs">{{ $category->description }}</p>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <a
+                                    href="{{ route('contact', ['category_id' => $category->id, 'region_id' => $selectedRegion?->id]) }}"
+                                    class="inline-flex items-center justify-center gap-2 px-6 py-3.5 text-xs sm:text-sm font-extrabold text-slate-950 bg-gradient-to-r from-[#C5A059] to-[#D4AF37] hover:from-[#d4af37] hover:to-[#e5c158] rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-0.5 shrink-0"
+                                >
+                                    <span>Request Category Quote</span>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                                </a>
+                            </div>
+                        </div>
+
+                        {{-- 2. Subcategories Detail Cards Grid --}}
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                            @forelse ($category->activeSubcategories as $sub)
+                                @php
+                                    $priceRecord = $sub->regionalServicePrices->first();
+                                @endphp
+                                <div class="bg-white rounded-2xl border border-slate-200/90 hover:border-[#C5A059] shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden group/card">
+                                    {{-- Subcategory Top Visual Area --}}
+                                    @if ($sub->image_url)
+                                        <div class="relative h-40 w-full overflow-hidden bg-slate-900">
+                                            <img
+                                                src="{{ $sub->image_url }}"
+                                                alt="{{ $sub->name }}"
+                                                class="w-full h-full object-cover group-hover/card:scale-108 transition-transform duration-700 ease-out"
+                                            >
+                                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/30 to-transparent"></div>
+
+                                            {{-- Floating Subcategory Icon Badge --}}
+                                            <div class="absolute bottom-3 left-3 w-11 h-11 rounded-xl bg-white/95 backdrop-blur-md p-2 shadow-lg border border-white/60 flex items-center justify-center shrink-0">
+                                                @if ($sub->icon_url && (str_contains($sub->icon_url, '/') || str_contains($sub->icon_url, '.')))
+                                                    <img src="{{ $sub->icon_url }}" alt="{{ $sub->name }} Icon" class="w-full h-full object-contain">
+                                                @elseif ($sub->icon)
+                                                    <span class="text-xl">{{ $sub->icon }}</span>
+                                                @else
+                                                    <svg class="w-5 h-5 text-[#8F6B20]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @endif
+
+                                    {{-- Card Content --}}
+                                    <div class="p-5 flex-1 flex flex-col justify-between">
+                                        <div>
+                                            @if (!$sub->image_url)
+                                                <div class="flex items-center gap-3 mb-3">
+                                                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-[#E5C158]/15 to-[#C5A059]/25 border border-[#C5A059]/30 p-2.5 flex items-center justify-center shrink-0 shadow-2xs">
+                                                        @if ($sub->icon_url && (str_contains($sub->icon_url, '/') || str_contains($sub->icon_url, '.')))
+                                                            <img src="{{ $sub->icon_url }}" alt="{{ $sub->name }} Icon" class="w-full h-full object-contain">
+                                                        @elseif ($sub->icon)
+                                                            <span class="text-2xl">{{ $sub->icon }}</span>
+                                                        @else
+                                                            <svg class="w-6 h-6 text-[#8F6B20]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                                        @endif
+                                                    </div>
+                                                    <div class="min-w-0 flex-1">
+                                                        <h3 class="text-sm font-bold text-slate-900 group-hover/card:text-[#8F6B20] transition-colors truncate">{{ $sub->name }}</h3>
+                                                        <span class="text-[10px] font-bold text-[#8F6B20] uppercase tracking-wider">Certified Trade</span>
+                                                    </div>
+                                                </div>
+                                            @else
+                                                <div class="mb-2">
+                                                    <h3 class="text-sm font-bold text-slate-900 group-hover/card:text-[#8F6B20] transition-colors">{{ $sub->name }}</h3>
+                                                </div>
+                                            @endif
+
+                                            <p class="text-xs text-slate-500 leading-relaxed line-clamp-2">{{ $sub->description ?: 'Certified specialist maintenance and professional installation service.' }}</p>
+                                        </div>
+
+                                        {{-- Pricing & CTA Row --}}
+                                        <div class="mt-5 pt-3.5 border-t border-slate-100 flex items-center justify-between gap-2">
+                                            <div>
+                                                @if ($priceRecord)
+                                                    <div class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Standard Rate ({{ $priceRecord->region?->name ?? $selectedRegion?->name }})</div>
+                                                    <div class="text-sm font-extrabold text-slate-900 flex items-baseline gap-1 mt-0.5">
+                                                        <span class="text-xs text-[#8F6B20] font-bold">{{ $priceRecord->currency }}</span>
+                                                        <span class="text-base font-black text-[#8F6B20]">{{ number_format((float) $priceRecord->price, 2) }}</span>
+                                                    </div>
+                                                @else
+                                                    <div class="text-[10px] text-slate-400 font-semibold uppercase">Pricing</div>
+                                                    <div class="text-xs font-bold text-slate-700 mt-0.5">Custom Estimate</div>
+                                                @endif
+                                            </div>
+
+                                            <a
+                                                href="{{ route('contact', ['category_id' => $category->id, 'subcategory_id' => $sub->id, 'region_id' => $selectedRegion?->id]) }}"
+                                                class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-slate-900 bg-amber-50 hover:bg-[#C5A059] border border-[#C5A059]/40 hover:border-transparent rounded-xl transition-all duration-200 group/btn"
+                                            >
+                                                <span>Book Quote</span>
+                                                <svg class="w-3.5 h-3.5 group-hover/btn:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                                            </a>
+                                        </div>
+                                    </div>
                                 </div>
                             @empty
-                                <div class="col-span-4 text-center py-6 text-xs text-slate-400">
-                                    Subcategory listings updated regularly.
+                                <div class="col-span-3 text-center py-10 bg-white rounded-2xl border border-slate-200 text-xs text-slate-400">
+                                    No active services currently listed under this category.
                                 </div>
                             @endforelse
                         </div>
@@ -129,24 +215,5 @@
         </div>
     </section>
 
-    {{-- Maintenance Subscriptions Callout with Glass Styling --}}
-    <section class="py-16 bg-[#F4EFE6] border-t border-[#E5DFD3] relative overflow-hidden">
-        <div class="absolute inset-0 bg-[linear-gradient(to_right,#C5A05915_1px,transparent_1px),linear-gradient(to_bottom,#C5A05915_1px,transparent_1px)] bg-[size:3.5rem_3.5rem] pointer-events-none"></div>
-
-        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center reveal-init">
-            <span class="text-xs font-bold uppercase tracking-widest text-[#8F6B20]">Property Protection</span>
-            <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">
-                Recurring Handyman & Property Maintenance Subscriptions
-            </h2>
-            <p class="text-xs sm:text-sm text-slate-600 max-w-2xl mx-auto mt-2">
-                Ideal for Florida homeowners, Cayman residential landlords, and Jamaican vacation rental properties. Enjoy scheduled preventive visits, priority emergency dispatch, and fixed monthly rates.
-            </p>
-            <div class="mt-6 flex justify-center gap-4">
-                <a href="{{ route('contact') }}" class="btn-premium px-6 py-3 text-xs font-bold text-slate-950 bg-gradient-to-r from-[#D4AF37] to-[#C5A059] rounded-xl shadow-md shadow-[#C5A059]/25">
-                    Inquire About Maintenance Plans
-                </a>
-            </div>
-        </div>
-    </section>
-
 </x-website.layout>
+

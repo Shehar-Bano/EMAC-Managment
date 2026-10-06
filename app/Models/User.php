@@ -2,20 +2,25 @@
 
 namespace App\Models;
 
+use App\Enums\AccountStatus;
+use App\Enums\AuthSource;
+use App\Enums\ProfileStatus;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, SoftDeletes;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -26,10 +31,26 @@ class User extends Authenticatable
         'name',
         'email',
         'phone',
+        'address',
         'password',
+        'role',
+        'category_id',
+        'duty_status',
+        'experience_years',
+        'bio',
+        'emergency_contact_name',
+        'emergency_contact_phone',
+        'certification_id',
+        'certification_body',
+        'is_verified',
+        'verified_at',
+        'source',
         'status',
+        'account_status',
+        'profile_status',
         'avatar',
         'email_verified_at',
+        'phone_verified_at',
         'last_login_at',
     ];
 
@@ -51,10 +72,50 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
+            'experience_years' => 'integer',
+            'is_verified' => 'boolean',
+            'verified_at' => 'datetime',
             'email_verified_at' => 'datetime',
+            'phone_verified_at' => 'datetime',
             'last_login_at' => 'datetime',
             'password' => 'hashed',
+            'account_status' => AccountStatus::class,
+            'profile_status' => ProfileStatus::class,
+            'source' => AuthSource::class,
         ];
+    }
+
+    /**
+     * Main category / skill assigned to technician.
+     */
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class, 'category_id');
+    }
+
+    /**
+     * Subcategories / sub skills assigned to technician.
+     */
+    public function subcategories(): BelongsToMany
+    {
+        return $this->belongsToMany(Subcategory::class, 'usersubskills', 'user_id', 'subcategory_id')
+            ->withTimestamps();
+    }
+
+    /**
+     * Alias for subcategories (subSkills).
+     */
+    public function subSkills(): BelongsToMany
+    {
+        return $this->subcategories();
+    }
+
+    /**
+     * Raw UserSubskill records.
+     */
+    public function userSubskills(): HasMany
+    {
+        return $this->hasMany(UserSubskill::class, 'user_id');
     }
 
     /**
@@ -70,7 +131,49 @@ class User extends Authenticatable
      */
     public function addresses(): HasMany
     {
-        return $this->hasMany(UserAddress::class, 'user_id');
+        return $this->hasMany(UserAddress::class, 'user_id')
+            ->orderByDesc('is_primary')
+            ->orderBy('id');
+    }
+
+    /**
+     * Service requests created by the user.
+     */
+    public function serviceRequests(): HasMany
+    {
+        return $this->hasMany(ServiceRequest::class, 'user_id');
+    }
+
+    /**
+     * Quotes issued for or received by the user.
+     */
+    public function quotes(): HasMany
+    {
+        return $this->hasMany(Quote::class, 'user_id');
+    }
+
+    /**
+     * Social accounts linked to the user.
+     */
+    public function socialAccounts(): HasMany
+    {
+        return $this->hasMany(SocialAccount::class);
+    }
+
+    /**
+     * OTP records for the user.
+     */
+    public function otps(): HasMany
+    {
+        return $this->hasMany(Otp::class);
+    }
+
+    /**
+     * Password reset authorization records.
+     */
+    public function passwordResetAuthorizations(): HasMany
+    {
+        return $this->hasMany(PasswordResetAuthorization::class);
     }
 
     /**
@@ -112,14 +215,46 @@ class User extends Authenticatable
     {
         return Attribute::make(
             get: function () {
-                if ($this->avatar && file_exists(public_path('storage/'.$this->avatar))) {
-                    return asset('storage/'.$this->avatar);
+                if (! empty($this->avatar)) {
+                    if (str_starts_with($this->avatar, 'http://') || str_starts_with($this->avatar, 'https://') || str_starts_with($this->avatar, 'data:image/')) {
+                        return $this->avatar;
+                    }
+
+                    return asset('storage/'.ltrim($this->avatar, '/'));
                 }
 
-                $name = urlencode($this->name);
+                $name = trim($this->name ?? 'User');
+                $words = preg_split('/\s+/', $name) ?: [];
+                $initials = '';
+                if (! empty($words[0])) {
+                    $initials .= mb_substr($words[0], 0, 1);
+                }
+                if (isset($words[1]) && ! empty($words[1])) {
+                    $initials .= mb_substr($words[1], 0, 1);
+                } elseif (mb_strlen($name) >= 2) {
+                    $initials = mb_substr($name, 0, 2);
+                }
+                $initials = strtoupper($initials ?: 'U');
 
-                return "https://ui-avatars.com/api/?name={$name}&color=C5A059&background=111827&bold=true";
+                $svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">'
+                    .'<rect width="100" height="100" rx="24" fill="#111827"/>'
+                    .'<text x="50" y="55" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="36" font-weight="700" fill="#C5A059" text-anchor="middle" dominant-baseline="central">'
+                    .htmlspecialchars($initials)
+                    .'</text>'
+                    .'</svg>';
+
+                return 'data:image/svg+xml;utf8,'.rawurlencode($svg);
             }
+        );
+    }
+
+    /**
+     * Image URL attribute (alias for avatarUrl).
+     */
+    protected function imageUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->avatar_url
         );
     }
 

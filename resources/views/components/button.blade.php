@@ -20,10 +20,10 @@
     ];
 
     $sizes = [
-        'xs' => 'px-2.5 py-1 text-xs gap-1.5',
-        'sm' => 'px-3 py-1.5 text-xs gap-1.5',
-        'md' => 'px-4 py-2 text-sm gap-2',
-        'lg' => 'px-5 py-2.5 text-base gap-2.5',
+        'xs' => 'px-2 py-0.5 text-[10px] gap-1',
+        'sm' => 'px-2.5 py-1 text-[11px] gap-1.5',
+        'md' => 'px-3 py-1.5 text-xs gap-1.5',
+        'lg' => 'px-3.5 py-2 text-xs gap-2',
     ];
 
     $classes = $baseClasses . ' ' . ($variants[$variant] ?? $variants['primary']) . ' ' . ($sizes[$size] ?? $sizes['md']);

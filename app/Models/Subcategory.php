@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Storage;
 
 class Subcategory extends Model
 {
@@ -39,17 +39,70 @@ class Subcategory extends Model
     }
 
     /**
+     * Regional service pricing configurations for this subcategory.
+     */
+    public function regionalServicePrices(): HasMany
+    {
+        return $this->hasMany(RegionalServicePrice::class, 'subcategory_id');
+    }
+
+    /**
+     * Active regional service pricing configurations.
+     */
+    public function activeRegionalServicePrices(): HasMany
+    {
+        return $this->hasMany(RegionalServicePrice::class, 'subcategory_id')
+            ->where('status', 'active');
+    }
+
+    /**
+     * Customer service requests categorized under this subcategory.
+     */
+    public function serviceRequests(): HasMany
+    {
+        return $this->hasMany(ServiceRequest::class, 'subcategory_id');
+    }
+
+    /**
      * Subcategory image URL accessor with fallback.
      */
     protected function imageUrl(): Attribute
     {
         return Attribute::make(
             get: function () {
-                if ($this->image && Storage::disk('public')->exists($this->image)) {
-                    return asset('storage/'.$this->image);
+                if (empty($this->image)) {
+                    return null;
                 }
 
-                return null;
+                if (str_starts_with($this->image, 'http://') || str_starts_with($this->image, 'https://') || str_starts_with($this->image, 'data:image/')) {
+                    return $this->image;
+                }
+
+                return asset('storage/'.ltrim($this->image, '/'));
+            }
+        );
+    }
+
+    /**
+     * Subcategory icon URL accessor with fallback.
+     */
+    protected function iconUrl(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                if (empty($this->icon)) {
+                    return null;
+                }
+
+                if (str_starts_with($this->icon, 'http://') || str_starts_with($this->icon, 'https://') || str_starts_with($this->icon, 'data:image/')) {
+                    return $this->icon;
+                }
+
+                if (str_contains($this->icon, '/') || str_contains($this->icon, '.')) {
+                    return asset('storage/'.ltrim($this->icon, '/'));
+                }
+
+                return $this->icon;
             }
         );
     }

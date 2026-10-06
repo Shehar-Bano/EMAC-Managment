@@ -17,6 +17,10 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             UserSeeder::class,
             CategorySeeder::class,
+            RegionSeeder::class,
+            RegionalServicePriceSeeder::class,
+            LegalDocumentSeeder::class,
+            SettingSeeder::class,
         ]);
     }
 }

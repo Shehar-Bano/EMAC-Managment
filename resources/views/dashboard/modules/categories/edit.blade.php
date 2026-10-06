@@ -22,13 +22,31 @@
 
     <div class="max-w-4xl">
         <form method="POST" action="{{ route('dashboard.categories.update', $category) }}" enctype="multipart/form-data" class="space-y-6" x-data="{
+            iconPreview: null,
+            iconFileName: '',
+            removeIcon: false,
             imagePreview: null,
-            fileName: '',
+            imageFileName: '',
             removeImage: false,
-            handleFileSelect(event) {
+            handleIconSelect(event) {
                 const file = event.target.files[0];
                 if (file) {
-                    this.fileName = file.name;
+                    this.iconFileName = file.name;
+                    this.removeIcon = false;
+                    const reader = new FileReader();
+                    reader.onload = (e) => { this.iconPreview = e.target.result; };
+                    reader.readAsDataURL(file);
+                }
+            },
+            cancelNewIcon() {
+                this.iconPreview = null;
+                this.iconFileName = '';
+                document.getElementById('category-edit-icon-input').value = '';
+            },
+            handleImageSelect(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    this.imageFileName = file.name;
                     this.removeImage = false;
                     const reader = new FileReader();
                     reader.onload = (e) => { this.imagePreview = e.target.result; };
@@ -37,109 +55,190 @@
             },
             cancelNewImage() {
                 this.imagePreview = null;
-                this.fileName = '';
+                this.imageFileName = '';
                 document.getElementById('category-edit-image-input').value = '';
             }
         }">
             @csrf
             @method('PUT')
 
-            <x-card title="Category Information & Visual Image" subtitle="Category ID: #{{ $category->id }}">
-                {{-- Category Image Upload Component --}}
-                <div class="mb-6 p-5 rounded-2xl bg-[#FAF8F4] border border-[#C5A059]/30 shadow-2xs">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
-                        <label class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                            <svg class="w-4 h-4 text-[#8F6B20]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                            Category Icon / Image
-                        </label>
-                        <div class="flex items-center gap-2">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#C5A059]/20 text-[#8F6B20] border border-[#C5A059]/30">
-                                Dimensions: 128px (W) &times; 128px (H) [1:1 Icon]
+            <x-card title="Category Information & Visual Media" subtitle="Category ID: #{{ $category->id }}">
+                <div class="space-y-5 mb-6">
+                    {{-- 1. Category Icon Component --}}
+                    <div class="p-4 rounded-2xl bg-[#FAF8F4] border border-[#C5A059]/30 shadow-2xs">
+                        <div class="flex items-center justify-between gap-2 mb-3">
+                            <label class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                                <svg class="w-4 h-4 text-[#8F6B20]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path></svg>
+                                <span>Category Icon</span>
+                            </label>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#C5A059]/20 text-[#8F6B20] border border-[#C5A059]/30">
+                                1:1 Vector / Icon (128&times;128px)
                             </span>
-                            <span class="text-[11px] text-slate-500">Max 2MB (SVG, PNG, WEBP, JPG)</span>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+                            {{-- Icon Preview Box --}}
+                            <div class="relative shrink-0">
+                                <template x-if="iconPreview">
+                                    <div class="relative w-16 h-16">
+                                        <img :src="iconPreview" alt="New Icon Preview" class="w-16 h-16 rounded-xl object-cover ring-2 ring-[#C5A059] shadow-sm">
+                                        <button
+                                            type="button"
+                                            @click="cancelNewIcon()"
+                                            class="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-rose-600 text-white flex items-center justify-center hover:bg-rose-700 shadow-sm transition-transform hover:scale-110 text-xs cursor-pointer"
+                                            title="Cancel new icon"
+                                        >
+                                            &times;
+                                        </button>
+                                    </div>
+                                </template>
+                                <template x-if="!iconPreview">
+                                    <div>
+                                        @if ($category->icon_url && (str_contains($category->icon_url, '/') || str_contains($category->icon_url, '.')))
+                                            <div class="relative w-16 h-16">
+                                                <img
+                                                    src="{{ $category->icon_url }}"
+                                                    alt="{{ $category->name }} Icon"
+                                                    class="w-16 h-16 rounded-xl object-cover ring-2 ring-[#C5A059]/40 shadow-sm transition-opacity"
+                                                    :class="{ 'opacity-30 grayscale ring-rose-400': removeIcon }"
+                                                >
+                                                <template x-if="removeIcon">
+                                                    <span class="absolute inset-0 flex items-center justify-center text-[9px] font-bold text-rose-700 bg-rose-50/80 rounded-xl">Remove</span>
+                                                </template>
+                                            </div>
+                                        @else
+                                            <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-[#E5C158]/15 to-[#C5A059]/25 border-2 border-dashed border-[#C5A059]/50 flex flex-col items-center justify-center text-slate-400">
+                                                <svg class="w-6 h-6 text-[#8F6B20]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </template>
+                            </div>
+
+                            <div class="flex-1 min-w-0 space-y-2">
+                                <div class="relative border-2 border-dashed border-slate-300 hover:border-[#C5A059] rounded-xl p-3 bg-white/80 hover:bg-white flex items-center justify-between gap-3">
+                                    <div class="min-w-0 flex-1">
+                                        <p class="text-xs font-semibold text-slate-800 truncate" x-text="iconFileName ? iconFileName : '{{ $category->icon ? 'Replace icon' : 'Upload icon file' }}'"></p>
+                                        <p class="text-[11px] text-slate-500">SVG, PNG, JPG (Max 5MB)</p>
+                                    </div>
+                                    <label for="category-edit-icon-input" class="shrink-0 px-3.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs cursor-pointer inline-flex items-center gap-1.5 shadow-2xs">
+                                        <span x-text="iconPreview ? 'Change' : '{{ $category->icon ? 'Replace' : 'Browse' }}'">Browse</span>
+                                    </label>
+                                    <input
+                                        type="file"
+                                        name="icon"
+                                        id="category-edit-icon-input"
+                                        accept="image/*,.svg"
+                                        @change="handleIconSelect($event)"
+                                        class="sr-only"
+                                    >
+                                </div>
+                                @if ($category->icon)
+                                    <label class="inline-flex items-center gap-1.5 text-xs text-rose-600 font-semibold cursor-pointer select-none">
+                                        <input
+                                            type="checkbox"
+                                            name="remove_icon"
+                                            value="1"
+                                            x-model="removeIcon"
+                                            @change="if(removeIcon) { cancelNewIcon(); }"
+                                            class="rounded text-rose-600 focus:ring-rose-500 text-xs cursor-pointer"
+                                        >
+                                        <span>Remove existing icon</span>
+                                    </label>
+                                @endif
+                                @error('icon')
+                                    <p class="mt-1 text-xs text-rose-600 font-medium">{{ $message }}</p>
+                                @enderror
+                            </div>
                         </div>
                     </div>
 
-                    <div class="flex flex-col sm:flex-row items-center gap-5">
-                        {{-- Preview Box --}}
-                        <div class="relative shrink-0 group">
-                            <template x-if="imagePreview">
-                                <div class="relative">
-                                    <img :src="imagePreview" alt="New Preview" class="w-20 h-20 rounded-2xl object-cover ring-2 ring-[#C5A059] shadow-md">
-                                    <button
-                                        type="button"
-                                        @click="cancelNewImage()"
-                                        class="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-rose-600 text-white flex items-center justify-center hover:bg-rose-700 shadow-sm transition-transform hover:scale-110"
-                                        title="Cancel new image"
-                                    >
-                                        &times;
-                                    </button>
-                                </div>
-                            </template>
-                            <template x-if="!imagePreview">
-                                <div>
-                                    @if ($category->image_url)
-                                        <div class="relative">
-                                            <img
-                                                src="{{ $category->image_url }}"
-                                                alt="{{ $category->name }}"
-                                                class="w-20 h-20 rounded-2xl object-cover ring-2 ring-[#C5A059]/40 shadow-sm transition-opacity"
-                                                :class="{ 'opacity-30 grayscale ring-rose-400': removeImage }"
-                                            >
-                                            <template x-if="removeImage">
-                                                <span class="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-rose-700 bg-rose-50/80 rounded-2xl">Marked for Deletion</span>
-                                            </template>
-                                        </div>
-                                    @else
-                                        <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#E5C158]/15 to-[#C5A059]/25 border-2 border-dashed border-[#C5A059]/50 flex flex-col items-center justify-center text-slate-400">
-                                            <svg class="w-8 h-8 text-[#8F6B20]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                            <span class="text-[10px] font-semibold text-[#8F6B20] mt-0.5">128&times;128 px</span>
-                                        </div>
-                                    @endif
-                                </div>
-                            </template>
+                    {{-- 2. Category Cover Image Component --}}
+                    <div class="p-4 rounded-2xl bg-[#FAF8F4] border border-[#C5A059]/30 shadow-2xs">
+                        <div class="flex items-center justify-between gap-2 mb-3">
+                            <label class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                                <svg class="w-4 h-4 text-[#8F6B20]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                <span>Category Cover Image</span>
+                            </label>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#C5A059]/20 text-[#8F6B20] border border-[#C5A059]/30">
+                                Banner / Card Image (16:9 or Landscape)
+                            </span>
                         </div>
 
-                        {{-- Upload Drop Area & Controls --}}
-                        <div class="flex-1 w-full space-y-2.5">
-                            <div class="relative border-2 border-dashed border-slate-300 hover:border-[#C5A059] rounded-xl p-4 transition-colors bg-white/80 hover:bg-white text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-3">
-                                <div>
-                                    <p class="text-xs font-semibold text-slate-800" x-text="fileName ? 'Selected: ' + fileName : '{{ $category->image ? 'Select a replacement icon file' : 'Select an icon image file from your computer' }}'"></p>
-                                    <p class="text-[11px] text-slate-500 mt-0.5">Recommended icon size: <strong>Width: 128px &bull; Height: 128px</strong> (Square 1:1 Icon format, 64&times;64px to 256&times;256px)</p>
-                                </div>
-                                <label for="category-edit-image-input" class="shrink-0 px-4 py-2 rounded-lg bg-gradient-to-r from-[#C5A059] to-[#D4AF37] hover:from-[#B8903B] hover:to-[#C5A059] text-slate-950 font-bold text-xs shadow-xs hover:shadow transition-all cursor-pointer inline-flex items-center gap-2">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                                    <span x-text="imagePreview ? 'Change Selection' : '{{ $category->image ? 'Replace Icon' : 'Browse Icon' }}'">Browse Icon</span>
-                                </label>
-                                <input
-                                    type="file"
-                                    name="image"
-                                    id="category-edit-image-input"
-                                    accept="image/*"
-                                    @change="handleFileSelect($event)"
-                                    class="sr-only"
-                                >
+                        <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+                            {{-- Image Preview Box --}}
+                            <div class="relative shrink-0">
+                                <template x-if="imagePreview">
+                                    <div class="relative w-24 h-16">
+                                        <img :src="imagePreview" alt="New Cover Preview" class="w-24 h-16 rounded-xl object-cover ring-2 ring-[#C5A059] shadow-sm">
+                                        <button
+                                            type="button"
+                                            @click="cancelNewImage()"
+                                            class="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-rose-600 text-white flex items-center justify-center hover:bg-rose-700 shadow-sm transition-transform hover:scale-110 text-xs cursor-pointer"
+                                            title="Cancel new image"
+                                        >
+                                            &times;
+                                        </button>
+                                    </div>
+                                </template>
+                                <template x-if="!imagePreview">
+                                    <div>
+                                        @if ($category->image_url)
+                                            <div class="relative w-24 h-16">
+                                                <img
+                                                    src="{{ $category->image_url }}"
+                                                    alt="{{ $category->name }}"
+                                                    class="w-24 h-16 rounded-xl object-cover ring-2 ring-[#C5A059]/40 shadow-sm transition-opacity"
+                                                    :class="{ 'opacity-30 grayscale ring-rose-400': removeImage }"
+                                                >
+                                                <template x-if="removeImage">
+                                                    <span class="absolute inset-0 flex items-center justify-center text-[9px] font-bold text-rose-700 bg-rose-50/80 rounded-xl">Remove</span>
+                                                </template>
+                                            </div>
+                                        @else
+                                            <div class="w-24 h-16 rounded-xl bg-gradient-to-br from-[#E5C158]/15 to-[#C5A059]/25 border-2 border-dashed border-[#C5A059]/50 flex flex-col items-center justify-center text-slate-400">
+                                                <svg class="w-6 h-6 text-[#8F6B20]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </template>
                             </div>
 
-                            @if ($category->image)
-                                <div class="flex items-center justify-between px-1">
-                                    <label class="inline-flex items-center gap-2 text-xs text-rose-600 font-semibold cursor-pointer select-none">
+                            <div class="flex-1 min-w-0 space-y-2">
+                                <div class="relative border-2 border-dashed border-slate-300 hover:border-[#C5A059] rounded-xl p-3 bg-white/80 hover:bg-white flex items-center justify-between gap-3">
+                                    <div class="min-w-0 flex-1">
+                                        <p class="text-xs font-semibold text-slate-800 truncate" x-text="imageFileName ? imageFileName : '{{ $category->image ? 'Replace image' : 'Upload image file' }}'"></p>
+                                        <p class="text-[11px] text-slate-500">WEBP, PNG, JPG (Max 5MB)</p>
+                                    </div>
+                                    <label for="category-edit-image-input" class="shrink-0 px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-[#C5A059] to-[#D4AF37] hover:from-[#B8903B] hover:to-[#C5A059] text-slate-950 font-bold text-xs cursor-pointer inline-flex items-center gap-1.5 shadow-2xs">
+                                        <span x-text="imagePreview ? 'Change' : '{{ $category->image ? 'Replace' : 'Browse' }}'">Browse</span>
+                                    </label>
+                                    <input
+                                        type="file"
+                                        name="image"
+                                        id="category-edit-image-input"
+                                        accept="image/*"
+                                        @change="handleImageSelect($event)"
+                                        class="sr-only"
+                                    >
+                                </div>
+                                @if ($category->image)
+                                    <label class="inline-flex items-center gap-1.5 text-xs text-rose-600 font-semibold cursor-pointer select-none">
                                         <input
                                             type="checkbox"
                                             name="remove_image"
                                             value="1"
                                             x-model="removeImage"
                                             @change="if(removeImage) { cancelNewImage(); }"
-                                            class="rounded text-rose-600 focus:ring-rose-500"
+                                            class="rounded text-rose-600 focus:ring-rose-500 text-xs cursor-pointer"
                                         >
-                                        <span>Remove existing icon file</span>
+                                        <span>Remove existing image</span>
                                     </label>
-                                </div>
-                            @endif
-
-                            @error('image')
-                                <p class="mt-1.5 text-xs text-rose-600 font-medium">{{ $message }}</p>
-                            @enderror
+                                @endif
+                                @error('image')
+                                    <p class="mt-1 text-xs text-rose-600 font-medium">{{ $message }}</p>
+                                @enderror
+                            </div>
                         </div>
                     </div>
                 </div>

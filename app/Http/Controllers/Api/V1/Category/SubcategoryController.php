@@ -12,6 +12,7 @@ use App\Http\Requests\Subcategory\BulkDeleteSubcategoryRequest;
 use App\Http\Requests\Subcategory\StoreSubcategoryRequest;
 use App\Http\Requests\Subcategory\UpdateSubcategoryRequest;
 use App\Http\Resources\SubcategoryResource;
+use App\Models\Region;
 use App\Models\Subcategory;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -21,18 +22,75 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 class SubcategoryController extends Controller
 {
     /**
-     * Display a paginated listing of subcategories.
+     * Resolve target Region model from request parameters (region_id, region, region_code, or region_slug).
      */
-    public function index(Request $request): AnonymousResourceCollection
+    protected function resolveRegion(Request $request): ?Region
     {
-        $this->authorize('subcategories.view');
+        $param = $request->get('region_id') ?? $request->get('region') ?? $request->get('region_code') ?? $request->get('region_slug');
+        if (blank($param)) {
+            return null;
+        }
 
-        $perPage = (int) $request->get('per_page', 15);
-        $subcategories = Subcategory::with(['category'])
+        if (is_numeric($param)) {
+            return Region::whereNull('deleted_at')->where('id', (int) $param)->first();
+        }
+
+        return Region::whereNull('deleted_at')
+            ->where(function ($q) use ($param) {
+                $q->where('slug', $param)
+                    ->orWhere('code', $param)
+                    ->orWhere('name', $param);
+            })
+            ->first();
+    }
+
+    /**
+     * Display a listing of subcategories with category details and regional pricing.
+     */
+    public function index(Request $request): AnonymousResourceCollection|JsonResponse
+    {
+        $targetRegion = $this->resolveRegion($request);
+        $targetRegionId = $targetRegion?->id;
+
+        $query = Subcategory::query()
+            ->whereNull('deleted_at')
+            ->whereHas('category', fn ($cat) => $cat->whereNull('deleted_at'))
+            ->with([
+                'category' => fn ($cat) => $cat->whereNull('deleted_at'),
+                'regionalServicePrices' => function ($priceQuery) use ($targetRegionId) {
+                    $priceQuery->whereNull('deleted_at')
+                        ->where('status', 'active')
+                        ->when($targetRegionId, fn ($pq) => $pq->where('region_id', $targetRegionId))
+                        ->whereHas('region', fn ($r) => $r->whereNull('deleted_at')->where('status', 'active'))
+                        ->with(['region' => fn ($r) => $r->whereNull('deleted_at')]);
+                },
+            ])
             ->filter($request->only(['search', 'status', 'category_id', 'from_date', 'to_date']))
+            ->when($targetRegionId && $request->boolean('only_with_prices'), function ($q) use ($targetRegionId) {
+                $q->whereHas('regionalServicePrices', function ($pq) use ($targetRegionId) {
+                    $pq->whereNull('deleted_at')
+                        ->where('status', 'active')
+                        ->where('region_id', $targetRegionId);
+                });
+            })
             ->orderBy('sort_order')
-            ->latest('id')
-            ->paginate($perPage);
+            ->latest('id');
+
+        if ($request->get('per_page') === 'all' || $request->boolean('all')) {
+            return response()->json([
+                'success' => true,
+                'data' => SubcategoryResource::collection($query->get()),
+                'meta' => [
+                    'region_id' => $targetRegionId,
+                    'region_name' => $targetRegion?->name,
+                    'region_code' => $targetRegion?->code,
+                    'currency' => $targetRegion?->currency,
+                ],
+            ]);
+        }
+
+        $perPage = max(1, min(100, (int) $request->get('per_page', 15)));
+        $subcategories = $query->paginate($perPage);
 
         return SubcategoryResource::collection($subcategories);
     }
@@ -50,13 +108,25 @@ class SubcategoryController extends Controller
     }
 
     /**
-     * Display the specified subcategory.
+     * Display the specified subcategory with its category and regional pricing.
      */
-    public function show(Subcategory $subcategory): SubcategoryResource
+    public function show(Subcategory $subcategory, Request $request): SubcategoryResource
     {
-        $this->authorize('subcategories.view');
+        $targetRegion = $this->resolveRegion($request);
+        $targetRegionId = $targetRegion?->id;
 
-        return new SubcategoryResource($subcategory->load(['category']));
+        $subcategory->load([
+            'category' => fn ($cat) => $cat->whereNull('deleted_at'),
+            'regionalServicePrices' => function ($priceQuery) use ($targetRegionId) {
+                $priceQuery->whereNull('deleted_at')
+                    ->where('status', 'active')
+                    ->when($targetRegionId, fn ($pq) => $pq->where('region_id', $targetRegionId))
+                    ->whereHas('region', fn ($r) => $r->whereNull('deleted_at')->where('status', 'active'))
+                    ->with(['region' => fn ($r) => $r->whereNull('deleted_at')]);
+            },
+        ]);
+
+        return new SubcategoryResource($subcategory);
     }
 
     /**
