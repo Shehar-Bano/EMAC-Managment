@@ -1254,8 +1254,8 @@
                             "type": "string",
                             "enum": [
                                 "pending",
-                                "reject",
-                                "quotesent"
+                                "active",
+                                "completed"
                             ]
                         }
                     },
@@ -2670,6 +2670,684 @@
                     }
                 ]
             }
+        },
+        "/api/v1/technician/profile": {
+            "get": {
+                "tags": [
+                    "Technician Operations"
+                ],
+                "summary": "Retrieve authenticated technician profile",
+                "description": "Retrieves complete profile for the logged-in technician, including skills, sub-skills, operating region, and job performance statistics.",
+                "operationId": "702854ff89d5ebdeecbaacbe92435fe8",
+                "responses": {
+                    "200": {
+                        "description": "Technician profile retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "status_code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Technician profile retrieved successfully."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 14
+                                                },
+                                                "user_id": {
+                                                    "type": "integer",
+                                                    "example": 14
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "Noah Davis"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "example": "noah.davis@emac.ky"
+                                                },
+                                                "phone": {
+                                                    "type": "string",
+                                                    "example": "+1 345 924 8831"
+                                                },
+                                                "avatar": {
+                                                    "type": "string",
+                                                    "example": "https://midnightblue-deer-551084.hostingersite.com/storage/avatars/tech_14.jpg"
+                                                },
+                                                "role": {
+                                                    "type": "string",
+                                                    "example": "technician"
+                                                },
+                                                "certification_id": {
+                                                    "type": "string",
+                                                    "example": "EMAC-TECH-CERT-0024"
+                                                },
+                                                "certification_body": {
+                                                    "type": "string",
+                                                    "example": "Cayman Islands Building & Trade Guild"
+                                                },
+                                                "is_verified": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "verified_at": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "2026-08-15T09:30:00+00:00"
+                                                },
+                                                "duty_status": {
+                                                    "type": "string",
+                                                    "example": "on_duty",
+                                                    "enum": [
+                                                        "on_duty",
+                                                        "off_duty",
+                                                        "break"
+                                                    ]
+                                                },
+                                                "experience_years": {
+                                                    "type": "integer",
+                                                    "example": 8
+                                                },
+                                                "bio": {
+                                                    "type": "string",
+                                                    "example": "Lead Master Technician specializing in luxury residential hydraulics, high-pressure line diagnostics, and bespoke hardware repair."
+                                                },
+                                                "emergency_contact_name": {
+                                                    "type": "string",
+                                                    "example": "Sarah Davis"
+                                                },
+                                                "emergency_contact_phone": {
+                                                    "type": "string",
+                                                    "example": "+1 345 925 1102"
+                                                },
+                                                "statistics": {
+                                                    "properties": {
+                                                        "rating": {
+                                                            "type": "number",
+                                                            "format": "float",
+                                                            "example": 4.92
+                                                        },
+                                                        "total_reviews": {
+                                                            "type": "integer",
+                                                            "example": 86
+                                                        },
+                                                        "total_jobs_completed": {
+                                                            "type": "integer",
+                                                            "example": 142
+                                                        },
+                                                        "active_jobs_count": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "completion_rate": {
+                                                            "type": "number",
+                                                            "format": "float",
+                                                            "example": 98.6
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "operating_region": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "name": {
+                                                            "type": "string",
+                                                            "example": "Grand Cayman - Western District"
+                                                        },
+                                                        "code": {
+                                                            "type": "string",
+                                                            "example": "GCM-WEST"
+                                                        },
+                                                        "city": {
+                                                            "type": "string",
+                                                            "example": "George Town"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "specializations": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 10
+                                                            },
+                                                            "name": {
+                                                                "type": "string",
+                                                                "example": "Plumbing Services"
+                                                            },
+                                                            "slug": {
+                                                                "type": "string",
+                                                                "example": "plumbing-services"
+                                                            },
+                                                            "icon": {
+                                                                "type": "string",
+                                                                "example": "wrench"
+                                                            },
+                                                            "is_primary": {
+                                                                "type": "boolean",
+                                                                "example": true
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "services_provided": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 31
+                                                            },
+                                                            "category_id": {
+                                                                "type": "integer",
+                                                                "example": 10
+                                                            },
+                                                            "category_name": {
+                                                                "type": "string",
+                                                                "example": "Plumbing Services"
+                                                            },
+                                                            "name": {
+                                                                "type": "string",
+                                                                "example": "Pipe Leak Repair & Diagnostic"
+                                                            },
+                                                            "slug": {
+                                                                "type": "string",
+                                                                "example": "pipe-leak-repair"
+                                                            },
+                                                            "icon": {
+                                                                "type": "string",
+                                                                "example": "🔧"
+                                                            },
+                                                            "is_active": {
+                                                                "type": "boolean",
+                                                                "example": true
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Technician Operations"
+                ],
+                "summary": "Update technician profile",
+                "description": "Updates contact info, bio, experience years, emergency contact, operating territory, and active sub-skills.",
+                "operationId": "ca55c1bc242b775450995963f8c67bfa",
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Noah Davis Updated"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "+1 345 924 8831"
+                                    },
+                                    "bio": {
+                                        "type": "string",
+                                        "example": "Lead Master Technician specializing in luxury residential hydraulics..."
+                                    },
+                                    "experience_years": {
+                                        "type": "integer",
+                                        "example": 8
+                                    },
+                                    "duty_status": {
+                                        "type": "string",
+                                        "example": "on_duty",
+                                        "enum": [
+                                            "on_duty",
+                                            "off_duty",
+                                            "break"
+                                        ]
+                                    },
+                                    "emergency_contact_name": {
+                                        "type": "string",
+                                        "example": "Sarah Davis"
+                                    },
+                                    "emergency_contact_phone": {
+                                        "type": "string",
+                                        "example": "+1 345 925 1102"
+                                    },
+                                    "operating_territory_id": {
+                                        "description": "Region ID from /api/v1/regions",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "city": {
+                                        "type": "string",
+                                        "example": "George Town"
+                                    },
+                                    "address": {
+                                        "type": "string",
+                                        "example": "42 Seven Mile Beach Rd"
+                                    },
+                                    "zipcode": {
+                                        "type": "string",
+                                        "example": "KY1-1102"
+                                    },
+                                    "certification_id": {
+                                        "type": "string",
+                                        "example": "EMAC-TECH-CERT-0024"
+                                    },
+                                    "certification_body": {
+                                        "type": "string",
+                                        "example": "Cayman Islands Building & Trade Guild"
+                                    },
+                                    "subcategories": {
+                                        "description": "Array of Subcategory IDs assigned to technician",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        },
+                                        "example": [
+                                            31,
+                                            32
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Technician profile updated successfully"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/technician/duty-status": {
+            "patch": {
+                "tags": [
+                    "Technician Operations"
+                ],
+                "summary": "Real-time duty toggle switch",
+                "description": "Toggles technician availability between on_duty, off_duty, and break.",
+                "operationId": "a846f10ad2277a939cbec413a95cd618",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "duty_status"
+                                ],
+                                "properties": {
+                                    "duty_status": {
+                                        "type": "string",
+                                        "example": "on_duty",
+                                        "enum": [
+                                            "on_duty",
+                                            "off_duty",
+                                            "break"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Duty status updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "status_code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Duty status changed to on_duty."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "technician_id": {
+                                                    "type": "integer",
+                                                    "example": 14
+                                                },
+                                                "duty_status": {
+                                                    "type": "string",
+                                                    "example": "on_duty"
+                                                },
+                                                "updated_at": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "2026-10-05T19:16:10.000000Z"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "422": {
+                        "description": "Invalid duty status value"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/technician/services": {
+            "get": {
+                "tags": [
+                    "Technician Operations"
+                ],
+                "summary": "Retrieve services catalogue with is_assigned status",
+                "description": "Lists all available categories and subcategories, highlighting which sub-services are assigned to the authenticated technician.",
+                "operationId": "ab728a4cf9513beb316c44028eeaff3e",
+                "responses": {
+                    "200": {
+                        "description": "Services catalogue retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "status_code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Services catalogue retrieved successfully."
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "category_id": {
+                                                        "type": "integer",
+                                                        "example": 10
+                                                    },
+                                                    "category_name": {
+                                                        "type": "string",
+                                                        "example": "Plumbing Services"
+                                                    },
+                                                    "subcategories": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "integer",
+                                                                    "example": 31
+                                                                },
+                                                                "name": {
+                                                                    "type": "string",
+                                                                    "example": "Pipe Leak Repair & Diagnostic"
+                                                                },
+                                                                "slug": {
+                                                                    "type": "string",
+                                                                    "example": "pipe-leak-repair"
+                                                                },
+                                                                "icon": {
+                                                                    "type": "string",
+                                                                    "example": "🔧"
+                                                                },
+                                                                "is_assigned": {
+                                                                    "type": "boolean",
+                                                                    "example": true
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Technician Operations"
+                ],
+                "summary": "Update technician assigned sub-services",
+                "description": "Updates active sub-skills / subcategories assigned to the technician.",
+                "operationId": "8322370abd5e8d44423f84f291eba2d4",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "subcategories"
+                                ],
+                                "properties": {
+                                    "subcategories": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        },
+                                        "example": [
+                                            31,
+                                            32
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Sub-services updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "status_code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Technician sub-services updated successfully."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "technician_id": {
+                                                    "type": "integer",
+                                                    "example": 14
+                                                },
+                                                "assigned_count": {
+                                                    "type": "integer",
+                                                    "example": 2
+                                                },
+                                                "services": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/technician/avatar": {
+            "post": {
+                "tags": [
+                    "Technician Operations"
+                ],
+                "summary": "Upload technician avatar photo",
+                "description": "Multipart profile photo upload for technician (JPEG, PNG, WEBP, max 5MB).",
+                "operationId": "3e1c1b80f2ce23d34899f04fbb1acca1",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "avatar"
+                                ],
+                                "properties": {
+                                    "avatar": {
+                                        "description": "Avatar image file (JPEG, PNG, WEBP, max 5MB)",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Avatar uploaded successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "status_code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Avatar uploaded successfully."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "avatar_url": {
+                                                    "type": "string",
+                                                    "example": "https://midnightblue-deer-551084.hostingersite.com/storage/avatars/tech_14.jpg"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "422": {
+                        "description": "Validation error / File required"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -2718,6 +3396,10 @@
         {
             "name": "Regions",
             "description": "Operating regions, service coverage territories, and local currency APIs"
+        },
+        {
+            "name": "Technician Operations",
+            "description": "Technician Profile, Duty Status, Services/Skills Catalogue, and Avatar APIs"
         }
     ]
 }

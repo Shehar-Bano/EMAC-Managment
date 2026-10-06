@@ -60,6 +60,10 @@ use OpenApi\Attributes as OA;
     name: 'Regions',
     description: 'Operating regions, service coverage territories, and local currency APIs'
 )]
+#[OA\Tag(
+    name: 'Technician Operations',
+    description: 'Technician Profile, Duty Status, Services/Skills Catalogue, and Avatar APIs'
+)]
 class OpenApiDoc
 {
     #[OA\Post(
@@ -1054,4 +1058,321 @@ class OpenApiDoc
         ]
     )]
     public function respondQuoteByServiceRequestDoc() {}
+
+    // ==========================================
+    // Technician Operations Documentation
+    // ==========================================
+
+    #[OA\Get(
+        path: '/api/v1/technician/profile',
+        summary: 'Retrieve authenticated technician profile',
+        description: 'Retrieves complete profile for the logged-in technician, including skills, sub-skills, operating region, and job performance statistics.',
+        security: [['bearerAuth' => []]],
+        tags: ['Technician Operations'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Technician profile retrieved successfully',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'success', type: 'boolean', example: true),
+                        new OA\Property(property: 'status_code', type: 'integer', example: 200),
+                        new OA\Property(property: 'message', type: 'string', example: 'Technician profile retrieved successfully.'),
+                        new OA\Property(
+                            property: 'data',
+                            type: 'object',
+                            properties: [
+                                new OA\Property(property: 'id', type: 'integer', example: 14),
+                                new OA\Property(property: 'user_id', type: 'integer', example: 14),
+                                new OA\Property(property: 'name', type: 'string', example: 'Noah Davis'),
+                                new OA\Property(property: 'email', type: 'string', example: 'noah.davis@emac.ky'),
+                                new OA\Property(property: 'phone', type: 'string', example: '+1 345 924 8831'),
+                                new OA\Property(property: 'avatar', type: 'string', example: 'https://midnightblue-deer-551084.hostingersite.com/storage/avatars/tech_14.jpg'),
+                                new OA\Property(property: 'role', type: 'string', example: 'technician'),
+                                new OA\Property(property: 'certification_id', type: 'string', example: 'EMAC-TECH-CERT-0024'),
+                                new OA\Property(property: 'certification_body', type: 'string', example: 'Cayman Islands Building & Trade Guild'),
+                                new OA\Property(property: 'is_verified', type: 'boolean', example: true),
+                                new OA\Property(property: 'verified_at', type: 'string', format: 'date-time', example: '2026-08-15T09:30:00+00:00'),
+                                new OA\Property(property: 'duty_status', type: 'string', enum: ['on_duty', 'off_duty', 'break'], example: 'on_duty'),
+                                new OA\Property(property: 'experience_years', type: 'integer', example: 8),
+                                new OA\Property(property: 'bio', type: 'string', example: 'Lead Master Technician specializing in luxury residential hydraulics, high-pressure line diagnostics, and bespoke hardware repair.'),
+                                new OA\Property(property: 'emergency_contact_name', type: 'string', example: 'Sarah Davis'),
+                                new OA\Property(property: 'emergency_contact_phone', type: 'string', example: '+1 345 925 1102'),
+                                new OA\Property(
+                                    property: 'statistics',
+                                    type: 'object',
+                                    properties: [
+                                        new OA\Property(property: 'rating', type: 'number', format: 'float', example: 4.92),
+                                        new OA\Property(property: 'total_reviews', type: 'integer', example: 86),
+                                        new OA\Property(property: 'total_jobs_completed', type: 'integer', example: 142),
+                                        new OA\Property(property: 'active_jobs_count', type: 'integer', example: 1),
+                                        new OA\Property(property: 'completion_rate', type: 'number', format: 'float', example: 98.6),
+                                    ]
+                                ),
+                                new OA\Property(
+                                    property: 'operating_region',
+                                    type: 'object',
+                                    properties: [
+                                        new OA\Property(property: 'id', type: 'integer', example: 1),
+                                        new OA\Property(property: 'name', type: 'string', example: 'Grand Cayman - Western District'),
+                                        new OA\Property(property: 'code', type: 'string', example: 'GCM-WEST'),
+                                        new OA\Property(property: 'city', type: 'string', example: 'George Town'),
+                                    ]
+                                ),
+                                new OA\Property(
+                                    property: 'specializations',
+                                    type: 'array',
+                                    items: new OA\Items(
+                                        properties: [
+                                            new OA\Property(property: 'id', type: 'integer', example: 10),
+                                            new OA\Property(property: 'name', type: 'string', example: 'Plumbing Services'),
+                                            new OA\Property(property: 'slug', type: 'string', example: 'plumbing-services'),
+                                            new OA\Property(property: 'icon', type: 'string', example: 'wrench'),
+                                            new OA\Property(property: 'is_primary', type: 'boolean', example: true),
+                                        ]
+                                    )
+                                ),
+                                new OA\Property(
+                                    property: 'services_provided',
+                                    type: 'array',
+                                    items: new OA\Items(
+                                        properties: [
+                                            new OA\Property(property: 'id', type: 'integer', example: 31),
+                                            new OA\Property(property: 'category_id', type: 'integer', example: 10),
+                                            new OA\Property(property: 'category_name', type: 'string', example: 'Plumbing Services'),
+                                            new OA\Property(property: 'name', type: 'string', example: 'Pipe Leak Repair & Diagnostic'),
+                                            new OA\Property(property: 'slug', type: 'string', example: 'pipe-leak-repair'),
+                                            new OA\Property(property: 'icon', type: 'string', example: '🔧'),
+                                            new OA\Property(property: 'is_active', type: 'boolean', example: true),
+                                        ]
+                                    )
+                                ),
+                            ]
+                        ),
+                    ]
+                )
+            ),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+        ]
+    )]
+    public function getTechnicianProfileDoc() {}
+
+    #[OA\Put(
+        path: '/api/v1/technician/profile',
+        summary: 'Update technician profile',
+        description: 'Updates contact info, bio, experience years, emergency contact, operating territory, and active sub-skills.',
+        security: [['bearerAuth' => []]],
+        requestBody: new OA\RequestBody(
+            required: false,
+            content: new OA\JsonContent(
+                properties: [
+                    new OA\Property(property: 'name', type: 'string', example: 'Noah Davis Updated'),
+                    new OA\Property(property: 'phone', type: 'string', example: '+1 345 924 8831'),
+                    new OA\Property(property: 'bio', type: 'string', example: 'Lead Master Technician specializing in luxury residential hydraulics...'),
+                    new OA\Property(property: 'experience_years', type: 'integer', example: 8),
+                    new OA\Property(property: 'duty_status', type: 'string', enum: ['on_duty', 'off_duty', 'break'], example: 'on_duty'),
+                    new OA\Property(property: 'emergency_contact_name', type: 'string', example: 'Sarah Davis'),
+                    new OA\Property(property: 'emergency_contact_phone', type: 'string', example: '+1 345 925 1102'),
+                    new OA\Property(property: 'operating_territory_id', type: 'integer', example: 1, description: 'Region ID from /api/v1/regions'),
+                    new OA\Property(property: 'city', type: 'string', example: 'George Town'),
+                    new OA\Property(property: 'address', type: 'string', example: '42 Seven Mile Beach Rd'),
+                    new OA\Property(property: 'zipcode', type: 'string', example: 'KY1-1102'),
+                    new OA\Property(property: 'certification_id', type: 'string', example: 'EMAC-TECH-CERT-0024'),
+                    new OA\Property(property: 'certification_body', type: 'string', example: 'Cayman Islands Building & Trade Guild'),
+                    new OA\Property(
+                        property: 'subcategories',
+                        type: 'array',
+                        items: new OA\Items(type: 'integer'),
+                        example: [31, 32],
+                        description: 'Array of Subcategory IDs assigned to technician'
+                    ),
+                ]
+            )
+        ),
+        tags: ['Technician Operations'],
+        responses: [
+            new OA\Response(response: 200, description: 'Technician profile updated successfully'),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+            new OA\Response(response: 422, description: 'Validation error'),
+        ]
+    )]
+    public function updateTechnicianProfileDoc() {}
+
+    #[OA\Patch(
+        path: '/api/v1/technician/duty-status',
+        summary: 'Real-time duty toggle switch',
+        description: 'Toggles technician availability between on_duty, off_duty, and break.',
+        security: [['bearerAuth' => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['duty_status'],
+                properties: [
+                    new OA\Property(property: 'duty_status', type: 'string', enum: ['on_duty', 'off_duty', 'break'], example: 'on_duty'),
+                ]
+            )
+        ),
+        tags: ['Technician Operations'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Duty status updated successfully',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'success', type: 'boolean', example: true),
+                        new OA\Property(property: 'status_code', type: 'integer', example: 200),
+                        new OA\Property(property: 'message', type: 'string', example: 'Duty status changed to on_duty.'),
+                        new OA\Property(
+                            property: 'data',
+                            type: 'object',
+                            properties: [
+                                new OA\Property(property: 'technician_id', type: 'integer', example: 14),
+                                new OA\Property(property: 'duty_status', type: 'string', example: 'on_duty'),
+                                new OA\Property(property: 'updated_at', type: 'string', format: 'date-time', example: '2026-10-05T19:16:10.000000Z'),
+                            ]
+                        ),
+                    ]
+                )
+            ),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+            new OA\Response(response: 422, description: 'Invalid duty status value'),
+        ]
+    )]
+    public function updateTechnicianDutyStatusDoc() {}
+
+    #[OA\Get(
+        path: '/api/v1/technician/services',
+        summary: 'Retrieve services catalogue with is_assigned status',
+        description: 'Lists all available categories and subcategories, highlighting which sub-services are assigned to the authenticated technician.',
+        security: [['bearerAuth' => []]],
+        tags: ['Technician Operations'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Services catalogue retrieved successfully',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'success', type: 'boolean', example: true),
+                        new OA\Property(property: 'status_code', type: 'integer', example: 200),
+                        new OA\Property(property: 'message', type: 'string', example: 'Services catalogue retrieved successfully.'),
+                        new OA\Property(
+                            property: 'data',
+                            type: 'array',
+                            items: new OA\Items(
+                                properties: [
+                                    new OA\Property(property: 'category_id', type: 'integer', example: 10),
+                                    new OA\Property(property: 'category_name', type: 'string', example: 'Plumbing Services'),
+                                    new OA\Property(
+                                        property: 'subcategories',
+                                        type: 'array',
+                                        items: new OA\Items(
+                                            properties: [
+                                                new OA\Property(property: 'id', type: 'integer', example: 31),
+                                                new OA\Property(property: 'name', type: 'string', example: 'Pipe Leak Repair & Diagnostic'),
+                                                new OA\Property(property: 'slug', type: 'string', example: 'pipe-leak-repair'),
+                                                new OA\Property(property: 'icon', type: 'string', example: '🔧'),
+                                                new OA\Property(property: 'is_assigned', type: 'boolean', example: true),
+                                            ]
+                                        )
+                                    ),
+                                ]
+                            )
+                        ),
+                    ]
+                )
+            ),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+        ]
+    )]
+    public function getTechnicianServicesDoc() {}
+
+    #[OA\Put(
+        path: '/api/v1/technician/services',
+        summary: 'Update technician assigned sub-services',
+        description: 'Updates active sub-skills / subcategories assigned to the technician.',
+        security: [['bearerAuth' => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['subcategories'],
+                properties: [
+                    new OA\Property(
+                        property: 'subcategories',
+                        type: 'array',
+                        items: new OA\Items(type: 'integer'),
+                        example: [31, 32]
+                    ),
+                ]
+            )
+        ),
+        tags: ['Technician Operations'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Sub-services updated successfully',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'success', type: 'boolean', example: true),
+                        new OA\Property(property: 'status_code', type: 'integer', example: 200),
+                        new OA\Property(property: 'message', type: 'string', example: 'Technician sub-services updated successfully.'),
+                        new OA\Property(
+                            property: 'data',
+                            type: 'object',
+                            properties: [
+                                new OA\Property(property: 'technician_id', type: 'integer', example: 14),
+                                new OA\Property(property: 'assigned_count', type: 'integer', example: 2),
+                                new OA\Property(property: 'services', type: 'array', items: new OA\Items(type: 'object')),
+                            ]
+                        ),
+                    ]
+                )
+            ),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+            new OA\Response(response: 422, description: 'Validation error'),
+        ]
+    )]
+    public function updateTechnicianServicesDoc() {}
+
+    #[OA\Post(
+        path: '/api/v1/technician/avatar',
+        summary: 'Upload technician avatar photo',
+        description: 'Multipart profile photo upload for technician (JPEG, PNG, WEBP, max 5MB).',
+        security: [['bearerAuth' => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\MediaType(
+                mediaType: 'multipart/form-data',
+                schema: new OA\Schema(
+                    required: ['avatar'],
+                    properties: [
+                        new OA\Property(property: 'avatar', type: 'string', format: 'binary', description: 'Avatar image file (JPEG, PNG, WEBP, max 5MB)'),
+                    ]
+                )
+            )
+        ),
+        tags: ['Technician Operations'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Avatar uploaded successfully',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'success', type: 'boolean', example: true),
+                        new OA\Property(property: 'status_code', type: 'integer', example: 200),
+                        new OA\Property(property: 'message', type: 'string', example: 'Avatar uploaded successfully.'),
+                        new OA\Property(
+                            property: 'data',
+                            type: 'object',
+                            properties: [
+                                new OA\Property(property: 'avatar_url', type: 'string', example: 'https://midnightblue-deer-551084.hostingersite.com/storage/avatars/tech_14.jpg'),
+                            ]
+                        ),
+                    ]
+                )
+            ),
+            new OA\Response(response: 401, description: 'Unauthenticated'),
+            new OA\Response(response: 422, description: 'Validation error / File required'),
+        ]
+    )]
+    public function uploadTechnicianAvatarDoc() {}
 }
